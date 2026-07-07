@@ -79,6 +79,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "REDhope — Saving Lives Through Blood Donation" },
+      { name: "description", content: "REDhope connects blood donors with those in need. Join India's largest youth-run blood donation organization, register as a donor, or organize a camp." },
+      { property: "og:description", content: "REDhope connects blood donors with those in need. Join India's largest youth-run blood donation organization, register as a donor, or organize a camp." },
+      { name: "twitter:description", content: "REDhope connects blood donors with those in need. Join India's largest youth-run blood donation organization, register as a donor, or organize a camp." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/db50b302-68f8-4f87-9776-c1d47f81c3bf/id-preview-7ee22d7b--839c40e2-8636-4780-9d1d-a4dd03c556aa.lovable.app-1783410679289.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/db50b302-68f8-4f87-9776-c1d47f81c3bf/id-preview-7ee22d7b--839c40e2-8636-4780-9d1d-a4dd03c556aa.lovable.app-1783410679289.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
