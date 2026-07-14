@@ -32,5 +32,3 @@ dist-ssr
 *.sw?
 #enviroment variable
 server/.env
-#mongobd
-MONGODB_URL=mongodb+srv://<db_username>:rqyJNUO2qOCqYkwK@cluster0.z71cwnz.mongodb.net/?appName=Cluster0+
