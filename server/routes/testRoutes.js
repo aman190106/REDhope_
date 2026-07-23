@@ -5,7 +5,6 @@ const { registerUser } = require("../controllers/authController");
 
 // Register User
 router.post("/test", registerUser);
-
 // Get User by ID
 router.get("/user/:id", (req,res) => {
     console.log(req.params);
