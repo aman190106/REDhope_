@@ -17,6 +17,7 @@ const registerUser = async(req,res)=>{
                 message:"mail id already exist"
             });
         }
+        
         const newuser=await user.create({
             name,
             age,
