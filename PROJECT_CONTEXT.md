@@ -47,11 +47,11 @@ Current CRUD progress:
 POST /test        Create       ✅
 GET  /users       Read all     ✅
 GET  /users/:id   Read one     ✅
-PUT  /users/:id   Update       ⬜
-DELETE /users/:id Delete       ⬜
+PUT  /users/:id   Update       ✅
+DELETE /users/:id Delete       ✅
 ```
 
-The next immediate backend task is completing User CRUD.
+User CRUD is complete. The next backend phase is Authentication.
 
 ---
 

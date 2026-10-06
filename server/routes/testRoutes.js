@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { registerUser, getAllUsers, getUserById } = require("../controllers/authcontroller");
+const { registerUser, getAllUsers, getUserById, updateUser, deleteUser } = require("../controllers/authcontroller");
 
 // Register User
 router.post("/test", registerUser);
@@ -12,6 +12,12 @@ router.get("/users", getAllUsers);
 
 // Get User by ID
 router.get("/users/:id", getUserById);
+
+// Update User
+router.put("/users/:id", updateUser);
+
+// Delete User
+router.delete("/users/:id", deleteUser);
 
 // Search User
 router.get("/search", (req, res) => {

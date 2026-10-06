@@ -19,8 +19,8 @@ Tasks should be completed incrementally and checked off when verified.
 - [x] MongoDB unique indexes for email and phone
 - [x] `GET /users`
 - [x] `GET /users/:id`
-- [ ] `PUT /users/:id`
-- [ ] `DELETE /users/:id`
+- [x] `PUT /users/:id`
+- [x] `DELETE /users/:id`
 
 ---
 

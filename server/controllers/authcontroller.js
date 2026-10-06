@@ -139,8 +139,146 @@ const getUserById = async (req, res) => {
     }
 };
 
+const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "invalid user id"
+            });
+        }
+
+        const existingUser = await user.findById(id);
+        if (!existingUser) {
+            return res.status(404).json({
+                success: false,
+                message: "user not found"
+            });
+        }
+
+        const { name, email, phone, bloodGroup, password } = req.body;
+
+        if (email !== undefined) {
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "invalid email format"
+                });
+            }
+
+            const emailExists = await user.findOne({ email, _id: { $ne: id } });
+            if (emailExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: "mail id already exist"
+                });
+            }
+        }
+
+        if (phone !== undefined) {
+            if (!phoneRegex.test(phone)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "invalid phone number"
+                });
+            }
+
+            const phoneExists = await user.findOne({ phone, _id: { $ne: id } });
+            if (phoneExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: "phone number already exist"
+                });
+            }
+        }
+
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (email !== undefined) updateData.email = email;
+        if (phone !== undefined) updateData.phone = phone;
+        if (bloodGroup !== undefined) updateData.bloodGroup = bloodGroup;
+        if (password !== undefined) updateData.password = password;
+
+        const updatedUser = await user.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        ).select("-password");
+
+        return res.status(200).json({
+            success: true,
+            message: "user updated",
+            user: updatedUser
+        });
+    } catch (error) {
+        console.log(error);
+
+        if (error.code === 11000) {
+            const duplicateField = Object.keys(error.keyPattern || error.keyValue || {})[0];
+            const message = duplicateField === "phone"
+                ? "phone number already exist"
+                : "mail id already exist";
+
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
+
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
+        });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "invalid user id"
+            });
+        }
+
+        const deletedUser = await user.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "user not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "user deleted successfully"
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
+        });
+    }
+};
+
 module.exports = {
     registerUser,
     getAllUsers,
-    getUserById
+    getUserById,
+    updateUser,
+    deleteUser
 };

@@ -13,9 +13,7 @@ Changes currently being developed.
 
 ## In Progress
 
-- Complete User CRUD
-- Implement `PUT /users/:id`
-- Implement `DELETE /users/:id`
+- Authentication (Password hashing, JWT, login)
 
 ---
 
@@ -57,8 +55,11 @@ Current implemented endpoints:
 
 ```text
 POST /test
+POST /users
 GET  /users
 GET  /users/:id
+PUT  /users/:id
+DELETE /users/:id
 ```
 ## Backend Foundation 
 
