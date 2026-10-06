@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const dns = require("dns");
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const connectDB = async () => {
     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
@@ -8,7 +11,7 @@ const connectDB = async () => {
     }
     try {
         await mongoose.connect(mongoUri, {
-            dbName: process.env.DB_NAME || "redhope",
+            dbName: process.env.DB_NAME || "REDhope",
             connectTimeoutMS: 10000,
             serverSelectionTimeoutMS: 10000
         });

@@ -14,7 +14,6 @@ Changes currently being developed.
 ## In Progress
 
 - Complete User CRUD
-- Implement `GET /users/:id`
 - Implement `PUT /users/:id`
 - Implement `DELETE /users/:id`
 
@@ -59,6 +58,8 @@ Current implemented endpoints:
 ```text
 POST /test
 GET  /users
+GET  /users/:id
+```
 ## Backend Foundation 
 
 - Fixed duplicate PORT declaration.
@@ -69,3 +70,4 @@ GET  /users
 - Prevented passwords from being returned in registration responses.
 - Added MongoDB duplicate-key error handling.
 - Verified backend syntax and server startup.
+- Resolved MongoDB Atlas SRV query failure (`querySrv ECONNREFUSED`) by configuring DNS servers in `config/db.js`.

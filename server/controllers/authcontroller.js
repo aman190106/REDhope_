@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const user = require("../models/user");
 
 const emailRegex = /^\S+@\S+\.\S+$/;
@@ -104,7 +105,42 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+const getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "invalid user id"
+            });
+        }
+
+        const foundUser = await user.findById(id).select("-password");
+
+        if (!foundUser) {
+            return res.status(404).json({
+                success: false,
+                message: "user not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            user: foundUser
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
+        });
+    }
+};
+
 module.exports = {
     registerUser,
-    getAllUsers
+    getAllUsers,
+    getUserById
 };

@@ -18,7 +18,7 @@ Tasks should be completed incrementally and checked off when verified.
 - [x] Duplicate phone detection
 - [x] MongoDB unique indexes for email and phone
 - [x] `GET /users`
-- [ ] `GET /users/:id`
+- [x] `GET /users/:id`
 - [ ] `PUT /users/:id`
 - [ ] `DELETE /users/:id`
 

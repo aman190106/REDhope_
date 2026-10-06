@@ -46,7 +46,7 @@ Current CRUD progress:
 ```text
 POST /test        Create       ✅
 GET  /users       Read all     ✅
-GET  /users/:id   Read one     ⬜
+GET  /users/:id   Read one     ✅
 PUT  /users/:id   Update       ⬜
 DELETE /users/:id Delete       ⬜
 ```
