@@ -29,7 +29,7 @@ Tasks should be completed incrementally and checked off when verified.
 - [ ] Design authentication flow
 - [ ] Add password hashing with bcrypt
 - [ ] Update registration to securely store passwords
-- [ ] Implement login
+- [ ] Implement login~
 - [ ] Implement JWT authentication
 - [ ] Create authentication middleware
 - [ ] Protect private routes
