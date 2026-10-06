@@ -1,46 +1,110 @@
-const user=require("../models/user");
-const registerUser = async(req,res)=>{
+const user = require("../models/user");
+
+const emailRegex = /^\S+@\S+\.\S+$/;
+const phoneRegex = /^[6-9]\d{9}$/;
+
+const sanitizeUser = (createdUser) => {
+    const userObject = createdUser.toObject();
+    delete userObject.password;
+    return userObject;
+};
+
+const registerUser = async (req, res) => {
     try {
-      
-        // validation of user
-        const {name,age,email,password,phone,bloodgroup}=req.body;
-        if(!name||!age||!email||!password||!phone||!bloodgroup){
+        const { name, email, password, phone, bloodGroup } = req.body;
+
+        if (!name || !email || !password || !phone || !bloodGroup) {
             return res.status(400).json({
-                message:"all feilds are required"
+                success: false,
+                message: "all fields are required"
             });
         }
-          //validatiang mail id means it will check there exist
-        const euser=await user.findOne({email});
-        if(euser){
+
+        if (!emailRegex.test(email)) {
             return res.status(400).json({
-                success:false,
-                message:"mail id already exist"
+                success: false,
+                message: "invalid email format"
             });
         }
-        
-        const newuser=await user.create({
+
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({
+                success: false,
+                message: "invalid phone number"
+            });
+        }
+
+        const existingEmailUser = await user.findOne({ email });
+        if (existingEmailUser) {
+            return res.status(400).json({
+                success: false,
+                message: "mail id already exist"
+            });
+        }
+
+        const existingPhoneUser = await user.findOne({ phone });
+        if (existingPhoneUser) {
+            return res.status(400).json({
+                success: false,
+                message: "phone number already exist"
+            });
+        }
+
+        const newuser = await user.create({
             name,
-            age,
             email,
             password,
             phone,
-            bloodgroup
+            bloodGroup
         });
+
         return res.status(201).json({
             success: true,
-            message:"user Registration",
-            data:newuser
+            message: "user Registration",
+            data: sanitizeUser(newuser)
         });
-        
-    }
-    catch(error){
+    } catch (error) {
         console.log(error);
-        res.status(500).json({
-            success:false,
-            message:"internal server error"
+
+        if (error.code === 11000) {
+            const duplicateField = Object.keys(error.keyPattern || error.keyValue || {})[0];
+            const message = duplicateField === "phone"
+                ? "phone number already exist"
+                : "mail id already exist";
+
+            return res.status(400).json({
+                success: false,
+                message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
         });
     }
 };
-  module.exports={
-    registerUser
-  };
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await user.find().select("-password");
+
+        return res.status(200).json({
+            success: true,
+            count: users.length,
+            users
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
+        });
+    }
+};
+
+module.exports = {
+    registerUser,
+    getAllUsers
+};

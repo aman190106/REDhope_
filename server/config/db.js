@@ -1,12 +1,21 @@
-const mongoose=require("mongoose");
-const connectDB=async()=>{
-    try{
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("✅ MongoDB Connected");
+const mongoose = require("mongoose");
+
+const connectDB = async () => {
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+    if (!mongoUri) {
+        throw new Error("MongoDB connection string is missing. Set MONGODB_URI in server/.env.");
     }
-    catch(error){
-        console.log(error);
-        process.exit(1);
+    try {
+        await mongoose.connect(mongoUri, {
+            dbName: process.env.DB_NAME || "redhope",
+            connectTimeoutMS: 10000,
+            serverSelectionTimeoutMS: 10000
+        });
+        console.log("MongoDB connected");
+    } catch (error) {
+        throw new Error(`MongoDB connection failed: ${error.message}`);
     }
-}
-module.exports=connectDB;
+};
+
+module.exports = connectDB;

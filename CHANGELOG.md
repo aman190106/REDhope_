@@ -59,3 +59,13 @@ Current implemented endpoints:
 ```text
 POST /test
 GET  /users
+## Backend Foundation
+
+- Fixed duplicate PORT declaration.
+- Fixed controller import filename casing.
+- Standardized `bloodGroup` naming.
+- Added duplicate phone detection.
+- Added email format validation.
+- Prevented passwords from being returned in registration responses.
+- Added MongoDB duplicate-key error handling.
+- Verified backend syntax and server startup.

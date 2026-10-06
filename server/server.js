@@ -1,4 +1,6 @@
-require("dotenv").config();
+const path = require("path");
+
+require("dotenv").config({ path: path.join(__dirname, ".env"), quiet: true });
 const express = require("express");
 const connectDB = require("./config/db");
 const logger = require("./middleware/loggerMiddleware");
@@ -17,10 +19,13 @@ app.use(logger);
 app.use("/", homeRoutes);
 app.use("/", testRoutes);
 
-// Connect to MongoDB
-connectDB();
-const PORT = process.env.PORT || 3000;
-// Start Server
-app.listen(PORT, () => {
-    console.log(`✅ Server is running on http://localhost:${PORT}`);
-});
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error(error.message);
+        process.exit(1);
+    });

@@ -1,10 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const { registerUser } = require("../controllers/authController");
+const { registerUser, getAllUsers } = require("../controllers/authcontroller");
 
 // Register User
 router.post("/test", registerUser);
+
+// Get all users
+router.get("/users", getAllUsers);
+
 // Get User by ID
 router.get("/user/:id", (req,res) => {
     console.log(req.params);
