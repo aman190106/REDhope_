@@ -81,24 +81,24 @@ Tasks should be completed incrementally and checked off when verified.
 
 ## Camp Discovery
 
-- [ ] Camp listing
-- [ ] Camp search
-- [ ] Camp filtering
-- [ ] Camp details page
-- [ ] Location-based camp discovery
+- [x] Camp listing
+- [x] Camp search
+- [x] Camp filtering
+- [x] Camp details page
+- [x] Location-based camp discovery
 
 ---
 
 # 🟣 Camp Registration
 
-- [ ] Create camp registration model
-- [ ] Register donor for camp
-- [ ] Prevent duplicate registration
-- [ ] Check camp capacity
-- [ ] View registration status
-- [ ] Cancel registration
-- [ ] Organizer view of registered donors
-- [ ] Test registration edge cases
+- [x] Create camp registration model
+- [x] Register donor for camp
+- [x] Prevent duplicate registration
+- [x] Check camp capacity
+- [x] View registration status
+- [x] Cancel registration
+- [x] Organizer view of registered donors
+- [x] Test registration edge cases
 
 ---
 

@@ -333,14 +333,60 @@ Camp Management is implemented on the backend:
   - `DELETE /camps/:id`: Protected. Owners and admins can delete camps with 0 registrations. Blocks hard-delete if `registrationCount > 0` (directs to cancel instead).
 - Full automated test suite in `scratch/test_camp_full.js` covering all 31 scenarios.
 
-### Camp registration (Next Milestone)
+### Camp Registration
 
-Users should be able to:
+Camp Registration is implemented on the backend:
 
-- Register for a camp
-- View registration status
-- Cancel registration where allowed
-- Prevent duplicate registrations
+- Model (`server/models/campRegistration.js`):
+  - Fields: `user` (ref `user`), `camp` (ref `camp`), `status` (`registered`, `cancelled`), `registeredAt`, and `cancelledAt`.
+  - Compound unique index on `{ user: 1, camp: 1 }` preventing duplicate documents for the same user and camp.
+- Endpoints:
+  - `POST /camps/:campId/register`:
+    - Restricted to donors (`user` role only).
+    - Requires published camp that has not already started.
+    - Integrates with `eligibilityService.evaluateEligibility()`, requiring `isMedicallyEligible === true` and `isDonorAvailable === true`.
+    - Enforces capacity atomically via `$expr: { $lt: ["$registrationCount", "$capacity"] }` ensuring `registrationCount <= capacity` under concurrent requests.
+    - Reactivates cancelled registrations without violating the unique index.
+    - Atomically increments `camp.registrationCount`.
+  - `GET /camps/:campId/registrations/me`: Returns the current user's registration status.
+  - `DELETE /camps/:campId/register`: Cancels user's active registration and atomically decrements `camp.registrationCount` without dropping below 0.
+  - `GET /camps/:campId/registrations`:
+    - Role-protected: Accessible only by the camp's organizer owner or admins. Rejects normal users (403) and non-owner organizers (403).
+    - Returns active registrations (`status === 'registered'`) by default.
+    - Query filters supported: `?status=registered`, `?status=cancelled`, `?status=all`.
+    - Pagination supported: `?page=1&limit=20` (limit capped at 100), includes metadata (`page`, `limit`, `total`, `totalPages`, `count`).
+    - Sorted chronologically by registration timestamp (`registeredAt: 1`).
+    - Safe donor projection: populates only `_id`, `name`, `bloodGroup`, `gender`, `phone`, and `location` (`city`, `state`, `pincode`). Never exposes passwords, JWTs, or private user data.
+    - Read-only: does not modify camp data or registration counts.
+- Automated tests in `scratch/test_camp_registration_full.js` covering all functional, edge-case, authorization, pagination, and concurrency scenarios.
+
+### Frontend Camp Discovery & Registration
+
+The donor-facing camp discovery and registration interface is integrated into the frontend application:
+
+- Routes:
+  - `/camps`: Publicly browses published blood donation camps (`GET /camps`) with query filtering by `city`, `state`, and date range (`from`, `to`), empty/error handling, and capacity indicators.
+  - `/camps/$campId`: Displays detailed camp location and schedules, safe organizer attribution, live authenticated registration status check (`GET /camps/:campId/registrations/me`), donor eligibility advisory (`GET /eligibility/me`), inline login for visitors, slot registration (`POST /camps/:campId/register`), and cancellation (`DELETE /camps/:campId/register`) with confirmation modal.
+- Backend Authority:
+  - The frontend displays computed slots (`capacity - registrationCount`) for user convenience, but all registration, capacity, and medical eligibility determinations are strictly evaluated and enforced by the backend API.
+- Navigation:
+  - Added "Camps" to global Navbar (`src/components/Navbar.tsx`) and Footer quick links (`src/components/Footer.tsx`).
+
+### Location-Based Camp Discovery
+
+Geospatial discovery of published blood donation camps:
+
+- Endpoint: `GET /camps/nearby`
+  - Parameters: `longitude`, `latitude`, `radius` (optional, meters; default 25,000, max 500,000).
+  - Queries MongoDB via `$geoNear` using the sparse `location.coordinates` `2dsphere` index.
+  - Returns published camps ordered nearest-first with a calculated `distanceMeters` field.
+  - Camps without coordinates and draft/cancelled camps are safely omitted.
+  - Tested with 14 automated test assertions in `scratch/test_camp_nearby.js`.
+- Frontend Integration:
+  - Integrated into `/camps` with an interactive "Nearby Camps (Radius Search)" tab.
+  - Reuses saved donor coordinates from profile (`/auth/me`).
+  - Supports configurable radius options (5 km, 10 km, 25 km, 50 km) and shows distance badges (e.g. `2.4 km away`).
+  - Handles empty states (no nearby camps, prompt to add coordinates in profile).
 
 ### Organizer functionality
 

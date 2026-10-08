@@ -8,6 +8,7 @@ const homeRoutes = require("./routes/homeRoutes");
 const authRoutes = require("./routes/authRoutes");
 const eligibilityRoutes = require("./routes/eligibilityRoutes");
 const campRoutes = require("./routes/campRoutes");
+const campRegistrationRoutes = require("./routes/campRegistrationRoutes");
 const testRoutes = require("./routes/testRoutes");
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(logger);
 app.use("/", homeRoutes);
 app.use("/auth", authRoutes);
 app.use("/eligibility", eligibilityRoutes);
+app.use("/camps", campRegistrationRoutes);
 app.use("/camps", campRoutes);
 app.use("/", testRoutes);
 

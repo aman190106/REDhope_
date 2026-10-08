@@ -19,6 +19,8 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CampsIndexRouteImport } from './routes/camps/index'
+import { Route as CampsCampIdRouteImport } from './routes/camps/$campId'
 
 const StoriesRoute = StoriesRouteImport.update({
   id: '/stories',
@@ -70,6 +72,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampsIndexRoute = CampsIndexRouteImport.update({
+  id: '/camps/',
+  path: '/camps/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampsCampIdRoute = CampsCampIdRouteImport.update({
+  id: '/camps/$campId',
+  path: '/camps/$campId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +94,8 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stories': typeof StoriesRoute
+  '/camps/$campId': typeof CampsCampIdRoute
+  '/camps/': typeof CampsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +108,8 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stories': typeof StoriesRoute
+  '/camps/$campId': typeof CampsCampIdRoute
+  '/camps': typeof CampsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stories': typeof StoriesRoute
+  '/camps/$campId': typeof CampsCampIdRoute
+  '/camps/': typeof CampsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +139,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sitemap.xml'
     | '/stories'
+    | '/camps/$campId'
+    | '/camps/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +153,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sitemap.xml'
     | '/stories'
+    | '/camps/$campId'
+    | '/camps'
   id:
     | '__root__'
     | '/'
@@ -145,6 +167,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sitemap.xml'
     | '/stories'
+    | '/camps/$campId'
+    | '/camps/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +182,8 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoriesRoute: typeof StoriesRoute
+  CampsCampIdRoute: typeof CampsCampIdRoute
+  CampsIndexRoute: typeof CampsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +258,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/camps/': {
+      id: '/camps/'
+      path: '/camps'
+      fullPath: '/camps/'
+      preLoaderRoute: typeof CampsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/camps/$campId': {
+      id: '/camps/$campId'
+      path: '/camps/$campId'
+      fullPath: '/camps/$campId'
+      preLoaderRoute: typeof CampsCampIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoriesRoute: StoriesRoute,
+  CampsCampIdRoute: CampsCampIdRoute,
+  CampsIndexRoute: CampsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -5,6 +5,7 @@ const optionalAuthMiddleware = require("../middleware/optionalAuthMiddleware");
 const {
     createCamp,
     getCamps,
+    getNearbyCamps,
     getCampById,
     updateCamp,
     deleteCamp
@@ -12,6 +13,9 @@ const {
 
 // Public list of camps (uses optional auth to let organizers/admins filter drafts)
 router.get("/", optionalAuthMiddleware, getCamps);
+
+// Public nearby camps discovery (geospatial query with longitude, latitude, radius)
+router.get("/nearby", getNearbyCamps);
 
 // Public camp details (uses optional auth to enforce draft visibility to owner/admin)
 router.get("/:id", optionalAuthMiddleware, getCampById);

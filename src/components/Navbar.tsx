@@ -8,6 +8,7 @@ interface NavbarProps {
 
 const links = [
   { to: "/", label: "Home" },
+  { to: "/camps", label: "Camps" },
   { to: "/about", label: "About Us" },
   { to: "/stories", label: "Stories" },
   { to: "/eligibility", label: "Eligibility" },

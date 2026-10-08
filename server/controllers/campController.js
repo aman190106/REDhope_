@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const camp = require("../models/camp");
+const user = require("../models/user");
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 const PINCODE_REGEX = /^[1-9][0-9]{5}$/;
@@ -299,6 +300,110 @@ const getCamps = async (req, res) => {
 
     } catch (error) {
         console.error("getCamps error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
+        });
+    }
+};
+
+// ─────────────────────────────────────────────
+// GET /camps/nearby (Geospatial Nearby Discovery)
+// ─────────────────────────────────────────────
+const getNearbyCamps = async (req, res) => {
+    try {
+        const { longitude, latitude, radius } = req.query;
+
+        // 1. Validate required coordinates
+        if (longitude === undefined || latitude === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "both longitude and latitude query parameters are required"
+            });
+        }
+
+        const lng = Number(longitude);
+        const lat = Number(latitude);
+
+        if (isNaN(lng) || isNaN(lat)) {
+            return res.status(400).json({
+                success: false,
+                message: "longitude and latitude must be valid numbers"
+            });
+        }
+
+        if (lng < -180 || lng > 180) {
+            return res.status(400).json({
+                success: false,
+                message: "longitude must be between -180 and 180"
+            });
+        }
+
+        if (lat < -90 || lat > 90) {
+            return res.status(400).json({
+                success: false,
+                message: "latitude must be between -90 and 90"
+            });
+        }
+
+        // 2. Validate radius in meters
+        // Default radius: 25,000 meters (25 km), Max: 500,000 meters (500 km)
+        const DEFAULT_RADIUS_METERS = 25000;
+        const MAX_RADIUS_METERS = 500000;
+
+        let searchRadius = DEFAULT_RADIUS_METERS;
+        if (radius !== undefined) {
+            const rad = Number(radius);
+            if (isNaN(rad) || rad <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "radius must be a positive number in meters"
+                });
+            }
+            if (rad > MAX_RADIUS_METERS) {
+                return res.status(400).json({
+                    success: false,
+                    message: `radius exceeds maximum allowed limit of ${MAX_RADIUS_METERS} meters (500 km)`
+                });
+            }
+            searchRadius = rad;
+        }
+
+        // 3. MongoDB $geoNear aggregation
+        // Uses the sparse 2dsphere index on location.coordinates
+        // Automatically sorts nearest-first and excludes camps without coordinates
+        const pipeline = [
+            {
+                $geoNear: {
+                    near: {
+                        type: "Point",
+                        coordinates: [lng, lat]
+                    },
+                    distanceField: "distanceMeters",
+                    maxDistance: searchRadius,
+                    spherical: true,
+                    query: { status: "published" }
+                }
+            }
+        ];
+
+        const campsList = await camp.aggregate(pipeline);
+
+        // Populate safe organizer fields (_id, name)
+        await camp.populate(campsList, { path: "organizer", select: "_id name" });
+
+        return res.status(200).json({
+            success: true,
+            count: campsList.length,
+            searchLocation: {
+                coordinates: [lng, lat],
+                radiusMeters: searchRadius
+            },
+            camps: campsList
+        });
+
+    } catch (error) {
+        console.error("getNearbyCamps error:", error);
         return res.status(500).json({
             success: false,
             message: "internal server error"
@@ -618,6 +723,7 @@ const deleteCamp = async (req, res) => {
 module.exports = {
     createCamp,
     getCamps,
+    getNearbyCamps,
     getCampById,
     updateCamp,
     deleteCamp

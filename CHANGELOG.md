@@ -19,6 +19,75 @@ Changes currently being developed.
 
 # [2026-10-08]
 
+## Location-Based Camp Discovery
+
+- Backend Geospatial API (`server/controllers/campController.js`, `server/routes/campRoutes.js`):
+  - Added `GET /camps/nearby` endpoint utilizing MongoDB `$geoNear` aggregation pipeline over the existing sparse `location.coordinates` `2dsphere` index.
+  - Query parameters: `longitude` (validated between -180 and 180), `latitude` (validated between -90 and 90), and optional `radius` in meters (default 25,000 m = 25 km, max 500,000 m = 500 km).
+  - Returns published camps strictly ordered nearest-first with accurate `distanceMeters` calculation provided natively by MongoDB.
+  - Safe projections: populates safe organizer details (`_id`, `name`) while omitting private contact details (`email`, `phone`).
+  - Safe omission: camps lacking coordinates or in draft/cancelled status are safely excluded without breaking geospatial queries.
+  - Automated test suite (`scratch/test_camp_nearby.js`): All 14 test assertions passed (distance calculation, nearest-first ordering, radius filtering, invalid coordinate bounds, boundary conditions, privacy projection).
+- Frontend Nearby Camps UI (`src/routes/camps/index.tsx`):
+  - Added tab switcher between "All Camps" (text/date filters) and "Nearby Camps" (geospatial radius search).
+  - Integrates authenticated user profile location coordinates (`/auth/me`).
+  - Radius selection options: 5 km, 10 km, 25 km, and 50 km.
+  - Displays formatted distance badges (e.g. `2.3 km away`, `450 m away`) on each camp card.
+  - Informative empty and error states: prompts unauthenticated users to sign in, prompts users with missing coordinates to configure their profile location with a direct link to `/profile`, and offers an "Expand to 50 km" button when no nearby camps exist in the initial radius.
+- Build & Regression Verification:
+  - `npm run build`: Succeeded with 0 errors across all client, SSR, and Nitro server bundles.
+  - Backend regression test suites (`test_camp_full.js`, `test_camp_registration_full.js`, `test_eligibility.js`, `test_profile_full.js`, `test_auth_full.js`): 100% passed.
+
+## Frontend Camp Discovery & Registration
+
+- Created Camps Discovery Page (`src/routes/camps/index.tsx`):
+  - Route: `/camps`
+  - Fetches and displays published blood donation camps (`GET /camps`).
+  - Supports server-side query filters for `city`, `state`, and date range (`from`, `to`) with clean reset capabilities.
+  - Informative card design displaying camp name, location, dates, timings, capacity, registered donor count, and remaining slots.
+  - Distinguishes statuses (e.g. "Open for Registration", "Camp Full", "Ended").
+  - Handles loading states, empty results ("No upcoming camps found"), and server error states with retry actions.
+- Created Camp Details & Registration Page (`src/routes/camps/$campId.tsx`):
+  - Route: `/camps/$campId`
+  - Fetches camp information (`GET /camps/:id`) and displays complete location, timings, capacity metrics, and organizer name safely (excluding organizer private contact info).
+  - Live registration status checking (`GET /camps/:campId/registrations/me`) for authenticated users; gracefully handles 404 as "not registered".
+  - Advisory eligibility inspection (`GET /eligibility/me`) warning ineligible or unavailable donors before registration while deferring authority to backend.
+  - Seamless inline sign-in modal for unauthenticated visitors attempting to register.
+  - One-click registration (`POST /camps/:campId/register`) with loading spinner and button debouncing; dynamically updates local slot count and switches UI to registered state.
+  - Registration cancellation (`DELETE /camps/:campId/register`) with confirmation dialog; decrements registered count, frees slot, and allows subsequent re-registration.
+  - Handles backend validation errors (capacity full, camp started, duplicate registration, role restrictions, eligibility blocks).
+- Navigation Updates:
+  - Added "Camps" to global navigation in `src/components/Navbar.tsx`.
+  - Added "Blood Donation Camps" link in `src/components/Footer.tsx`.
+- Verified build and TypeScript validity: `npm run build` succeeds with zero errors.
+
+## Camp Registration
+
+- Created CampRegistration model (`server/models/campRegistration.js`):
+  - Fields: `user` (ref `user`), `camp` (ref `camp`), `status` (`"registered"` or `"cancelled"`), `registeredAt`, and `cancelledAt`.
+  - Compound unique index on `{ user: 1, camp: 1 }` preventing duplicate active/historical records for the same donor and camp.
+  - Secondary indexes on `{ camp: 1, status: 1 }` and `{ user: 1, status: 1 }`.
+- Created Camp Registration Controller & Routes (`server/controllers/campRegistrationController.js`, `server/routes/campRegistrationRoutes.js`):
+  - `POST /camps/:campId/register`:
+    - Role-restricted to normal donors (`user` role only).
+    - Requires published camp status and verifies that the camp has not already started.
+    - Integrated with authoritative `eligibilityService.evaluateEligibility()` requiring `isMedicallyEligible === true` and `isDonorAvailable === true`.
+    - Enforces capacity via atomic conditional update (`$expr: { $lt: ["$registrationCount", "$capacity"] }`) to guarantee `registrationCount <= capacity` under concurrent requests.
+    - Re-activation supported: previously cancelled registrations are reactivated rather than creating duplicate documents.
+    - Atomically increments `camp.registrationCount` by 1.
+  - `GET /camps/:campId/registrations/me`: Returns the authenticated user's registration status for the specified camp without exposing other donors or sensitive camp organizer info.
+  - `DELETE /camps/:campId/register`: Cancels user's registration (`status -> "cancelled"`, sets `cancelledAt`) and atomically decrements `camp.registrationCount` without letting it drop below 0. Double-cancellation is cleanly prevented.
+  - `GET /camps/:campId/registrations`:
+    - Role-protected: only camp organizer owners (`camp.organizer === req.user.id`) and admins can view registered donors for a camp.
+    - Default response returns active registrations (`status: "registered"`).
+    - Status filtering supported via query parameter: `?status=registered`, `?status=cancelled`, and `?status=all`.
+    - Pagination metadata included: `page`, `limit` (capped at 100), `total`, `totalPages`, `count`.
+    - Sorted chronologically by registration timestamp (`registeredAt: 1`).
+    - Safe donor projection: only public donor info exposed (`_id`, `name`, `bloodGroup`, `gender`, `phone`, `location.city`, `location.state`, `location.pincode`), never exposing passwords, JWT tokens, or internal account metadata.
+    - Read-only: does not alter camp data or registration counts.
+- Mounted `/camps` registration endpoints in `server/server.js`.
+- Automated test suite (`scratch/test_camp_registration_full.js`) covering functional cases, edge cases, organizer/admin view authorization, pagination, filtering, privacy projections, and concurrency with capacity 1 (44 automated test assertions).
+
 ## Blood Donation Camp Management
 
 - Created Camp data model (`server/models/camp.js`):

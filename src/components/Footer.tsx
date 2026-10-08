@@ -26,6 +26,7 @@ export function Footer() {
             <h3>Quick Links</h3>
             <ul className="footer-links">
               <li><Link to="/"><i className="fas fa-chevron-right" /> Home</Link></li>
+              <li><Link to="/camps"><i className="fas fa-chevron-right" /> Blood Donation Camps</Link></li>
               <li><Link to="/about"><i className="fas fa-chevron-right" /> About Us</Link></li>
               <li><Link to="/stories"><i className="fas fa-chevron-right" /> Stories</Link></li>
               <li><Link to="/donate"><i className="fas fa-chevron-right" /> Donate Blood</Link></li>
