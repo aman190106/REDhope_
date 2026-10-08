@@ -19,7 +19,8 @@ export const Route = createFileRoute("/eligibility")({
   component: EligibilityPage,
 });
 
-const API_BASE = "http://localhost:5000";
+import { API_BASE_URL } from "../lib/api";
+const API_BASE = API_BASE_URL;
 
 interface EligibilityData {
   isMedicallyEligible: boolean;
@@ -397,6 +398,35 @@ function EligibilityPage() {
                   </div>
                 </div>
               )}
+
+              {/* Health Screening & Clinical Review Status Card */}
+              <div
+                className="form-section"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 16,
+                  marginBottom: 24,
+                  borderLeft: "5px solid #3b82f6",
+                }}
+              >
+                <div>
+                  <h3 style={{ margin: "0 0 6px", color: "var(--secondary)" }}>
+                    <i className="fas fa-notes-medical" style={{ marginRight: 8, color: "#3b82f6" }} />
+                    Donor Health Screening & Medical Review
+                  </h3>
+                  <p style={{ margin: 0, color: "var(--gray)", fontSize: 14 }}>
+                    Submit health questionnaires and verified lab reports (PDF/JPG/PNG) for medical reviewer clearance.
+                  </p>
+                </div>
+                <div>
+                  <Link to="/health-screening" className="btn" style={{ padding: "8px 18px", fontSize: 14 }}>
+                    Open Health Screening &rarr;
+                  </Link>
+                </div>
+              </div>
 
               {/* Status Breakdown Grid */}
               <div

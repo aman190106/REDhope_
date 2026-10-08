@@ -1,4 +1,6 @@
 const path = require("path");
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 require("dotenv").config({ path: path.join(__dirname, "../server/.env"), quiet: true });
 const mongoose = require("mongoose");
 const http = require("http");
@@ -66,7 +68,8 @@ function generateToken(userObj) {
 async function runTests() {
     console.log("=== Starting Blood Donation Eligibility Engine Test Suite ===");
 
-    await mongoose.connect(process.env.MONGO_URI);
+    const connectDB = require("../server/config/db");
+    await connectDB();
     console.log("Connected to MongoDB");
 
     await new Promise((resolve) => {

@@ -20,8 +20,8 @@ function HomePage() {
             save millions of lives by ensuring no one dies due to lack of blood.
           </p>
           <div className="hero-buttons">
-            <Link to="/organize" className="btn btn-large">Organize a Camp</Link>
-            <Link to="/donate" className="btn btn-outline btn-large" style={{ color: "white", borderColor: "white" }}>
+            <Link to="/camps" className="btn btn-large">Find Blood Camps</Link>
+            <Link to="/register" className="btn btn-outline btn-large" style={{ color: "white", borderColor: "white" }}>
               Register as Donor
             </Link>
           </div>
@@ -93,7 +93,7 @@ function HomePage() {
             and give the gift of life.
           </p>
           <div className="hero-buttons">
-            <Link to="/donate" className="btn btn-large">Register as a Donor</Link>
+            <Link to="/register" className="btn btn-large">Register as a Donor</Link>
           </div>
         </div>
       </section>

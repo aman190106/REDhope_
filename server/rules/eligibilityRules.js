@@ -94,16 +94,68 @@ function checkDonationInterval(user) {
     };
 }
 
+/**
+ * 4. Health Screening Rule
+ * Evaluates donor medical screening status when a screening record is present.
+ */
+function checkHealthScreening(user, screening) {
+    if (!screening) {
+        return { passed: true };
+    }
+
+    if (screening.status === "approved") {
+        return { passed: true };
+    }
+
+    if (screening.status === "temporarily_deferred") {
+        return {
+            passed: false,
+            reason: screening.reviewerDecision?.reason
+                ? `Temporarily deferred from donation: ${screening.reviewerDecision.reason}`
+                : "Temporarily deferred by medical reviewer.",
+            nextEligibleDate: screening.reviewerDecision?.deferredUntil
+                ? new Date(screening.reviewerDecision.deferredUntil).toISOString()
+                : null
+        };
+    }
+
+    if (screening.status === "permanently_deferred") {
+        return {
+            passed: false,
+            reason: screening.reviewerDecision?.reason
+                ? `Permanently deferred from blood donation: ${screening.reviewerDecision.reason}`
+                : "Permanently deferred from blood donation by medical reviewer."
+        };
+    }
+
+    if (screening.status === "needs_information") {
+        return {
+            passed: false,
+            reason: screening.reviewerDecision?.reason
+                ? `Health screening requires additional information: ${screening.reviewerDecision.reason}`
+                : "Health screening requires additional information before medical clearance."
+        };
+    }
+
+    return {
+        passed: false,
+        reason: `Health screening review is pending or incomplete (Status: ${screening.status.replace("_", " ")}).`
+    };
+}
+
 module.exports = {
     MIN_DONATION_INTERVAL_DAYS,
     rules: [
         checkAdminSystemBlock,
         checkAge,
-        checkDonationInterval
+        checkDonationInterval,
+        checkHealthScreening
     ],
     // Export individual rule helpers for direct testing if needed
     checkAdminSystemBlock,
     checkAge,
-    checkDonationInterval
+    checkDonationInterval,
+    checkHealthScreening
 };
+
 

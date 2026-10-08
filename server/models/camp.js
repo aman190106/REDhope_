@@ -126,6 +126,11 @@ const campSchema = new mongoose.Schema({
             message: "invalid camp status"
         },
         default: "draft"
+    },
+
+    requireHealthScreening: {
+        type: Boolean,
+        default: false
     }
 
 }, {

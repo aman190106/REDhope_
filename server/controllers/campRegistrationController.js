@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 const camp = require("../models/camp");
 const campRegistration = require("../models/campRegistration");
 const user = require("../models/user");
+const HealthScreening = require("../models/healthScreening");
 const { evaluateEligibility } = require("../services/eligibilityService");
+const { createNotification } = require("../services/notificationService");
 
 /**
  * Checks whether a camp has already started based on its startDate and startTime.
@@ -87,7 +89,11 @@ const registerForCamp = async (req, res) => {
             });
         }
 
-        const eligibility = evaluateEligibility(donorUser);
+        const latestScreening = await HealthScreening.findOne({ user: userId }).sort({ createdAt: -1 });
+        const eligibility = evaluateEligibility(donorUser, {
+            screening: latestScreening,
+            requireScreening: targetCamp.requireHealthScreening === true
+        });
         if (!eligibility.isMedicallyEligible) {
             return res.status(400).json({
                 success: false,
@@ -166,6 +172,31 @@ const registerForCamp = async (req, res) => {
                 });
             }
             throw regError;
+        }
+
+        // Trigger in-app notification for the donor (non-blocking for registration result)
+        try {
+            const campDateStr = updatedCamp.startDate ? new Date(updatedCamp.startDate).toLocaleDateString() : "upcoming date";
+            const venue = (updatedCamp.location && (updatedCamp.location.address || updatedCamp.location.city)) || "Camp Venue";
+            const regTimestamp = registrationDoc.registeredAt ? new Date(registrationDoc.registeredAt).getTime() : Date.now();
+            await createNotification({
+                userId,
+                type: "camp_registration",
+                title: "Camp Registration Confirmed",
+                message: `You have successfully registered for ${updatedCamp.name} on ${campDateStr}. Location: ${venue}.`,
+                metadata: {
+                    campId: updatedCamp._id.toString(),
+                    registrationId: registrationDoc._id.toString(),
+                    campName: updatedCamp.name,
+                    startDate: updatedCamp.startDate,
+                    endDate: updatedCamp.endDate,
+                    location: updatedCamp.location,
+                    address: venue
+                },
+                eventKey: `camp-registration:${campId}:${registrationDoc._id}:${regTimestamp}`
+            });
+        } catch (notifError) {
+            console.error("Camp registration notification error:", notifError);
         }
 
         return res.status(201).json({
@@ -299,6 +330,26 @@ const cancelRegistration = async (req, res) => {
                 returnDocument: "after"
             }
         );
+
+        // Trigger in-app cancellation notification for the donor
+        try {
+            const cancelTimestamp = updatedReg.cancelledAt ? new Date(updatedReg.cancelledAt).getTime() : Date.now();
+            await createNotification({
+                userId,
+                type: "camp_registration",
+                title: "Camp Registration Cancelled",
+                message: `Your registration for ${updatedCamp ? updatedCamp.name : "the blood donation camp"} has been cancelled.`,
+                metadata: {
+                    campId: campId.toString(),
+                    registrationId: updatedReg._id.toString(),
+                    campName: updatedCamp ? updatedCamp.name : "Blood Donation Camp",
+                    location: updatedCamp ? updatedCamp.location : undefined
+                },
+                eventKey: `camp-cancellation:${campId}:${updatedReg._id}:${cancelTimestamp}`
+            });
+        } catch (notifError) {
+            console.error("Camp cancellation notification error:", notifError);
+        }
 
         return res.status(200).json({
             success: true,

@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const camp = require("../models/camp");
 const user = require("../models/user");
+const campRegistration = require("../models/campRegistration");
+const donation = require("../models/donation");
+const { createNotification } = require("../services/notificationService");
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 const PINCODE_REGEX = /^[1-9][0-9]{5}$/;
@@ -243,9 +246,11 @@ const getCamps = async (req, res) => {
 
         const query = {};
 
-        // By default, public endpoint only returns published camps
+        // Filter by status:
+        // By default, public endpoint only returns published camps.
+        // If status === "draft", only admins or organizers looking at their own drafts can see drafts.
+        // If status === "all", organizers can view all their own camps across all statuses, and admins can view all camps.
         if (status) {
-            // Only admins or organizers looking at their own drafts can see drafts
             if (status === "draft") {
                 if (!req.user || (req.user.role !== "admin" && req.user.role !== "organizer")) {
                     return res.status(403).json({
@@ -257,19 +262,35 @@ const getCamps = async (req, res) => {
                 if (req.user.role === "organizer") {
                     query.organizer = req.user.id;
                 }
+            } else if (status === "all") {
+                if (!req.user || (req.user.role !== "admin" && req.user.role !== "organizer")) {
+                    return res.status(403).json({
+                        success: false,
+                        message: "unauthorized to view all camps"
+                    });
+                }
+                if (req.user.role === "organizer") {
+                    query.organizer = req.user.id;
+                }
+                // No status restriction for admin or organizer's own camps
             } else {
                 query.status = status;
+                if (req.user && req.user.role === "organizer" && (status === "completed" || status === "cancelled")) {
+                    query.organizer = req.user.id;
+                }
             }
         } else {
             query.status = "published";
         }
 
-        if (city) {
-            query["location.city"] = new RegExp(`^${city.trim()}$`, "i");
+        if (city && typeof city === "string") {
+            const escapedCity = city.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            query["location.city"] = new RegExp(`^${escapedCity}$`, "i");
         }
 
-        if (state) {
-            query["location.state"] = new RegExp(`^${state.trim()}$`, "i");
+        if (state && typeof state === "string") {
+            const escapedState = state.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            query["location.state"] = new RegExp(`^${escapedState}$`, "i");
         }
 
         if (from || to) {
@@ -404,6 +425,51 @@ const getNearbyCamps = async (req, res) => {
 
     } catch (error) {
         console.error("getNearbyCamps error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "internal server error"
+        });
+    }
+};
+
+// ─────────────────────────────────────────────
+// GET /camps/analytics (Organizer / Admin Analytics)
+// ─────────────────────────────────────────────
+const getCampAnalytics = async (req, res) => {
+    try {
+        const userRole = req.user.role;
+        const userId = req.user.id;
+
+        if (userRole !== "organizer" && userRole !== "admin") {
+            return res.status(403).json({
+                success: false,
+                message: "access denied: only organizers and admins can access analytics"
+            });
+        }
+
+        const { from, to } = req.query;
+
+        const analyticsService = require("../services/analyticsService");
+        const analyticsData = await analyticsService.getAnalytics({
+            userId,
+            userRole,
+            from,
+            to
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: analyticsData
+        });
+
+    } catch (error) {
+        if (error.statusCode) {
+            return res.status(error.statusCode).json({
+                success: false,
+                message: error.message
+            });
+        }
+        console.error("getCampAnalytics error:", error);
         return res.status(500).json({
             success: false,
             message: "internal server error"
@@ -639,6 +705,50 @@ const updateCamp = async (req, res) => {
             { new: true, runValidators: true }
         ).populate("organizer", "_id name");
 
+        // Notify registered donors if camp was cancelled or significantly updated
+        try {
+            if (existingCamp.status !== "cancelled" && status === "cancelled") {
+                const activeRegs = await campRegistration.find({ camp: id, status: "registered" });
+                for (const reg of activeRegs) {
+                    await createNotification({
+                        userId: reg.user,
+                        type: "camp_cancellation",
+                        title: "Camp Cancelled",
+                        message: `The blood donation camp "${existingCamp.name}" has been cancelled by the organizer.`,
+                        metadata: {
+                            campId: id.toString(),
+                            campName: existingCamp.name
+                        },
+                        eventKey: `camp-cancellation:${id}:${reg.user}`
+                    });
+                }
+            } else if (
+                existingCamp.status === "published" &&
+                (startDate !== undefined || endDate !== undefined || startTime !== undefined || endTime !== undefined || location !== undefined)
+            ) {
+                const activeRegs = await campRegistration.find({ camp: id, status: "registered" });
+                for (const reg of activeRegs) {
+                    await createNotification({
+                        userId: reg.user,
+                        type: "camp_update",
+                        title: "Camp Schedule Updated",
+                        message: `The schedule or venue for blood donation camp "${existingCamp.name}" has been updated.`,
+                        metadata: {
+                            campId: id.toString(),
+                            campName: existingCamp.name,
+                            startDate: updatedCamp.startDate,
+                            startTime: updatedCamp.startTime,
+                            endTime: updatedCamp.endTime,
+                            address: updatedCamp.location ? updatedCamp.location.address : undefined
+                        },
+                        eventKey: `camp-update:${id}:${reg.user}:${Date.now()}`
+                    });
+                }
+            }
+        } catch (notifErr) {
+            console.error("Failed to notify registered donors on camp update:", notifErr);
+        }
+
         return res.status(200).json({
             success: true,
             message: "camp updated successfully",
@@ -724,6 +834,7 @@ module.exports = {
     createCamp,
     getCamps,
     getNearbyCamps,
+    getCampAnalytics,
     getCampById,
     updateCamp,
     deleteCamp

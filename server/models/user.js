@@ -138,6 +138,11 @@ const userSchema = new mongoose.Schema({
     isEligible: {
         type: Boolean,
         default: true
+    },
+
+    emailNotifications: {
+        type: Boolean,
+        default: true
     }
 
 }, {

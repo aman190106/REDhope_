@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { toast } from "../components/AppToaster";
+import { LocationPickerMap } from "../components/LocationPickerMap";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -27,7 +28,8 @@ const GENDERS = [
   { value: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
-const API_BASE = "http://localhost:5000";
+import { API_BASE_URL } from "../lib/api";
+const API_BASE = API_BASE_URL;
 
 interface UserProfile {
   _id: string;
@@ -557,8 +559,22 @@ function ProfilePage() {
                 {/* Location Details */}
                 <div className="form-section">
                   <h3>
-                    <i className="fas fa-map-marker-alt" /> Location & Coordinates
+                    <i className="fas fa-map-marker-alt" /> Location & Interactive Map
                   </h3>
+
+                  <LocationPickerMap
+                    latitude={latitude ? parseFloat(latitude) : null}
+                    longitude={longitude ? parseFloat(longitude) : null}
+                    label="Pin Your Location on Real-time Map"
+                    helperText="Click anywhere on the map or click 'Use My Current Location' to drop a pin. Coordinates and address details will sync automatically."
+                    onChange={({ latitude: lat, longitude: lng, city: geoCity, state: geoState, pincode: geoPincode }) => {
+                      setLatitude(String(lat));
+                      setLongitude(String(lng));
+                      if (geoCity && !city) setCity(geoCity);
+                      if (geoState && !state) setState(geoState);
+                      if (geoPincode && !pincode) setPincode(geoPincode);
+                    }}
+                  />
 
                   <div className="form-grid">
                     <div className="form-group">
@@ -589,28 +605,6 @@ function ProfilePage() {
                         value={pincode}
                         onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
                         placeholder="6-digit pincode"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Longitude</label>
-                      <input
-                        type="number"
-                        step="any"
-                        value={longitude}
-                        onChange={(e) => setLongitude(e.target.value)}
-                        placeholder="e.g. 73.1812"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Latitude</label>
-                      <input
-                        type="number"
-                        step="any"
-                        value={latitude}
-                        onChange={(e) => setLatitude(e.target.value)}
-                        placeholder="e.g. 22.3072"
                       />
                     </div>
                   </div>

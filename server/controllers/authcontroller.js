@@ -38,21 +38,28 @@ const registerUser = async (req, res) => {
             });
         }
 
-        if (!emailRegex.test(email)) {
+        if (typeof password !== "string" || password.trim().length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "password must be at least 6 characters"
+            });
+        }
+
+        if (typeof email !== "string" || !emailRegex.test(email)) {
             return res.status(400).json({
                 success: false,
                 message: "invalid email format"
             });
         }
 
-        if (!phoneRegex.test(phone)) {
+        if (typeof phone !== "string" || !phoneRegex.test(phone)) {
             return res.status(400).json({
                 success: false,
                 message: "invalid phone number"
             });
         }
 
-        const normalizedBloodGroup = bloodGroup.toUpperCase().trim();
+        const normalizedBloodGroup = typeof bloodGroup === "string" ? bloodGroup.toUpperCase().trim() : "";
         if (!VALID_BLOOD_GROUPS.includes(normalizedBloodGroup)) {
             return res.status(400).json({
                 success: false,
@@ -132,7 +139,14 @@ const loginUser = async (req, res) => {
             });
         }
 
-        const foundUser = await user.findOne({ email });
+        if (typeof email !== "string" || typeof password !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "invalid input format"
+            });
+        }
+
+        const foundUser = await user.findOne({ email: email.trim() });
         if (!foundUser) {
             return res.status(401).json({
                 success: false,
@@ -241,6 +255,7 @@ const updateMe = async (req, res) => {
             gender,
             location,
             isDonorAvailable,
+            emailNotifications,
             role,
             isEligible,
             lastDonationDate
@@ -327,8 +342,15 @@ const updateMe = async (req, res) => {
             updateData.location = locData;
         }
         if (isDonorAvailable !== undefined) updateData.isDonorAvailable = isDonorAvailable;
+        if (emailNotifications !== undefined) updateData.emailNotifications = Boolean(emailNotifications);
 
         if (password !== undefined) {
+            if (typeof password !== "string" || password.trim().length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: "password must be at least 6 characters"
+                });
+            }
             updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
         }
 
@@ -577,6 +599,12 @@ const updateUser = async (req, res) => {
         if (lastDonationDate !== undefined && isAdmin(req)) updateData.lastDonationDate = lastDonationDate;
 
         if (password !== undefined) {
+            if (typeof password !== "string" || password.trim().length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: "password must be at least 6 characters"
+                });
+            }
             updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
         }
 

@@ -64,6 +64,25 @@ Tasks should be completed incrementally and checked off when verified.
 
 ---
 
+# 🩺 Donor Health Screening & Medical Review
+
+- [x] Create HealthScreening model with structured questionnaire & preliminary flags
+- [x] Create MedicalDocument model with private storage metadata
+- [x] Implement private document storage abstraction (`storageService.js`)
+- [x] File signature validation (magic bytes for PDF, JPG, PNG) and path traversal sanitization
+- [x] Comprehensive preliminary screening rules for transparent reviewer checklists
+- [x] Medical disclaimer and informed consent enforcement (`consentGiven: true`)
+- [x] Tamper-evident Medical Audit Trail (`MedicalAuditLog` & `medicalAuditService.js`)
+- [x] Donor health screening API (`GET /health-screening/me`, `PUT /health-screening/me`, `POST /health-screening/me/submit`)
+- [x] Private document upload & streaming download (`POST /health-screening/me/documents`, `GET /health-screening/documents/:id`)
+- [x] Clinical reviewer & admin console API (`GET /admin/health-screenings`, `PATCH /admin/health-screenings/:id/review`)
+- [x] Integration with Eligibility Engine, Camp Registration, and Blood Matching
+- [x] User health screening multi-step frontend (`src/routes/health-screening.tsx`)
+- [x] Admin medical review dashboard & detail review routes (`src/routes/admin/health-screenings/`)
+- [x] Automated test suite with 42 passed assertions (`scratch/test_health_screening.js`)
+
+---
+
 # 🔵 Blood Donation Camps
 
 ## Camp Backend
@@ -104,66 +123,71 @@ Tasks should be completed incrementally and checked off when verified.
 
 # 🟤 Organizer Dashboard
 
-- [ ] Define organizer role
-- [ ] Organizer authentication
-- [ ] Organizer dashboard
-- [ ] Create camp
-- [ ] Edit camp
-- [ ] Cancel camp
-- [ ] View registered donors
-- [ ] Manage camp registrations
-- [ ] Add organizer analytics
+- [x] Define organizer role
+- [x] Organizer authentication
+- [x] Organizer dashboard
+- [x] Create camp
+- [x] Edit camp
+- [x] Cancel camp
+- [x] View registered donors
+- [x] Manage camp registrations
+- [x] Add organizer analytics
 
 ---
 
 # 🔴 Blood Matching Engine
 
-- [ ] Define blood compatibility rules
-- [ ] Define donor matching criteria
-- [ ] Implement blood compatibility logic
-- [ ] Implement donor filtering
-- [ ] Add location/distance consideration
-- [ ] Implement donor matching service
-- [ ] Create matching API
-- [ ] Test matching logic
+- [x] Define blood compatibility rules
+- [x] Define donor matching criteria
+- [x] Implement blood compatibility logic
+- [x] Implement donor filtering
+- [x] Add location/distance consideration
+- [x] Implement donor matching service
+- [x] Create matching API
+- [x] Test matching logic
 
 ---
 
 # 🟠 Notifications
 
-- [ ] Design notification system
-- [ ] Create notification model
-- [ ] Implement in-app notifications
-- [ ] Camp registration notifications
-- [ ] Camp reminder notifications
-- [ ] Blood requirement notifications
-- [ ] Donation reminders
-- [ ] Notification read/unread state
+- [x] Design notification system
+- [x] Create notification model
+- [x] Implement in-app notifications
+- [x] Camp registration notifications
+- [x] Camp reminder notifications
+- [x] Blood requirement notifications
+- [x] Donation reminders
+- [x] Notification read/unread state
+- [x] Brevo Email API integration (`emailService.js`)
+- [x] Email notification templates (Camp Registration, Update, Cancellation, Reminders, Blood Match, Donation)
+- [x] Email notification delivery decoupling (`notificationDeliveryService.js`)
+- [x] User email notification preferences (`user.emailNotifications`)
+- [x] Email notification automated regression suite (16 test scenarios verified)
 
 ---
 
 # 🟡 Donation Tracking
 
-- [ ] Create donation model
-- [ ] Record completed donations
-- [ ] Connect donations to donors
-- [ ] Connect donations to camps
-- [ ] Create donation history API
-- [ ] Update donor donation history
-- [ ] Integrate donation history with eligibility
+- [x] Create donation model
+- [x] Record completed donations
+- [x] Connect donations to donors
+- [x] Connect donations to camps
+- [x] Create donation history API
+- [x] Update donor donation history
+- [x] Integrate donation history with eligibility
 
 ---
 
 # 🟢 Analytics
 
-- [ ] Donor statistics
-- [ ] Donation statistics
-- [ ] Blood group statistics
-- [ ] Camp statistics
-- [ ] Registration statistics
-- [ ] Organizer statistics
-- [ ] Donation trends
-- [ ] Admin analytics dashboard
+- [x] Donor statistics
+- [x] Donation statistics
+- [x] Blood group statistics
+- [x] Camp statistics
+- [x] Registration statistics
+- [x] Organizer statistics
+- [x] Donation trends
+- [x] Admin analytics dashboard
 
 ---
 
@@ -171,44 +195,47 @@ Tasks should be completed incrementally and checked off when verified.
 
 ## General
 
-- [ ] Connect frontend to backend APIs
-- [ ] Configure API base URL
-- [ ] Add loading states
-- [ ] Add error handling
-- [ ] Add authentication state
-- [ ] Protect frontend routes
+- [x] Connect frontend to backend APIs
+- [x] Configure API base URL
+- [x] Add loading states
+- [x] Add error handling
+- [x] Add authentication state
+- [x] Protect frontend routes
 
 ## Pages
 
-- [ ] Landing page
-- [ ] Registration page
-- [ ] Login page
-- [ ] User dashboard
-- [ ] User profile
-- [ ] Eligibility page
-- [ ] Camp discovery
-- [ ] Camp details
-- [ ] Camp registration
-- [ ] Donation history
-- [ ] Notifications
-- [ ] Organizer dashboard
-- [ ] Analytics dashboard
+- [x] Landing page
+- [x] Registration page
+- [x] Login page
+- [x] User dashboard
+- [x] User profile
+- [x] Eligibility page
+- [x] Camp discovery
+- [x] Camp details
+- [x] Camp registration
+- [x] Donation history
+- [x] Notifications
+- [x] Organizer dashboard
+- [x] Analytics dashboard
 
 ---
 
 # ⚙️ Security
 
-- [ ] Secure password storage
-- [ ] JWT security
-- [ ] Authentication middleware
-- [ ] Authorization
-- [ ] Input validation
-- [ ] API error handling
-- [ ] Protect sensitive user data
-- [ ] Remove sensitive fields from API responses
-- [ ] Verify `.env` is ignored
-- [ ] Audit exposed secrets
-- [ ] Review API security before deployment
+- [x] Secure password storage
+- [x] JWT security
+- [x] Authentication middleware
+- [x] Authorization
+- [x] Input validation
+- [x] API error handling
+- [x] Protect sensitive user data
+- [x] Remove sensitive fields from API responses
+- [x] Verify `.env` is ignored
+- [x] Audit exposed secrets
+- [x] Review API security before deployment
+- [x] Security headers (Helmet)
+- [x] API rate limiting (auth, matching, general)
+- [x] Origin-restricted CORS
 
 ---
 

@@ -4,11 +4,13 @@
  */
 
 const user = require("../models/user");
+const HealthScreening = require("../models/healthScreening");
 const { evaluateEligibility } = require("../services/eligibilityService");
 
 /**
  * GET /eligibility/me
- * Retrieves the authenticated user and evaluates their medical eligibility.
+ * Retrieves the authenticated user and evaluates their medical eligibility,
+ * integrating basic eligibility rules and health screening review state.
  */
 const getMyEligibility = async (req, res) => {
     try {
@@ -22,11 +24,27 @@ const getMyEligibility = async (req, res) => {
             });
         }
 
-        const eligibilityData = evaluateEligibility(foundUser);
+        // Retrieve latest health screening record if available
+        const latestScreening = await HealthScreening.findOne({ user: userId }).sort({ createdAt: -1 });
+
+        const eligibilityData = evaluateEligibility(foundUser, { screening: latestScreening });
 
         return res.status(200).json({
             success: true,
-            data: eligibilityData
+            data: {
+                ...eligibilityData,
+                screening: latestScreening ? {
+                    id: latestScreening._id,
+                    status: latestScreening.status,
+                    submittedAt: latestScreening.submittedAt,
+                    reviewerDecision: latestScreening.reviewerDecision?.decision ? {
+                        decision: latestScreening.reviewerDecision.decision,
+                        reason: latestScreening.reviewerDecision.reason,
+                        reviewedAt: latestScreening.reviewerDecision.reviewedAt,
+                        deferredUntil: latestScreening.reviewerDecision.deferredUntil
+                    } : null
+                } : null
+            }
         });
     } catch (error) {
         console.error("Error evaluating eligibility:", error);
@@ -40,4 +58,3 @@ const getMyEligibility = async (req, res) => {
 module.exports = {
     getMyEligibility
 };
-

@@ -388,66 +388,252 @@ Geospatial discovery of published blood donation camps:
   - Supports configurable radius options (5 km, 10 km, 25 km, 50 km) and shows distance badges (e.g. `2.4 km away`).
   - Handles empty states (no nearby camps, prompt to add coordinates in profile).
 
-### Organizer functionality
+### Organizer Dashboard
 
-Organizers should be able to:
+The Organizer Dashboard enables event organizers and administrators to oversee camps and donor registrations:
 
-- Create camps
-- Update camps
-- Cancel/delete camps where appropriate
-- View registered donors
-- Manage camp information
+- Routes:
+  - `/organizer`: Dashboard home featuring live summary cards (total camps, draft, published, completed, cancelled, total registered donors), status filter tabs, quick status actions, and an interactive "Create New Camp" modal.
+  - `/organizer/camps/$campId`: Detailed management view for a specific camp showing capacity metrics, status transitions, camp details editing (`PUT /camps/:id`), and registered donor directory with pagination and status filtering (`GET /camps/:campId/registrations`).
+- Role Protection:
+  - Role checks verify `organizer` and `admin` privileges (`/auth/me`).
+  - Unauthenticated users receive an authentication prompt.
+  - Normal donors (`user` role) receive an access-denied screen redirecting them to public camp discovery.
+  - Role-aware Navbar dynamically presents the "Organizer" link exclusively to authorized roles.
+- Backend Integration:
+  - Supports `GET /camps?status=all` for organizers to retrieve all their own camps and admins to retrieve all camps.
+  - Respects lifecycle restrictions: `draft -> published/cancelled`, `published -> completed/cancelled`.
+  - Enforces donor safe projections (`_id`, `name`, `bloodGroup`, `gender`, `phone`, `location`), never exposing passwords, tokens, or private credentials.
+
+### Organizer Analytics
+
+Organizer Analytics provides aggregated, read-only operational intelligence and performance metrics for drive organizers and system administrators:
+
+- Backend Analytics Endpoint:
+  - `GET /camps/analytics`: Protected endpoint requiring `authMiddleware` mounted before dynamic camp routes.
+  - Role scoping: Organizers receive metrics scoped strictly to camps they own (`organizer = req.user.id`). Admins receive platform-wide statistics across all organizers and camps. Normal donors receive `403 Forbidden`; unauthenticated requests return `401 Unauthorized`.
+  - Calculations via MongoDB Aggregations:
+    - Summary counts: total camps, draft, published, completed, cancelled, total capacity, total registrations, active registrations, cancelled registrations.
+    - Capacity utilization: `(activeRegistrations / totalCapacity) * 100`, safely returning 0 when capacity is 0.
+    - Monthly registration trends: Grouped by registration date (`YYYY-MM`).
+    - Top performing camps: Top 5 camps sorted descending by active registration counts.
+    - Blood group distribution: Aggregated counts by donor blood groups.
+    - Camp lifecycle distribution: Status breakdown counts.
+  - Date filtering: Optional `from` and `to` query parameters on `camp.startDate`. Strictly validated against invalid dates and inverted date windows (`400 Bad Request`).
+  - Strict Donor Privacy: Responses contain only aggregated statistics; zero donor PII (`name`, `email`, `phone`, `password`, `dateOfBirth`) is included.
+- Frontend Route:
+  - `/organizer/analytics`: Built using TanStack Router and `recharts`.
+  - Features: Summary metric cards with capacity progress indicator, monthly registration volume `LineChart`, registered donor blood group `BarChart`, camp lifecycle distribution bars, top performing camps ranking table, and date range filters with Apply and Reset controls.
+  - Accessible directly via the "Analytics" button on `/organizer`.
 
 ---
 
 # 14. Blood Matching Engine
 
-REDhope will eventually include a matching system.
+REDhope includes a reusable, read-only blood donor matching engine that evaluates blood requirements against registered donors and returns suitable candidates ranked by relevance and proximity.
 
-The system should help match blood requirements with suitable donors.
+### Architecture
 
-Matching may consider factors such as:
+```
+Client Request (POST /matching/donors)
+              ↓
+    authMiddleware (JWT)
+              ↓
+  bloodMatchingController.js
+              ↓
+   bloodMatchingService.js
+              ↓
+ ┌──────────────────────────────┐
+ │ Blood compatibility rules    │ (RBC donor-recipient mapping)
+ │ Medical eligibility check    │ (delegated to eligibilityService.js)
+ │ Donor availability check     │ (isDonorAvailable: true)
+ │ Geospatial proximity         │ (MongoDB $geoNear aggregation)
+ │ Candidate scoring & ranking  │ (0-100 deterministic scoring)
+ └──────────────────────────────┘
+              ↓
+   Ranked Donor Candidates (Privacy-preserving projection)
+```
 
-- Blood group compatibility
-- Donor eligibility
-- Location/distance
-- Availability
-- Donation history
-- Other project-defined rules
+### Blood Compatibility
+Red blood cell (RBC) compatibility logic is isolated in `server/rules/bloodCompatibilityRules.js`:
+- Recipient `O-`: receives only `O-` (O- is universal donor).
+- Recipient `O+`: receives `O+`, `O-`.
+- Recipient `A-`: receives `A-`, `O-`.
+- Recipient `A+`: receives `A+`, `A-`, `O+`, `O-`.
+- Recipient `B-`: receives `B-`, `O-`.
+- Recipient `B+`: receives `B+`, `B-`, `O+`, `O-`.
+- Recipient `AB-`: receives `AB-`, `A-`, `B-`, `O-`.
+- Recipient `AB+`: receives all 8 groups (universal recipient).
 
-Do not implement medical/business rules based on assumptions.
+### Eligibility & Availability
+- Reuses `eligibilityService.js` (`evaluateEligibility`) directly.
+- Ensures donor is medically eligible (age >= 18, donation interval >= 90 days, admin block check) and available (`isDonorAvailable: true`).
+- Does not allow client overrides of eligibility rules or donor availability.
 
-The exact matching rules should be defined before implementation.
+### Proximity & Scoring
+- When coordinates (`latitude`, `longitude`, `radius`) are supplied, MongoDB `$geoNear` aggregation queries donors using the sparse `2dsphere` index on `user.location.coordinates`. Donors without coordinates are excluded from radius queries.
+- When coordinates are omitted, all compatible eligible donors are retrieved without fabricating distances.
+- Deterministic score (0-100) rewards:
+  - Base eligibility & availability (50 or 70 points).
+  - Exact blood group match bonus (20 or 30 points) vs compatible match (10 or 15 points).
+  - Proximity points (up to 30 points inversely proportional to distance within radius).
+- Returns human-readable `matchReason` array explaining each scoring factor.
+
+### Donor Privacy
+- The matching API strictly protects donor personal data.
+- Returned fields: `userId`, `name`, `bloodGroup`, `city`, `state`, `distanceMeters`, `score`, and `matchReason`.
+- Strictly omitted: `password`, `email`, `phone`, `dateOfBirth`, `address`, `role`, tokens, and precise coordinates.
+- Read-only; does not create a permanent `BloodMatch` collection or trigger notifications.
+
+### Frontend
+- `/matching`: Dedicated interface to select recipient blood group, configure optional proximity search, and view ranked candidate cards with match scores, compatibility badges, and explanations. Includes "Find Donors" link in Navbar.
 
 ---
 
 # 15. Notifications
 
-A future notification system may support:
+The in-app notification system provides reliable, user-isolated internal messaging for blood donor matches, camp events, and platform updates.
 
-- Camp reminders
-- Registration confirmations
-- Blood requirement notifications
-- Donation reminders
-- Other important system notifications
+### Architecture
+```text
+HTTP Request
+    ↓
+notificationRoutes.js (authMiddleware)
+    ↓
+notificationController.js
+    ↓
+notificationService.js
+    ↓
+Notification Model (server/models/notification.js)
+    ↓
+MongoDB Atlas
+```
 
-The notification architecture should be modular so that notification providers can be changed later.
+### Notification Model
+The `Notification` schema defines:
+- `user`: ObjectId referencing `user` (required, indexed)
+- `type`: Enum `['blood_match', 'camp_registration', 'camp_update', 'camp_cancellation', 'system']` (required)
+- `title`: String (required, trimmed)
+- `message`: String (required, trimmed)
+- `isRead`: Boolean (default: false, indexed)
+- `metadata`: Flexible Map/Object for contextual references (`campId`, `registrationId`, `bloodGroup`, `unitsNeeded`, `requestId`, etc.)
+- `eventKey`: Optional string for idempotent duplicate prevention
+- Timestamps: `createdAt` and `updatedAt`
+- Compound Indexes:
+  - `{ user: 1, createdAt: -1 }` (for fast paginated retrieval ordered newest first)
+  - `{ user: 1, isRead: 1, createdAt: -1 }` (for efficient unread counting and queries)
+  - `{ user: 1, eventKey: 1 }` (partial unique index with `partialFilterExpression: { eventKey: { $type: "string" } }` guaranteeing single delivery per event)
 
-Do not add third-party notification services unless explicitly requested.
+### Notification Triggers & Features
+1. **Camp Registration Notifications (`server/controllers/campRegistrationController.js`, `server/controllers/campController.js`)**:
+   - Creates `camp_registration` notification on successful registration with camp name, date, and venue.
+   - Creates `camp_registration` notification when a registration is cancelled.
+   - When a camp is cancelled by organizer/admin, triggers `camp_cancellation` notifications for all actively registered donors.
+   - When a camp's schedule or venue changes, triggers `camp_update` notifications for all actively registered donors.
+2. **Camp Reminders (`server/services/notificationScheduler.js`)**:
+   - 24-hour reminder job checking published camps starting within the next 24 hours.
+   - Sends `camp_update` notification with title `"Camp Reminder"` to donors with active registrations (`status: "registered"`).
+   - Cancelled registrations are excluded. Idempotent key: `camp-reminder:${campId}:${registrationId}:24h`.
+3. **Blood Requirement Notifications (`server/models/bloodRequest.js`, `server/services/bloodRequestService.js`, `server/controllers/bloodMatchingController.js`)**:
+   - Persistent `BloodRequest` model tracks requirement lifecycle (`bloodGroup`, `unitsNeeded`, `urgency`, `location`, `radius`, `createdBy`, `status`).
+   - Leverages `bloodMatchingService.findMatchingDonors` to filter compatible, eligible, and available donors.
+   - Sends `blood_match` notifications to matching donors within the search radius without leaking donor PII.
+   - Exposed via `POST /matching/requests` and `GET /matching/requests`.
+4. **Donation Reminders (`server/services/notificationScheduler.js`)**:
+   - Reuses authoritative `evaluateEligibility` to check donors with previous `lastDonationDate`.
+   - Sends `system` notification `"You're Eligible to Donate Again"` when 90 days have elapsed.
+   - Optionally sends early reminder when donor is within 7 days of eligibility.
+   - Never modifies user `isEligible` or `lastDonationDate`.
+   - Idempotent key: `donation-eligibility:${userId}:${lastDonationDate}`.
+
+### Notification Scheduler
+- `server/services/notificationScheduler.js`: Lightweight, non-blocking periodic scheduler running every 60 seconds.
+- Automatically started on server boot in `server/server.js` when `ENABLE_NOTIFICATION_SCHEDULER !== "false"`.
+- Functions: `checkCampReminders()`, `checkDonationEligibilityReminders()`, `runAllJobs()`, `startScheduler()`, `stopScheduler()`.
+
+### Endpoints
+All endpoints are protected by `authMiddleware`:
+- `GET /notifications`: Paginated retrieval (`page`, `limit` up to 100). Default 20 items per page, sorted newest first (`createdAt: -1`).
+- `GET /notifications/unread-count`: Returns `{ success: true, count: N }` for unread notifications.
+- `PATCH /notifications/:id/read`: Marks a single notification as read (`isRead: true`).
+- `PATCH /notifications/read-all`: Bulk marks all unread notifications as read for the authenticated user. Mounted before `/:id/read` to prevent route collision.
+- `DELETE /notifications/:id`: Permanently removes an owned notification.
+- `POST /matching/requests`: Creates a blood requirement and notifies matching compatible donors.
+- `GET /matching/requests`: Lists active blood requirements.
+
+### Ownership & Privacy Isolation
+- All query operations in `notificationService.js` strictly enforce `{ _id: id, user: userId }`.
+- Any attempt to view, mark read, or delete a notification belonging to another user safely yields `404 Not Found`, completely preventing unauthorized manipulation and existence probing.
+- Notification payloads and metadata never contain passwords, tokens, or unneeded private donor PII.
+
+### Frontend Integration
+- `/notifications`: Dedicated inbox interface displaying notification cards with type badges, unread indicators, relative timestamps, quick "Mark as Read" and "Delete" buttons, category filter tabs (All, Unread, Blood Matches, Camps, System), "Mark All as Read" header button, and pagination. Includes contextual links for camps ("View Camp Details →"), blood matches ("Find Donors & Matching →"), and eligibility reminders ("Check Eligibility Details →").
+- `Navbar.tsx`: Integrated notification bell icon with a real-time unread counter badge. Unread count updates automatically on user authentication and route transitions.
 
 ---
 
 # 16. Donation Tracking
 
-A future donation tracking system should maintain information such as:
+The Donation Tracking System records actual blood donations associated with users and camps, synchronizing completed donations with the donor's medical eligibility interval.
 
-- Donation date
-- Camp associated with donation
-- Donor
-- Donation history
-- Eligibility-related information
+### Architecture & Lifecycle
+```text
+Camp Registration
+        ↓
+Organizer Records Donation (POST /donations)
+        ↓
+Donation Record (status: "scheduled")
+        ↓
+Actual Donation Occurs
+        ↓
+Organizer Marks Completed (PATCH /donations/:id/status { status: "completed" })
+        ↓
+Donation Verified (verifiedAt set)
+        ↓
+Update User.lastDonationDate (latest completed donation date rule)
+        ↓
+Eligibility Engine (GET /eligibility/me automatically recalculates 90-day interval)
+        ↓
+In-App Notification ("Donation Recorded" with eventKey idempotency)
+```
 
-This data should be designed carefully because it is important application data.
+### Models & Collections
+- `server/models/donation.js`:
+  - `donor` (ref `user`, required)
+  - `camp` (ref `camp`, required)
+  - `registration` (ref `campRegistration`, required, unique index enforces 1 donation per camp registration)
+  - `donationDate` (Date, default `Date.now`, validates <= 1 year in future)
+  - `units` (Number, integer >= 1, default 1)
+  - `bloodGroup` (String, historical snapshot enum: `["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]`)
+  - `status` (enum: `["scheduled", "completed", "cancelled", "no_show"]`, default `"scheduled"`)
+  - `notes` (String, max 500 chars)
+  - `recordedBy` (ref `user`, required)
+  - `verifiedAt` (Date, set on completion)
+  - Indexes: `{ registration: 1 }` (unique), `{ donor: 1, donationDate: -1 }`, `{ donor: 1, status: 1 }`, `{ camp: 1, status: 1 }`, `{ camp: 1, donationDate: -1 }`.
+
+### State Machine & Idempotency
+- Allowed transitions: `scheduled -> completed`, `scheduled -> cancelled`, `scheduled -> no_show`.
+- Terminal states (`completed`, `cancelled`, `no_show`) are protected against arbitrary status reversal.
+- Repeated completion calls return current state safely without creating duplicate notifications or modifying dates.
+
+### Date Ordering & Eligibility Synchronization
+- When a donation transitions to `completed`, `syncDonorLastDonationDate` queries all completed donations for the donor and resolves `max(dates)`.
+- If an older historical donation is completed after a newer one exists, `user.lastDonationDate` is preserved at the newest date.
+- Cancelled and no-show donations never modify `user.lastDonationDate`.
+- `GET /eligibility/me` naturally evaluates the updated date with the 90-day interval without duplicated logic.
+
+### Endpoints & Authorization
+- `POST /donations`: Organizer camp owner or Admin only. Derives donor, camp, and bloodGroup snapshot securely from registration.
+- `PATCH /donations/:id/status`: Organizer camp owner or Admin only.
+- `GET /donations/me`: Authenticated donor only. Paginated, sorted newest first (`donationDate: -1`).
+- `GET /camps/:campId/donations`: Organizer camp owner or Admin only. Supports status filtering (`scheduled`, `completed`, `cancelled`, `no_show`, `all`) and pagination.
+- `GET /donations/:id`: Donor, camp organizer, or Admin (IDOR-protected).
+- `GET /camps/analytics`: Extended with `data.donations` metrics (total donations, completed donations, units, blood group distribution, monthly trends).
+
+### Frontend Integration
+- `/donations`: Donor-facing page with history table, unit counts, status badges, and camp details.
+- `Navbar.tsx`: Added "Donations" navigation item.
+- `/organizer/camps/$campId`: Organizer dashboard with donation summary counters, registered donor rows with donation status badges, and action buttons to record donations, complete, mark no-show, or cancel.
 
 ---
 
@@ -533,11 +719,122 @@ Examples include:
 MONGO_URI=
 PORT=
 JWT_SECRET=
+BREVO_API_KEY=
+EMAIL_FROM=
+EMAIL_FROM_NAME=
+EMAIL_NOTIFICATIONS_ENABLED=
 ```
 
 The exact variables should be determined from the existing project files.
 
 Never expose or commit actual secret values.
+
+---
+
+# 20.1 Email Notification System (Brevo HTTP API)
+
+Email notifications are integrated as an asynchronous delivery channel on top of the in-app notification system:
+
+1. **HTTP Delivery**: Uses the Brevo v3 transactional email API (`POST https://api.brevo.com/v3/smtp/email`) directly via Node native `fetch`. No SMTP dependencies.
+2. **Decoupled Architecture**: `notificationService.createNotification` triggers `deliverNotificationEmail` in a non-blocking background promise. Email delivery failures or timeouts never impact API response codes or database transactions.
+3. **User Preferences**: Respected via `user.emailNotifications` (default `true`). Opted-out users receive in-app notifications only.
+4. **Templates**: Rich responsive HTML and plain-text fallback templates for all 8 system events:
+   - Camp Registration Confirmed
+   - Camp Registration Cancelled
+   - Camp Details Updated
+   - Camp Cancelled by Organizer
+   - Camp Reminder (24 Hours Prior)
+   - Blood Requirement / Match Alert
+   - Donation Eligibility Reminder
+   - Donation Verified / Recorded
+5. **Security & Testing**: Brevo API key is protected and never returned in responses or tests. Automated test suites use `setMockEmailSender` to mock API interactions with zero live emails sent.
+
+---
+
+# 20.2 Analytics System
+
+The Analytics system provides read-only aggregations computed directly from MongoDB operational collections (`camps`, `campregistrations`, `donations`, `users`, `bloodrequests`) without redundant counters or data mutations:
+
+1. **Role-Based Isolation & Access Control**:
+   - `organizer`: strictly isolated to camps owned by that organizer (`{ organizer: req.user.id }`), completely preventing cross-organizer data leakage and IDOR.
+   - `admin`: global aggregations across all drives, plus admin-only platform metrics (total registered users, available donors, medically eligible donors, and blood request volume).
+   - `user` / unauthenticated: restricted with HTTP 403 / 401.
+2. **Aggregated Metrics**:
+   - Summary: total camps, status breakdown (`draft`, `published`, `completed`, `cancelled`), total capacity, total registrations, active registrations, cancelled registrations, capacity utilization percentage, total donations, completed donations, scheduled donations, no-show donations, total units donated.
+   - Capacity: total capacity, active registrations, utilization percentage.
+   - Registrations: monthly trend and donor blood group distribution across all 8 standard types.
+   - Donations: completed donations monthly trend, units donated, and blood group breakdown.
+   - Top Camps: leaderboard of top 10 camps sorted by completed donations and active registrations.
+   - Camp Status: distribution of drives across all lifecycle states.
+3. **Filtering & Privacy**:
+   - Optional `from` and `to` ISO date parameters with validation against malformed dates and inverted ranges.
+   - Strict Zero-PII guarantee: donor names, emails, phone numbers, exact location coordinates, and passwords are never returned in analytics payloads.
+
+---
+
+# 20.3 Security Architecture & Hardening
+
+Security controls implemented across the REDhope backend:
+
+1. **Security Headers (Helmet)**:
+   - Enforces `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Cross-Origin-Resource-Policy: cross-origin`, and suppresses `X-Powered-By`.
+2. **Environment-Restricted CORS**:
+   - Production allows origins defined in `FRONTEND_URL` environment variable; development permits localhost ports (3000, 5173, 8080).
+3. **Multi-Tier Rate Limiting (`express-rate-limit`)**:
+   - `authLimiter`: 25 requests per 15 minutes window on `/auth/login` and `/auth/register`.
+   - `matchingLimiter`: 60 requests per 10 minutes on `/matching/donors` and `/matching/requests`.
+   - `generalLimiter`: 300 requests per 15 minutes globally across the API.
+   - Bypassed in automated test runs via `NODE_ENV === "test"` or `DISABLE_RATE_LIMIT=true`.
+4. **Injection & Tampering Defenses**:
+   - Enforced string validation on authentication parameters preventing MongoDB query operator injection (e.g. `{ $ne: null }`).
+   - Escaped regular expression special characters in user-provided search filters (`city`, `state`).
+   - Enforced password length >= 6 characters on registration and updates.
+   - Atomic conditional operations (`findOneAndUpdate` with `$expr: { $lt: ["$registrationCount", "$capacity"] }`) preventing capacity overflow race conditions.
+5. **Role-Based Access & IDOR Controls**:
+   - Organizers can strictly manage their own camps, registrations, and donation events.
+   - Donors can access only their own notifications, personal registrations, and personal donation history.
+   - Admin has system-wide management access.
+   - Terminal donation states (`completed`, `cancelled`, `no_show`) are immutable.
+
+---
+
+# 20.4 Donor Health Screening & Medical Review System
+
+The Donor Health Screening & Medical Review system provides a secure, private, and human-supervised medical review pipeline for prospective donors:
+
+1. **Private Medical Storage Abstraction (`storageService.js`)**:
+   - Files are stored in a dedicated private directory (`server/storage/medical_documents/`) outside public web roots.
+   - Enforces 5MB maximum file size limit, sanitized file names, and UUID-based storage keys.
+   - Magic bytes / file signature validation prevents extension masquerading (validates `%PDF` for PDF, `FF D8 FF` for JPEG, and `89 50 4E 47` for PNG).
+   - Strict read streaming with `X-Content-Type-Options: nosniff` and non-destructive deletion.
+
+2. **Structured Health Questionnaire & Data Models**:
+   - `HealthScreening`: Comprehensive 9-section questionnaire covering General Health, Medical History, Medications, Blood Donation History, Recent Procedures (piercings/tattoos/surgeries), Travel (malaria zones), Pregnancy & Lactation, Vitals & Physical Measurements, and High-Risk Infections.
+   - Requires explicit informed consent and disclaimer agreement (`consentGiven: true`, timestamp, and user IP).
+   - `MedicalDocument`: Metadata tracking donor ID, screening ID, sanitized file name, MIME type, size, status (`pending`, `verified`, `rejected`), and secure storage key.
+   - `MedicalAuditLog`: Tamper-evident logging of all medical record access, document downloads, and clinical review status decisions with zero questionnaire/PII in log details.
+
+3. **Preliminary Screening Flags (No Automated Diagnosis)**:
+   - Evaluated by `preliminaryScreeningRules.js` to create an actionable summary checklist for medical reviewers.
+   - **Never makes automated diagnostic decisions or automatic approvals.**
+   - All approvals, temporary deferrals, permanent deferrals, or information requests require explicit human review by an administrator or qualified reviewer.
+
+4. **Reviewer Decision Workflow & Access Control**:
+   - Lifecycle: `draft` -> `submitted` -> `under_review` -> `approved` | `temporarily_deferred` | `permanently_deferred` | `needs_information`.
+   - Mandatory clinical reasoning required for all deferrals and information requests.
+   - Strict IDOR prevention: Donors can only access their own screening and documents.
+   - Medical Privacy Isolation: Organizers and normal users are strictly blocked (HTTP 403) from accessing screening data, medical answers, and uploaded files.
+
+5. **Eligibility Engine & System Integration**:
+   - Enforces medical screening within `evaluateEligibility` without breaking legacy date-based donation intervals (90 days) or admin block rules.
+   - Unapproved screenings (`submitted`, `under_review`, `temporarily_deferred`, `permanently_deferred`) mark donors medically ineligible with clear reasons.
+   - Camp registration enforces `requireHealthScreening: true` where configured by organizers.
+   - Emergency blood matching excludes donors who are not medically approved.
+
+6. **Frontend Interfaces**:
+   - `/health-screening`: 5-step interactive wizard (Consent -> Questionnaire -> Document Upload -> Review & Submit -> Status Tracker).
+   - `/admin/health-screenings`: Admin triage console with status filters, search, and paginated queue.
+   - `/admin/health-screenings/$screeningId`: Clinical review station with questionnaire inspection, audit trail, secure document downloads, and decision submit form.
 
 ---
 
