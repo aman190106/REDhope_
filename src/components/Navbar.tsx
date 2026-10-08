@@ -10,7 +10,9 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About Us" },
   { to: "/stories", label: "Stories" },
+  { to: "/eligibility", label: "Eligibility" },
   { to: "/contact", label: "Contact Us" },
+  { to: "/profile", label: "Profile" },
 ];
 
 export function Navbar({ solid = false }: NavbarProps) {

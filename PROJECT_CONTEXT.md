@@ -236,19 +236,18 @@ Once CRUD is stable, the API can be reorganized into cleaner production REST con
 
 ---
 
-# 10. Authentication Roadmap
+# 10. Authentication
 
-Authentication has not yet been fully implemented.
+Authentication is fully implemented:
 
-Planned authentication functionality:
-
-- Password hashing
-- Login
-- JWT authentication
-- Authentication middleware
-- Protected routes
-- Authorization
-- User roles
+- Secure password hashing with bcrypt (salt rounds = 10) on registration and password updates
+- User login (`POST /auth/login`) with `bcrypt.compare()`
+- JWT authentication (`id`, `email`, `role`) with configurable expiry
+- Authentication middleware (`authMiddleware.js`) reading `Bearer <token>`
+- Role-based authorization (`user`, `organizer`, `admin`)
+- Self-only profile access/update/delete for standard users; admin privileges for user management
+- Admin-only access to `GET /users` (all users)
+- Passwords never returned or exposed in API responses
 
 Potential roles may include:
 
@@ -262,57 +261,79 @@ Do not implement role-specific functionality until the authentication architectu
 
 ---
 
-# 11. Future User Profile
+# 11. User Profile
 
-After authentication, users should eventually have profiles containing relevant donor information.
+User Profiles are fully implemented on the backend:
 
-Potential profile information includes:
-
-- Name
-- Email
-- Phone
-- Blood group
-- Date of birth / age where required
-- Location
-- Donation history
-- Eligibility status
-- Profile information
-
-Only collect information that is actually required by the application.
+- Identity: `name`, `email`, `password`, `phone`, `role`
+- Donor Attributes:
+  - `bloodGroup` (validated enum: `["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]`)
+  - `dateOfBirth` (custom validator requiring age >= 18)
+  - `gender` (enum: `["male", "female", "other", "prefer_not_to_say"]`)
+  - `isDonorAvailable` (boolean, default: true)
+  - `lastDonationDate` (system/admin controlled)
+  - `isEligible` (boolean, default: true, system/admin controlled)
+- Location:
+  - GeoJSON `Point` coordinates `[longitude, latitude]` with range validation
+  - Sparse `2dsphere` index configured for geospatial matching
+  - `city`, `state`, `pincode` (6-digit Indian pincode format)
+- Endpoints:
+  - `GET /auth/me`: retrieves the authenticated user's profile via JWT
+  - `PUT /auth/me`: updates user-editable profile fields, hashes passwords if updated, and denies tampering with `role`, `isEligible`, or `lastDonationDate`
+- Privacy: passwords and sensitive internal fields are never exposed
+- Frontend:
+  - Route `/profile` (`src/routes/profile.tsx`) connected to `GET /auth/me` and `PUT /auth/me`
+  - Clean inline authentication fallback when unauthenticated
+  - Badges for status and non-editable system attributes (`role`, `isEligible`, `lastDonationDate`)
+  - Full reactive update support with notifications and design system consistency
 
 ---
 
-# 12. Blood Donation Eligibility
+# 12. Blood Donation Eligibility Engine
 
-REDhope will eventually contain an eligibility engine.
+Blood Donation Eligibility is fully implemented on the backend:
 
-The eligibility engine should determine whether a donor can currently donate based on the application's defined rules.
-
-Eligibility logic should be centralized.
-
-Do not duplicate the same eligibility rules across multiple controllers or frontend components.
-
-The final eligibility rules should be explicitly defined before implementation.
+- Architecture:
+  `GET /eligibility/me` -> `eligibilityController` -> `eligibilityService` -> `eligibilityRules` -> Structured Result
+- Modular Rules (`server/rules/eligibilityRules.js`):
+  - Dynamic age calculation from `dateOfBirth` ($\ge 18$)
+  - Donation interval calculation (`lastDonationDate + MIN_DONATION_INTERVAL_DAYS (90 days)`)
+  - Administrative/System override check (`isEligible` boolean)
+  - Clear separation of medical eligibility (`isMedicallyEligible`) and donor availability preference (`isDonorAvailable`)
+  - Decoupled from blood groups (reserved for Blood Matching Engine)
+- Reusable Service (`server/services/eligibilityService.js`):
+  - Can be invoked directly by Camp Registration, Blood Matching Engine, and Donation Tracking without HTTP requests
+- Controller & API (`server/controllers/eligibilityController.js`, `server/routes/eligibilityRoutes.js`):
+  - `GET /eligibility/me`: Authenticated endpoint returning `{ success: true, data: { isMedicallyEligible, isDonorAvailable, nextEligibleDate, reasons, checkedAt } }`
+  - Passwords and sensitive authentication tokens are omitted
+  - Full automated test suite in `scratch/test_eligibility.js` passing 100%
+- Frontend Interface (`src/routes/eligibility.tsx`):
+  - Dedicated route `/eligibility` consuming `GET /eligibility/me` using existing JWT authentication
+  - Renders all key UI states: Loading, Fully Eligible, Medically Eligible but Unavailable, Not Eligible (with authoritative reasons list and formatted `nextEligibleDate`), and Error/Sign-in states
+  - Formats `checkedAt` and `nextEligibleDate` cleanly in Indian locale format
+  - Accessible from the primary navigation bar (`Navbar.tsx`) and through the profile management page (`profile.tsx`)
 
 ---
 
 # 13. Blood Donation Camps
 
-A major REDhope feature is blood donation camp management.
+Camp Management is implemented on the backend:
 
-Planned functionality:
+- Architecture:
+  `campRoutes.js` -> `campController.js` -> `camp` model -> MongoDB
+- Model (`server/models/camp.js`):
+  - Fields: `name`, `description`, `organizer` (ref `user`), `location` (address, city, state, pincode, GeoJSON Point coordinates with sparse `2dsphere` index), `startDate`, `endDate`, `startTime`, `endTime`, `capacity`, `registrationCount`, and `status`.
+  - Initial status defaults to `draft`.
+  - `registrationCount` is system-controlled (defaults to 0, protected from client edits).
+- APIs:
+  - `POST /camps`: Protected (`organizer`, `admin`). Automatically ties `organizer` to `req.user.id`.
+  - `GET /camps`: Public discovery for `published` camps. Supports filtering by `city`, `state`, and date range (`from`/`to`). Draft camps are hidden from public.
+  - `GET /camps/:id`: Public for `published` camps. Drafts restricted to owning organizer or admins. Organizer personal email/phone numbers are omitted for privacy.
+  - `PUT /camps/:id`: Protected. Organizers edit their own camps; admins edit any camp. Enforces allowed status transitions (`draft -> published/cancelled`, `published -> completed/cancelled`).
+  - `DELETE /camps/:id`: Protected. Owners and admins can delete camps with 0 registrations. Blocks hard-delete if `registrationCount > 0` (directs to cancel instead).
+- Full automated test suite in `scratch/test_camp_full.js` covering all 31 scenarios.
 
-### Camp discovery
-
-Users should eventually be able to:
-
-- View camps
-- Search camps
-- Filter camps
-- View camp details
-- Find nearby camps
-
-### Camp registration
+### Camp registration (Next Milestone)
 
 Users should be able to:
 

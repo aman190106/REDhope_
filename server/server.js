@@ -5,6 +5,9 @@ const express = require("express");
 const connectDB = require("./config/db");
 const logger = require("./middleware/loggerMiddleware");
 const homeRoutes = require("./routes/homeRoutes");
+const authRoutes = require("./routes/authRoutes");
+const eligibilityRoutes = require("./routes/eligibilityRoutes");
+const campRoutes = require("./routes/campRoutes");
 const testRoutes = require("./routes/testRoutes");
 
 const app = express();
@@ -17,6 +20,9 @@ app.use(logger);
 
 // Routes
 app.use("/", homeRoutes);
+app.use("/auth", authRoutes);
+app.use("/eligibility", eligibilityRoutes);
+app.use("/camps", campRoutes);
 app.use("/", testRoutes);
 
 connectDB()

@@ -26,41 +26,41 @@ Tasks should be completed incrementally and checked off when verified.
 
 # 🟠 Authentication
 
-- [ ] Design authentication flow
-- [ ] Add password hashing with bcrypt
-- [ ] Update registration to securely store passwords
-- [ ] Implement login~
-- [ ] Implement JWT authentication
-- [ ] Create authentication middleware
-- [ ] Protect private routes
-- [ ] Implement authorization
-- [ ] Define user roles
-- [ ] Test authentication and authorization
+- [x] Design authentication flow
+- [x] Add password hashing with bcrypt
+- [x] Update registration to securely store passwords
+- [x] Implement login
+- [x] Implement JWT authentication
+- [x] Create authentication middleware
+- [x] Protect private routes
+- [x] Implement authorization
+- [x] Define user roles
+- [x] Test authentication and authorization
 
 ---
 
 # 🟡 User Profiles
 
-- [ ] Create user profile structure
-- [ ] Add blood group
-- [ ] Add location information
-- [ ] Add donor information
-- [ ] Add profile update API
-- [ ] Add profile retrieval API
-- [ ] Connect profile with authentication
-- [ ] Build frontend profile page
+- [x] Create user profile structure
+- [x] Add blood group validation
+- [x] Add location information (GeoJSON Point, city, state, pincode)
+- [x] Add donor information (dateOfBirth, gender, isDonorAvailable, lastDonationDate, isEligible)
+- [x] Add profile update API (`PUT /auth/me`)
+- [x] Add profile retrieval API (`GET /auth/me`)
+- [x] Connect profile with authentication (`authMiddleware`)
+- [x] Build frontend profile page
 
 ---
 
 # 🟢 Blood Donation Eligibility
 
-- [ ] Define eligibility rules
-- [ ] Design eligibility data structure
-- [ ] Implement eligibility engine
-- [ ] Create eligibility API
-- [ ] Connect eligibility engine with donor profiles
-- [ ] Add frontend eligibility interface
-- [ ] Test eligibility edge cases
+- [x] Define eligibility rules
+- [x] Design eligibility data structure
+- [x] Implement eligibility engine
+- [x] Create eligibility API (`GET /eligibility/me`)
+- [x] Connect eligibility engine with donor profiles
+- [x] Add frontend eligibility interface
+- [x] Test eligibility edge cases
 
 ---
 
@@ -68,16 +68,16 @@ Tasks should be completed incrementally and checked off when verified.
 
 ## Camp Backend
 
-- [ ] Create Camp model
-- [ ] Create camp controller
-- [ ] Create camp routes
-- [ ] Create camp API
-- [ ] Add camp validation
-- [ ] Implement create camp
-- [ ] Implement get camps
-- [ ] Implement get camp by ID
-- [ ] Implement update camp
-- [ ] Implement delete/cancel camp
+- [x] Create Camp model
+- [x] Create camp controller
+- [x] Create camp routes
+- [x] Create camp API
+- [x] Add camp validation
+- [x] Implement create camp
+- [x] Implement get camps
+- [x] Implement get camp by ID
+- [x] Implement update camp
+- [x] Implement delete/cancel camp
 
 ## Camp Discovery
 

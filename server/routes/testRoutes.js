@@ -2,22 +2,17 @@ const express = require("express");
 const router = express.Router();
 
 const { registerUser, getAllUsers, getUserById, updateUser, deleteUser } = require("../controllers/authcontroller");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Register User
+// Register User (Public)
 router.post("/test", registerUser);
 router.post("/users", registerUser);
 
-// Get all users
-router.get("/users", getAllUsers);
-
-// Get User by ID
-router.get("/users/:id", getUserById);
-
-// Update User
-router.put("/users/:id", updateUser);
-
-// Delete User
-router.delete("/users/:id", deleteUser);
+// Protected User CRUD Routes
+router.get("/users", authMiddleware, getAllUsers);
+router.get("/users/:id", authMiddleware, getUserById);
+router.put("/users/:id", authMiddleware, updateUser);
+router.delete("/users/:id", authMiddleware, deleteUser);
 
 // Search User
 router.get("/search", (req, res) => {

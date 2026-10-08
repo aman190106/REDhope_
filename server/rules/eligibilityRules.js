@@ -1,0 +1,109 @@
+/**
+ * REDhope Eligibility Rules
+ * Isolated, modular business rules for blood donation eligibility.
+ * 
+ * Rules can be added or adjusted here without rewriting the evaluation service.
+ */
+
+// Configurable REDhope business rule constant for donation interval
+const MIN_DONATION_INTERVAL_DAYS = 90;
+
+/**
+ * 1. Administrative / System Block Rule
+ * If isEligible is explicitly false on the user record, the user is blocked.
+ */
+function checkAdminSystemBlock(user) {
+    if (user.isEligible === false) {
+        return {
+            passed: false,
+            reason: "Account marked ineligible by system or administrator."
+        };
+    }
+    return { passed: true };
+}
+
+/**
+ * 2. Age Rule
+ * Calculates current age from dateOfBirth.
+ * Ensures the donor is at least 18 years old at the moment of evaluation.
+ */
+function checkAge(user) {
+    if (!user.dateOfBirth) {
+        return { passed: true }; // If dateOfBirth is not set, skip or handled by registration
+    }
+
+    const birthDate = new Date(user.dateOfBirth);
+    if (isNaN(birthDate.getTime())) {
+        return { passed: true };
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    if (age < 18) {
+        return {
+            passed: false,
+            reason: "Donor must be at least 18 years old."
+        };
+    }
+
+    return { passed: true };
+}
+
+/**
+ * 3. Donation Interval Rule
+ * Calculates whether MIN_DONATION_INTERVAL_DAYS have passed since lastDonationDate.
+ * Calculates nextEligibleDate = lastDonationDate + MIN_DONATION_INTERVAL_DAYS.
+ */
+function checkDonationInterval(user) {
+    if (!user.lastDonationDate) {
+        return {
+            passed: true,
+            nextEligibleDate: null
+        };
+    }
+
+    const lastDonation = new Date(user.lastDonationDate);
+    if (isNaN(lastDonation.getTime())) {
+        return {
+            passed: true,
+            nextEligibleDate: null
+        };
+    }
+
+    // Calculate nextEligibleDate by adding MIN_DONATION_INTERVAL_DAYS
+    const nextEligible = new Date(lastDonation.getTime());
+    nextEligible.setDate(nextEligible.getDate() + MIN_DONATION_INTERVAL_DAYS);
+
+    const now = new Date();
+    if (now < nextEligible) {
+        return {
+            passed: false,
+            nextEligibleDate: nextEligible.toISOString(),
+            reason: "Minimum donation interval has not passed."
+        };
+    }
+
+    return {
+        passed: true,
+        nextEligibleDate: null
+    };
+}
+
+module.exports = {
+    MIN_DONATION_INTERVAL_DAYS,
+    rules: [
+        checkAdminSystemBlock,
+        checkAge,
+        checkDonationInterval
+    ],
+    // Export individual rule helpers for direct testing if needed
+    checkAdminSystemBlock,
+    checkAge,
+    checkDonationInterval
+};
+
