@@ -8,7 +8,13 @@ const VALID_AUDIT_ACTIONS = [
     "SCREENING_CREATED",
     "SCREENING_SUBMITTED",
     "SCREENING_REVIEWED",
-    "SCREENING_STATUS_CHANGED"
+    "SCREENING_STATUS_CHANGED",
+    "ORGANIZER_SCREENING_VIEWED",
+    "MEDICAL_DOCUMENT_VIEWED_BY_ORGANIZER",
+    "MEDICAL_DOCUMENT_DOWNLOADED_BY_ORGANIZER",
+    "CAMP_SCREENING_CREATED",
+    "CAMP_SCREENING_UPDATED",
+    "CAMP_SCREENING_DECISION_RECORDED"
 ];
 
 const medicalAuditLogSchema = new mongoose.Schema({
@@ -36,13 +42,34 @@ const medicalAuditLogSchema = new mongoose.Schema({
 
     resourceType: {
         type: String,
-        enum: ["HealthScreening", "MedicalDocument"],
+        enum: ["HealthScreening", "MedicalDocument", "CampScreening"],
         required: true
     },
 
     resourceId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        index: true
+    },
+
+    donor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        default: null,
+        index: true
+    },
+
+    camp: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "camp",
+        default: null,
+        index: true
+    },
+
+    registration: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "campRegistration",
+        default: null,
         index: true
     },
 

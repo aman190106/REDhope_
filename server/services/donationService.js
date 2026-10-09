@@ -10,6 +10,7 @@ const donation = require("../models/donation");
 const user = require("../models/user");
 const camp = require("../models/camp");
 const campRegistration = require("../models/campRegistration");
+const CampScreening = require("../models/campScreening");
 const { createNotification } = require("./notificationService");
 
 const DEFAULT_LIMIT = 20;
@@ -137,6 +138,17 @@ async function recordDonation({
         const err = new Error("a donation record already exists for this registration");
         err.statusCode = 409;
         throw err;
+    }
+
+    // If camp requires health screening, verify donor's camp screening has been approved
+    if (reg.camp && reg.camp.requireHealthScreening === true) {
+        const campScreening = await CampScreening.findOne({ registration: registrationId });
+        if (!campScreening || campScreening.decision !== "approved") {
+            const currentDecision = campScreening ? campScreening.decision : "none";
+            const err = new Error(`cannot record donation: donor camp screening must be approved (current status: ${currentDecision})`);
+            err.statusCode = 400;
+            throw err;
+        }
     }
 
     // 4. Validate initial status if provided

@@ -15,6 +15,30 @@ Changes currently being developed.
 
 # [2026-10-09]
 
+## Camp-Specific Manual Donor Screening
+
+- **CampScreening Model & Registration Association** (`server/models/campScreening.js`):
+  - Created dedicated `CampScreening` schema scoped strictly to `Donor + Camp + CampRegistration`.
+  - Enforced unique index `{ registration: 1 }` preventing duplicate screening records for the same drive registration.
+  - Captured manual physical examination questions (appearance, acute illness/fever, medications, recent procedures, adverse donation reactions, measured vitals including hemoglobin, blood pressure, pulse).
+  - Recorded screener observations, reviewed document IDs, decision status (`pending`, `approved`, `temporarily_deferred`, `needs_medical_review`, `rejected`), decision reasons, and automatically derived `screenedBy` and `screenedAt`.
+- **Strict Camp-Ownership Authorization & Document Security** (`server/controllers/campScreeningController.js`, `server/routes/campRoutes.js`):
+  - Organizers can access screening workspaces and documents **strictly** for camps they own and for donors actively registered for those camps.
+  - Organizer access across camps blocked with HTTP 403; unregistered donor access rejected.
+  - Secure Document Streaming (`GET /camps/:campId/screenings/:registrationId/documents/:documentId`) verifies camp ownership and donor registration before streaming with `X-Content-Type-Options: nosniff`.
+  - Added audit actions to `MedicalAuditLog`: `ORGANIZER_SCREENING_VIEWED`, `MEDICAL_DOCUMENT_VIEWED_BY_ORGANIZER`, `CAMP_SCREENING_CREATED`, `CAMP_SCREENING_UPDATED`, `CAMP_SCREENING_DECISION_RECORDED`.
+- **Camp-Level Gate for Blood Donation** (`server/services/donationService.js`, `campRegistrationController.js`):
+  - Camp screening approval is strictly camp-specific and does not modify global `user.isEligible`.
+  - When camps mandate screening (`requireHealthScreening: true`), `recordDonation` enforces that the donor's camp screening must be in `approved` status before donation recording.
+  - Donor registration API (`GET /camps/:campId/registrations/me`) returns `screeningStatus` and `screenedAt`.
+- **Frontend Organizer Screening Station & Donor Dashboard** (`src/routes/organizer/camps/`):
+  - Updated `/organizer/camps/$campId`: Added Screening Status column, Screened At timestamps, and "Screen Donor" button to the registered donors table.
+  - Created `/organizer/camps/$campId/screening/$registrationId`: Full-featured screening station featuring donor profile, read-only donor health history, secure document viewers/downloaders, physical questionnaire, observations textarea, and decision submission form.
+- **Verification & Automated Testing**:
+  - Created `scratch/test_camp_screening.js` with 23 assertions verifying all authorization rules, document protections, decision workflows, and donation gates (100% pass rate).
+  - Zero regression across all existing suites: `test_health_screening.js` (42/42), `test_security.js` (40/40), `test_donation_tracking.js` (77/77), `test_analytics.js` (35/35), `test_eligibility.js` (10/10).
+  - Production build verified: `npm run build` compiled all client, SSR, and Nitro server bundles with 0 errors.
+
 ## Donor Health Screening & Medical Review
 
 - **Dedicated Clinical Models** (`server/models/healthScreening.js`, `server/models/medicalDocument.js`, `server/models/medicalAuditLog.js`):

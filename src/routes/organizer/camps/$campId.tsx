@@ -93,6 +93,8 @@ interface RegistrationItem {
   status: "registered" | "cancelled";
   registeredAt: string;
   cancelledAt?: string;
+  screeningStatus?: "pending" | "approved" | "temporarily_deferred" | "needs_medical_review" | "rejected" | string;
+  screenedAt?: string | null;
   user: RegisteredDonorUser;
 }
 
@@ -864,7 +866,9 @@ function OrganizerCampDetailPage() {
                                 <th style={{ padding: "12px 14px" }}>Phone</th>
                                 <th style={{ padding: "12px 14px" }}>Location</th>
                                 <th style={{ padding: "12px 14px" }}>Reg Status</th>
-                                <th style={{ padding: "12px 14px" }}>Donation Status & Actions</th>
+                                <th style={{ padding: "12px 14px" }}>Screening Status</th>
+                                <th style={{ padding: "12px 14px" }}>Screened At</th>
+                                <th style={{ padding: "12px 14px" }}>Screening & Donation Actions</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -875,6 +879,16 @@ function OrganizerCampDetailPage() {
                                       ? d.registration._id
                                       : d.registration) === reg._id
                                 );
+
+                                const sStatus = reg.screeningStatus || "pending";
+                                const badgeColors: Record<string, { bg: string; color: string; label: string }> = {
+                                  approved: { bg: "rgba(40, 167, 69, 0.15)", color: "#28a745", label: "Approved" },
+                                  pending: { bg: "rgba(108, 117, 125, 0.15)", color: "#6c757d", label: "Pending" },
+                                  temporarily_deferred: { bg: "rgba(230, 126, 34, 0.15)", color: "#e67e22", label: "Deferred" },
+                                  needs_medical_review: { bg: "rgba(23, 162, 184, 0.15)", color: "#17a2b8", label: "Review Needed" },
+                                  rejected: { bg: "rgba(220, 53, 69, 0.15)", color: "#dc3545", label: "Rejected" },
+                                };
+                                const badge = badgeColors[sStatus] || badgeColors.pending;
 
                                 return (
                                   <tr
@@ -935,6 +949,47 @@ function OrganizerCampDetailPage() {
                                       </span>
                                     </td>
                                     <td style={{ padding: "14px" }}>
+                                      <span
+                                        style={{
+                                          fontSize: 11,
+                                          fontWeight: 700,
+                                          textTransform: "uppercase",
+                                          padding: "3px 8px",
+                                          borderRadius: 4,
+                                          backgroundColor: badge.bg,
+                                          color: badge.color,
+                                          display: "inline-block",
+                                        }}
+                                      >
+                                        {badge.label}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: "14px", color: "var(--gray)", fontSize: 12 }}>
+                                      {reg.screenedAt ? new Date(reg.screenedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                                    </td>
+                                    <td style={{ padding: "14px" }}>
+                                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                        {/* Screen Donor Action Button */}
+                                        {reg.status === "registered" && (
+                                          <Link
+                                            to="/organizer/camps/$campId/screening/$registrationId"
+                                            params={{ campId: camp._id, registrationId: reg._id }}
+                                            className="btn btn-outline"
+                                            style={{
+                                              padding: "3px 8px",
+                                              fontSize: 11,
+                                              borderColor: "#007bff",
+                                              color: "#007bff",
+                                              display: "inline-flex",
+                                              alignItems: "center",
+                                              gap: 4,
+                                              textDecoration: "none",
+                                              width: "fit-content",
+                                            }}
+                                          >
+                                            <i className="fas fa-stethoscope" /> Screen Donor
+                                          </Link>
+                                        )}
                                       {regDonation ? (
                                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                           <span
@@ -1021,6 +1076,7 @@ function OrganizerCampDetailPage() {
                                       ) : (
                                         <span style={{ fontSize: 12, color: "var(--gray)" }}>—</span>
                                       )}
+                                      </div>
                                     </td>
                                   </tr>
                                 );

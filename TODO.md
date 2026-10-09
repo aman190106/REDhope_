@@ -83,6 +83,27 @@ Tasks should be completed incrementally and checked off when verified.
 
 ---
 
+# 🏥 Camp-Specific Manual Donor Screening
+
+- [x] Create CampScreening model (`server/models/campScreening.js`) belonging to Donor + Camp + CampRegistration
+- [x] Unique index enforcing single screening record per camp registration (`{ registration: 1 }`)
+- [x] Strict camp-ownership authorization (Organizer can only access registered donors for camps they own)
+- [x] Private medical document streaming with camp registration verification (`GET /camps/:campId/screenings/:registrationId/documents/:documentId`)
+- [x] Organizer camp screening list API (`GET /camps/:campId/screenings`)
+- [x] Comprehensive donor screening workspace API (`GET /camps/:campId/screenings/:registrationId`)
+- [x] Manual camp screening questionnaire & decision saving API (`PUT/POST /camps/:campId/screenings/:registrationId`)
+- [x] Mandatory decision reasons for temporary deferral, medical review, and rejection
+- [x] Auto-derived `screenedBy` and timestamped `screenedAt`
+- [x] Gated donation recording on camp screening approval when `requireHealthScreening: true`
+- [x] Medical audit logging (`ORGANIZER_SCREENING_VIEWED`, `MEDICAL_DOCUMENT_VIEWED_BY_ORGANIZER`, `CAMP_SCREENING_CREATED`, `CAMP_SCREENING_UPDATED`, `CAMP_SCREENING_DECISION_RECORDED`)
+- [x] Non-sensitive notifications and Brevo email updates for screening decisions
+- [x] Organizer dashboard donor table updated with screening status, screenedAt, and "Screen Donor" button (`/organizer/camps/$campId`)
+- [x] Organizer manual screening station frontend (`/organizer/camps/$campId/screening/$registrationId`)
+- [x] Donor view registration status updated with `screeningStatus` (`/camps/:campId/registrations/me`)
+- [x] 23-assertion automated test suite (`scratch/test_camp_screening.js`) passing 100%
+
+---
+
 # 🔵 Blood Donation Camps
 
 ## Camp Backend

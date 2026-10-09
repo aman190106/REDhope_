@@ -3,6 +3,7 @@ const camp = require("../models/camp");
 const campRegistration = require("../models/campRegistration");
 const user = require("../models/user");
 const HealthScreening = require("../models/healthScreening");
+const CampScreening = require("../models/campScreening");
 const { evaluateEligibility } = require("../services/eligibilityService");
 const { createNotification } = require("../services/notificationService");
 
@@ -250,6 +251,10 @@ const getMyRegistration = async (req, res) => {
             });
         }
 
+        const screening = await CampScreening.findOne({ registration: registration._id })
+            .select("decision screenedAt")
+            .lean();
+
         return res.status(200).json({
             success: true,
             data: {
@@ -257,6 +262,8 @@ const getMyRegistration = async (req, res) => {
                     _id: registration._id,
                     camp: registration.camp,
                     status: registration.status,
+                    screeningStatus: screening ? screening.decision : "pending",
+                    screenedAt: screening ? screening.screenedAt : null,
                     registeredAt: registration.registeredAt,
                     cancelledAt: registration.cancelledAt
                 }
@@ -466,6 +473,24 @@ const getCampRegistrations = async (req, res) => {
             )
             .select("_id user camp status registeredAt cancelledAt");
 
+        const regIds = registrations.map((r) => r._id);
+        const screenings = await CampScreening.find({ registration: { $in: regIds } })
+            .select("registration decision screenedAt")
+            .lean();
+
+        const screeningMap = new Map();
+        for (const s of screenings) {
+            screeningMap.set(s.registration.toString(), s);
+        }
+
+        const enrichedRegistrations = registrations.map((r) => {
+            const rObj = r.toObject ? r.toObject() : { ...r };
+            const s = screeningMap.get(r._id.toString());
+            rObj.screeningStatus = s ? s.decision : "pending";
+            rObj.screenedAt = s ? s.screenedAt : null;
+            return rObj;
+        });
+
         return res.status(200).json({
             success: true,
             data: {
@@ -476,8 +501,8 @@ const getCampRegistrations = async (req, res) => {
                     registrationCount: targetCamp.registrationCount,
                     status: targetCamp.status
                 },
-                registrations,
-                count: registrations.length,
+                registrations: enrichedRegistrations,
+                count: enrichedRegistrations.length,
                 page,
                 limit,
                 total,

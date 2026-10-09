@@ -12,10 +12,13 @@ const MedicalAuditLog = require("../models/medicalAuditLog");
  * 
  * @param {Object} params
  * @param {string|mongoose.Types.ObjectId} params.actor - User ID performing the action
- * @param {string} params.actorRole - Role of the actor ('user', 'admin')
+ * @param {string} params.actorRole - Role of the actor ('user', 'organizer', 'admin')
  * @param {string} params.action - One of VALID_AUDIT_ACTIONS
- * @param {string} params.resourceType - 'HealthScreening' or 'MedicalDocument'
+ * @param {string} params.resourceType - 'HealthScreening', 'MedicalDocument', or 'CampScreening'
  * @param {string|mongoose.Types.ObjectId} params.resourceId - ID of the target resource
+ * @param {string|mongoose.Types.ObjectId} [params.donor] - Donor ID associated with action
+ * @param {string|mongoose.Types.ObjectId} [params.camp] - Camp ID associated with action
+ * @param {string|mongoose.Types.ObjectId} [params.registration] - Registration ID associated with action
  * @param {Object} [params.details] - Non-sensitive metadata (e.g. status transition, document type)
  * @param {string} [params.ipAddress] - Request IP address
  */
@@ -25,6 +28,9 @@ async function logMedicalEvent({
     action,
     resourceType,
     resourceId,
+    donor = null,
+    camp = null,
+    registration = null,
     details = {},
     ipAddress = null
 }) {
@@ -39,6 +45,9 @@ async function logMedicalEvent({
             action,
             resourceType,
             resourceId,
+            donor,
+            camp,
+            registration,
             details,
             ipAddress,
             timestamp: new Date()

@@ -838,6 +838,45 @@ The Donor Health Screening & Medical Review system provides a secure, private, a
 
 ---
 
+# 20.5 Camp-Specific Manual Donor Screening System
+
+The Camp-Specific Manual Donor Screening system establishes an authorized on-site physical screening workflow for camp organizers without compromising medical privacy or global eligibility integrity:
+
+1. **Architecture & Scope Distinction**:
+   - **Donor Health Screening (Layer 1)**: Self-reported health history, symptoms, and medical records uploaded by the donor. Labeled as `"Submitted by donor"` and strictly read-only for organizers.
+   - **Camp Screening (Layer 2)**: On-site physical examination questionnaire and observations recorded by authorized camp screeners when the donor is physically present at the drive.
+   - **Medical Documents**: Private health reports and certificates accessible only to the donor, administrators, and the authorized organizer of a camp for which the donor is actively registered.
+   - **Camp-Specific Approval Scope**: Camp screening decisions belong strictly to `Donor + Camp + CampRegistration`. Approving a donor for Camp A authorizes them for donation at Camp A only and does **NOT** automatically grant permanent global eligibility (`user.isEligible`) for future drives.
+
+2. **Data Model (`CampScreening`)**:
+   - `donor`: Ref `user`
+   - `camp`: Ref `camp`
+   - `registration`: Ref `campRegistration` (Unique index `{ registration: 1 }` prevents duplicate records per registration)
+   - `questionnaire`: 10 manual physical questions (general appearance, acute fever/illness, medications, recent surgeries, donation reactions, measured vitals including hemoglobin, blood pressure, and pulse)
+   - `observations`: Free-text clinical notes
+   - `reviewedDocuments`: Array of referenced `MedicalDocument` ObjectIds
+   - `decision`: `["pending", "approved", "temporarily_deferred", "needs_medical_review", "rejected"]`
+   - `decisionReason`: Mandatory string when setting decision to deferred, rejected, or needs review
+   - `screenedBy`: Authenticated organizer/screener ID (auto-derived)
+   - `screenedAt`: Server timestamp (auto-generated)
+
+3. **Strict Camp-Ownership Authorization & Document Security**:
+   - Organizers can access donor screening details and documents **only** if they own the camp and the donor is registered for that camp.
+   - Organizers cannot browse all donors, access donors of other camps (HTTP 403), or download medical records merely by knowing a document ID.
+   - Secure Document Streaming: `GET /camps/:campId/screenings/:registrationId/documents/:documentId` verifies ownership and registration before streaming with `X-Content-Type-Options: nosniff`.
+   - Immutable Audit Logging: Every organizer access (`ORGANIZER_SCREENING_VIEWED`, `MEDICAL_DOCUMENT_VIEWED_BY_ORGANIZER`, `CAMP_SCREENING_DECISION_RECORDED`) is logged in `MedicalAuditLog`.
+
+4. **Lifecycle & Donation Recording Gate**:
+   - Flow: `REGISTERED` $\rightarrow$ `SCREENING_PENDING` $\rightarrow$ `SCREENED` $\rightarrow$ `APPROVED` $\rightarrow$ `DONATION`.
+   - When a camp is configured with `requireHealthScreening: true`, `recordDonation` enforces that the donor's camp screening must be `approved` before units can be recorded.
+
+5. **Frontend Interfaces**:
+   - `/organizer/camps/$campId`: Donor table displays Blood Group, Reg Status, Screening Status badge, Screened At timestamp, and a `"Screen Donor"` button.
+   - `/organizer/camps/$campId/screening/$registrationId`: Dedicated screening station featuring donor demographics, read-only donor health history, secure document downloads, manual on-site screening questionnaire, observations, and decision submission form.
+   - `/camps/:campId/registrations/me`: Donor view reflecting updated `screeningStatus`.
+
+---
+
 # 21. Development Workflow
 
 Development should proceed incrementally.

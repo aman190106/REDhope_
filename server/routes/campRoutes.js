@@ -12,6 +12,12 @@ const {
     deleteCamp
 } = require("../controllers/campController");
 const { getCampDonations } = require("../controllers/donationController");
+const {
+    getCampScreenings,
+    getCampScreeningWorkspace,
+    saveCampScreening,
+    streamCampMedicalDocument
+} = require("../controllers/campScreeningController");
 
 // Public list of camps (uses optional auth to let organizers/admins filter drafts)
 router.get("/", optionalAuthMiddleware, getCamps);
@@ -24,6 +30,13 @@ router.get("/analytics", authMiddleware, getCampAnalytics);
 
 // Protected organizer/admin camp donations endpoint
 router.get("/:campId/donations", authMiddleware, getCampDonations);
+
+// Protected organizer/admin camp screening endpoints
+router.get("/:campId/screenings", authMiddleware, getCampScreenings);
+router.get("/:campId/screenings/:registrationId", authMiddleware, getCampScreeningWorkspace);
+router.put("/:campId/screenings/:registrationId", authMiddleware, saveCampScreening);
+router.post("/:campId/screenings/:registrationId", authMiddleware, saveCampScreening);
+router.get("/:campId/screenings/:registrationId/documents/:documentId", authMiddleware, streamCampMedicalDocument);
 
 // Public camp details (uses optional auth to enforce draft visibility to owner/admin)
 router.get("/:id", optionalAuthMiddleware, getCampById);

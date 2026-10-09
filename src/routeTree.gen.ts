@@ -32,6 +32,7 @@ import { Route as CampsCampIdRouteImport } from './routes/camps/$campId'
 import { Route as AdminHealthScreeningsIndexRouteImport } from './routes/admin/health-screenings/index'
 import { Route as OrganizerCampsCampIdRouteImport } from './routes/organizer/camps/$campId'
 import { Route as AdminHealthScreeningsScreeningIdRouteImport } from './routes/admin/health-screenings/$screeningId'
+import { Route as OrganizerCampsCampIdScreeningRegistrationIdRouteImport } from './routes/organizer/camps/$campId.screening.$registrationId'
 
 const StoriesRoute = StoriesRouteImport.update({
   id: '/stories',
@@ -150,6 +151,12 @@ const AdminHealthScreeningsScreeningIdRoute =
     path: '/admin/health-screenings/$screeningId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const OrganizerCampsCampIdScreeningRegistrationIdRoute =
+  OrganizerCampsCampIdScreeningRegistrationIdRouteImport.update({
+    id: '/screening/$registrationId',
+    path: '/screening/$registrationId',
+    getParentRoute: () => OrganizerCampsCampIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,8 +180,9 @@ export interface FileRoutesByFullPath {
   '/camps/': typeof CampsIndexRoute
   '/organizer/': typeof OrganizerIndexRoute
   '/admin/health-screenings/$screeningId': typeof AdminHealthScreeningsScreeningIdRoute
-  '/organizer/camps/$campId': typeof OrganizerCampsCampIdRoute
+  '/organizer/camps/$campId': typeof OrganizerCampsCampIdRouteWithChildren
   '/admin/health-screenings/': typeof AdminHealthScreeningsIndexRoute
+  '/organizer/camps/$campId/screening/$registrationId': typeof OrganizerCampsCampIdScreeningRegistrationIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -198,8 +206,9 @@ export interface FileRoutesByTo {
   '/camps': typeof CampsIndexRoute
   '/organizer': typeof OrganizerIndexRoute
   '/admin/health-screenings/$screeningId': typeof AdminHealthScreeningsScreeningIdRoute
-  '/organizer/camps/$campId': typeof OrganizerCampsCampIdRoute
+  '/organizer/camps/$campId': typeof OrganizerCampsCampIdRouteWithChildren
   '/admin/health-screenings': typeof AdminHealthScreeningsIndexRoute
+  '/organizer/camps/$campId/screening/$registrationId': typeof OrganizerCampsCampIdScreeningRegistrationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,8 +233,9 @@ export interface FileRoutesById {
   '/camps/': typeof CampsIndexRoute
   '/organizer/': typeof OrganizerIndexRoute
   '/admin/health-screenings/$screeningId': typeof AdminHealthScreeningsScreeningIdRoute
-  '/organizer/camps/$campId': typeof OrganizerCampsCampIdRoute
+  '/organizer/camps/$campId': typeof OrganizerCampsCampIdRouteWithChildren
   '/admin/health-screenings/': typeof AdminHealthScreeningsIndexRoute
+  '/organizer/camps/$campId/screening/$registrationId': typeof OrganizerCampsCampIdScreeningRegistrationIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/admin/health-screenings/$screeningId'
     | '/organizer/camps/$campId'
     | '/admin/health-screenings/'
+    | '/organizer/camps/$campId/screening/$registrationId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/admin/health-screenings/$screeningId'
     | '/organizer/camps/$campId'
     | '/admin/health-screenings'
+    | '/organizer/camps/$campId/screening/$registrationId'
   id:
     | '__root__'
     | '/'
@@ -303,6 +315,7 @@ export interface FileRouteTypes {
     | '/admin/health-screenings/$screeningId'
     | '/organizer/camps/$campId'
     | '/admin/health-screenings/'
+    | '/organizer/camps/$campId/screening/$registrationId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -327,7 +340,7 @@ export interface RootRouteChildren {
   CampsIndexRoute: typeof CampsIndexRoute
   OrganizerIndexRoute: typeof OrganizerIndexRoute
   AdminHealthScreeningsScreeningIdRoute: typeof AdminHealthScreeningsScreeningIdRoute
-  OrganizerCampsCampIdRoute: typeof OrganizerCampsCampIdRoute
+  OrganizerCampsCampIdRoute: typeof OrganizerCampsCampIdRouteWithChildren
   AdminHealthScreeningsIndexRoute: typeof AdminHealthScreeningsIndexRoute
 }
 
@@ -494,8 +507,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHealthScreeningsScreeningIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizer/camps/$campId/screening/$registrationId': {
+      id: '/organizer/camps/$campId/screening/$registrationId'
+      path: '/screening/$registrationId'
+      fullPath: '/organizer/camps/$campId/screening/$registrationId'
+      preLoaderRoute: typeof OrganizerCampsCampIdScreeningRegistrationIdRouteImport
+      parentRoute: typeof OrganizerCampsCampIdRoute
+    }
   }
 }
+
+interface OrganizerCampsCampIdRouteChildren {
+  OrganizerCampsCampIdScreeningRegistrationIdRoute: typeof OrganizerCampsCampIdScreeningRegistrationIdRoute
+}
+
+const OrganizerCampsCampIdRouteChildren: OrganizerCampsCampIdRouteChildren = {
+  OrganizerCampsCampIdScreeningRegistrationIdRoute:
+    OrganizerCampsCampIdScreeningRegistrationIdRoute,
+}
+
+const OrganizerCampsCampIdRouteWithChildren =
+  OrganizerCampsCampIdRoute._addFileChildren(OrganizerCampsCampIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -519,7 +551,7 @@ const rootRouteChildren: RootRouteChildren = {
   CampsIndexRoute: CampsIndexRoute,
   OrganizerIndexRoute: OrganizerIndexRoute,
   AdminHealthScreeningsScreeningIdRoute: AdminHealthScreeningsScreeningIdRoute,
-  OrganizerCampsCampIdRoute: OrganizerCampsCampIdRoute,
+  OrganizerCampsCampIdRoute: OrganizerCampsCampIdRouteWithChildren,
   AdminHealthScreeningsIndexRoute: AdminHealthScreeningsIndexRoute,
 }
 export const routeTree = rootRouteImport
