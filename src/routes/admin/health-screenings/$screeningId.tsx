@@ -23,6 +23,7 @@ function AdminScreeningDetailPage() {
 
   const [loading, setLoading] = useState(true);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [screening, setScreening] = useState<any>(null);
   const [documents, setDocuments] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -114,6 +115,41 @@ function AdminScreeningDetailPage() {
       toast.error(err.message || "Failed to submit review decision.");
     } finally {
       setSubmittingReview(false);
+    }
+  };
+
+  const handleDownloadDoc = async (docId: string, originalName: string) => {
+    if (!token) return;
+    setDownloadingDocId(docId);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/admin/health-screenings/${screeningId}/documents/${docId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to download document (HTTP ${res.status})`);
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = originalName || "medical-document";
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to download medical document.");
+    } finally {
+      setDownloadingDocId(null);
     }
   };
 
@@ -353,15 +389,23 @@ function AdminScreeningDetailPage() {
                             {doc.documentType.replace("_", " ").toUpperCase()} &bull; {(doc.fileSize / 1024).toFixed(1)} KB &bull; Uploaded {new Date(doc.createdAt).toLocaleDateString()}
                           </div>
                         </div>
-                        <a
-                          href={`${API_BASE_URL}/admin/health-screenings/${screening._id}/documents/${doc._id}`}
-                          target="_blank"
-                          rel="noreferrer"
+                        <button
+                          type="button"
+                          disabled={downloadingDocId === doc._id}
+                          onClick={() => handleDownloadDoc(doc._id, doc.originalFileName)}
                           className="btn btn-outline"
                           style={{ padding: "6px 14px", fontSize: 13 }}
                         >
-                          <i className="fas fa-download" style={{ marginRight: 6 }} /> Open / Download
-                        </a>
+                          {downloadingDocId === doc._id ? (
+                            <>
+                              <i className="fas fa-spinner fa-spin" style={{ marginRight: 6 }} /> Downloading...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-download" style={{ marginRight: 6 }} /> Open / Download
+                            </>
+                          )}
+                        </button>
                       </div>
                     ))}
                   </div>

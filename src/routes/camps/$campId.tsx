@@ -56,6 +56,8 @@ interface RegistrationInfo {
   status: "registered" | "cancelled";
   registeredAt: string;
   cancelledAt?: string | null;
+  screeningStatus?: "pending" | "cleared" | "temporarily_deferred" | "permanently_deferred" | "rejected";
+  screenedAt?: string | null;
 }
 
 interface EligibilityInfo {
@@ -770,9 +772,42 @@ function CampDetailsPage() {
                                 You are Registered for this Camp!
                               </strong>
                             </div>
-                            <p style={{ margin: 0, fontSize: 13, color: "var(--gray)" }}>
+                            <p style={{ margin: 0, fontSize: 13, color: "var(--gray)", marginBottom: registration.screeningStatus ? 10 : 0 }}>
                               Slot confirmed on {formatDate(registration.registeredAt)}. Please arrive at the venue during operating hours with a valid photo ID.
                             </p>
+                            {registration.screeningStatus && (
+                              <div
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 6,
+                                  marginTop: 8,
+                                  padding: "4px 10px",
+                                  borderRadius: 4,
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  backgroundColor:
+                                    registration.screeningStatus === "cleared"
+                                      ? "rgba(40, 167, 69, 0.15)"
+                                      : registration.screeningStatus === "temporarily_deferred"
+                                      ? "rgba(255, 193, 7, 0.2)"
+                                      : registration.screeningStatus === "pending"
+                                      ? "rgba(108, 117, 125, 0.15)"
+                                      : "rgba(220, 53, 69, 0.15)",
+                                  color:
+                                    registration.screeningStatus === "cleared"
+                                      ? "#28a745"
+                                      : registration.screeningStatus === "temporarily_deferred"
+                                      ? "#856404"
+                                      : registration.screeningStatus === "pending"
+                                      ? "#6c757d"
+                                      : "#dc3545",
+                                }}
+                              >
+                                <i className="fas fa-notes-medical" />
+                                Screening: {registration.screeningStatus.replace("_", " ").toUpperCase()}
+                              </div>
+                            )}
                           </div>
 
                           <button

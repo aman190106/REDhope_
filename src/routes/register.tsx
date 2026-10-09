@@ -23,7 +23,7 @@ export const Route = createFileRoute("/register")({
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 function RegisterPage() {
-  const { register, isAuthenticated, user } = useAuth();
+  const { register, login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -85,8 +85,15 @@ function RegisterPage() {
         bloodGroup,
       });
 
-      toast.success(`Account created! Welcome to REDhope, ${registeredUser.name}!`);
-      navigate({ to: "/dashboard" });
+      // Seamlessly log the newly registered donor in
+      try {
+        await login(email.trim().toLowerCase(), password);
+        toast.success(`Account created! Welcome to REDhope, ${registeredUser.name}!`);
+        navigate({ to: "/dashboard" });
+      } catch {
+        toast.success("Account created successfully! Please sign in.");
+        navigate({ to: "/login" });
+      }
     } catch (err: any) {
       const msg = err.message || "Registration failed. Please check your details.";
       setErrorMsg(msg);

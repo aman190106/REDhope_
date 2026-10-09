@@ -49,6 +49,7 @@ interface UserProfile {
   };
   isDonorAvailable: boolean;
   isEligible: boolean;
+  emailNotifications?: boolean;
   lastDonationDate?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -77,6 +78,7 @@ function ProfilePage() {
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [isDonorAvailable, setIsDonorAvailable] = useState(true);
+  const [emailNotifications, setEmailNotifications] = useState(true);
   const [newPassword, setNewPassword] = useState("");
 
   // Load token from localStorage on mount
@@ -108,6 +110,7 @@ function ProfilePage() {
       setLatitude("");
     }
     setIsDonorAvailable(data.isDonorAvailable ?? true);
+    setEmailNotifications(data.emailNotifications ?? true);
     setNewPassword("");
   };
 
@@ -231,6 +234,7 @@ function ProfilePage() {
       bloodGroup,
       gender,
       isDonorAvailable,
+      emailNotifications,
     };
 
     if (dateOfBirth) {
@@ -639,6 +643,31 @@ function ProfilePage() {
                       </label>
                       <p style={{ color: "var(--gray)", fontSize: 13, marginLeft: 32 }}>
                         When checked, you will appear in eligible donor matching searches when blood is needed in your area.
+                      </p>
+                    </div>
+
+                    <div className="form-group full-width">
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          cursor: "pointer",
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: "var(--secondary)",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={emailNotifications}
+                          onChange={(e) => setEmailNotifications(e.target.checked)}
+                          style={{ width: 20, height: 20, accentColor: "var(--primary)" }}
+                        />
+                        Receive email alerts & notifications
+                      </label>
+                      <p style={{ color: "var(--gray)", fontSize: 13, marginLeft: 32 }}>
+                        Receive email alerts for urgent blood matches, upcoming camp reminders, and verified donation receipts.
                       </p>
                     </div>
 

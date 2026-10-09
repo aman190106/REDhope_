@@ -22,7 +22,8 @@ export const Route = createFileRoute("/notifications")({
   component: NotificationsPage,
 });
 
-const API_BASE = "http://localhost:5000";
+import { API_BASE_URL } from "../lib/api";
+const API_BASE = API_BASE_URL;
 
 interface NotificationMetadata {
   campId?: string;

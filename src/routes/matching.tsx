@@ -23,7 +23,8 @@ export const Route = createFileRoute("/matching")({
   component: BloodMatchingPage,
 });
 
-const API_BASE = "http://localhost:5000";
+import { API_BASE_URL } from "../lib/api";
+const API_BASE = API_BASE_URL;
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 interface MatchedDonor {
