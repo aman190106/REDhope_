@@ -699,7 +699,7 @@ function CampsListPage() {
                             }}
                           >
                             <Link
-                              to={`/camps/${camp._id}`}
+                              to={`/camps/${camp._id}` as any}
                               className="btn"
                               style={{
                                 width: "100%",
@@ -1063,7 +1063,7 @@ function CampsListPage() {
                                 }}
                               >
                                 <Link
-                                  to={`/camps/${camp._id}`}
+                                  to={`/camps/${camp._id}` as any}
                                   className="btn"
                                   style={{
                                     width: "100%",

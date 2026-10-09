@@ -977,7 +977,7 @@ function CampDetailsPage() {
               <i className="fas fa-triangle-exclamation" /> Cancel Camp Registration?
             </h3>
             <p style={{ color: "var(--gray)", fontSize: 14, marginBottom: 22, lineHeight: 1.5 }}>
-              Are you sure you want to cancel your donation registration for <strong>{camp.name}</strong>? Your reserved slot will be released for other willing donors.
+              Are you sure you want to cancel your donation registration for <strong>{camp?.name || "this camp"}</strong>? Your reserved slot will be released for other willing donors.
             </p>
 
             <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>

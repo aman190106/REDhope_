@@ -27,6 +27,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganizerIndexRouteImport } from './routes/organizer/index'
 import { Route as CampsIndexRouteImport } from './routes/camps/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as OrganizerAnalyticsRouteImport } from './routes/organizer/analytics'
 import { Route as CampsCampIdRouteImport } from './routes/camps/$campId'
 import { Route as AdminHealthScreeningsIndexRouteImport } from './routes/admin/health-screenings/index'
@@ -123,6 +124,11 @@ const CampsIndexRoute = CampsIndexRouteImport.update({
   path: '/camps/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizerAnalyticsRoute = OrganizerAnalyticsRouteImport.update({
   id: '/organizer/analytics',
   path: '/organizer/analytics',
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/stories': typeof StoriesRoute
   '/camps/$campId': typeof CampsCampIdRoute
   '/organizer/analytics': typeof OrganizerAnalyticsRoute
+  '/admin/': typeof AdminIndexRoute
   '/camps/': typeof CampsIndexRoute
   '/organizer/': typeof OrganizerIndexRoute
   '/admin/health-screenings/$screeningId': typeof AdminHealthScreeningsScreeningIdRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByTo {
   '/stories': typeof StoriesRoute
   '/camps/$campId': typeof CampsCampIdRoute
   '/organizer/analytics': typeof OrganizerAnalyticsRoute
+  '/admin': typeof AdminIndexRoute
   '/camps': typeof CampsIndexRoute
   '/organizer': typeof OrganizerIndexRoute
   '/admin/health-screenings/$screeningId': typeof AdminHealthScreeningsScreeningIdRoute
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/stories': typeof StoriesRoute
   '/camps/$campId': typeof CampsCampIdRoute
   '/organizer/analytics': typeof OrganizerAnalyticsRoute
+  '/admin/': typeof AdminIndexRoute
   '/camps/': typeof CampsIndexRoute
   '/organizer/': typeof OrganizerIndexRoute
   '/admin/health-screenings/$screeningId': typeof AdminHealthScreeningsScreeningIdRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/stories'
     | '/camps/$campId'
     | '/organizer/analytics'
+    | '/admin/'
     | '/camps/'
     | '/organizer/'
     | '/admin/health-screenings/$screeningId'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/stories'
     | '/camps/$campId'
     | '/organizer/analytics'
+    | '/admin'
     | '/camps'
     | '/organizer'
     | '/admin/health-screenings/$screeningId'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/stories'
     | '/camps/$campId'
     | '/organizer/analytics'
+    | '/admin/'
     | '/camps/'
     | '/organizer/'
     | '/admin/health-screenings/$screeningId'
@@ -324,6 +336,7 @@ export interface RootRouteChildren {
   StoriesRoute: typeof StoriesRoute
   CampsCampIdRoute: typeof CampsCampIdRoute
   OrganizerAnalyticsRoute: typeof OrganizerAnalyticsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   CampsIndexRoute: typeof CampsIndexRoute
   OrganizerIndexRoute: typeof OrganizerIndexRoute
   AdminHealthScreeningsScreeningIdRoute: typeof AdminHealthScreeningsScreeningIdRoute
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organizer/analytics': {
       id: '/organizer/analytics'
       path: '/organizer/analytics'
@@ -516,6 +536,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoriesRoute: StoriesRoute,
   CampsCampIdRoute: CampsCampIdRoute,
   OrganizerAnalyticsRoute: OrganizerAnalyticsRoute,
+  AdminIndexRoute: AdminIndexRoute,
   CampsIndexRoute: CampsIndexRoute,
   OrganizerIndexRoute: OrganizerIndexRoute,
   AdminHealthScreeningsScreeningIdRoute: AdminHealthScreeningsScreeningIdRoute,

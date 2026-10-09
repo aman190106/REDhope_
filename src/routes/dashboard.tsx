@@ -5,6 +5,7 @@ import { Footer } from "../components/Footer";
 import { toast } from "../components/AppToaster";
 import { useAuth } from "../lib/auth";
 import { api } from "../lib/api";
+import { getEligibilityDisplay, type EligibilityEvaluation } from "../lib/eligibility";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -20,13 +21,6 @@ export const Route = createFileRoute("/dashboard")({
   }),
   component: DashboardPage,
 });
-
-interface EligibilitySummary {
-  isMedicallyEligible: boolean;
-  isDonorAvailable: boolean;
-  nextEligibleDate: string | null;
-  reasons: string[];
-}
 
 interface RecentDonation {
   _id: string;
@@ -58,7 +52,7 @@ function DashboardPage() {
   const { user, token, isAuthenticated, isLoading: authLoading, updateUserInMemory } = useAuth();
   const navigate = useNavigate();
 
-  const [eligibility, setEligibility] = useState<EligibilitySummary | null>(null);
+  const [eligibility, setEligibility] = useState<EligibilityEvaluation | null>(null);
   const [donations, setDonations] = useState<RecentDonation[]>([]);
   const [campsRegistered, setCampsRegistered] = useState<CampRegistrationItem[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -80,7 +74,7 @@ function DashboardPage() {
     try {
       // 1. Fetch Eligibility
       try {
-        const elRes = await api.get<{ success: boolean; data: EligibilitySummary }>("/eligibility/me");
+        const elRes = await api.get<{ success: boolean; data: EligibilityEvaluation }>("/eligibility/me");
         if (elRes?.success && elRes.data) {
           setEligibility(elRes.data);
         }
@@ -196,7 +190,7 @@ function DashboardPage() {
   }
 
   const completedDonationsCount = donations.filter((d) => d.status === "completed").length;
-  const isMedicallyEligible = eligibility?.isMedicallyEligible ?? user.isEligible;
+  const eligibilityDisplay = getEligibilityDisplay(eligibility, user);
   const isAvailable = user.isDonorAvailable;
 
   return (
@@ -306,22 +300,25 @@ function DashboardPage() {
               </div>
               <div
                 style={{
-                  fontSize: "1.4rem",
+                  fontSize: "1.3rem",
                   fontWeight: 700,
                   marginTop: 10,
-                  color: isMedicallyEligible ? "var(--success)" : "#d97706",
+                  color: eligibilityDisplay.color,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 8,
                 }}
               >
-                <i className={`fas fa-${isMedicallyEligible ? "check-circle" : "clock"}`} />
-                {isMedicallyEligible ? "Eligible to Donate" : "Waiting Period"}
+                <i className={eligibilityDisplay.icon} />
+                {eligibilityDisplay.badgeText}
               </div>
               <div style={{ fontSize: 13, color: "var(--gray)", marginTop: 8 }}>
-                <Link to="/eligibility" style={{ color: "var(--primary)", fontWeight: 600 }}>
-                  View criteria & rules &rarr;
+                <Link
+                  to={eligibilityDisplay.linkTo || "/eligibility"}
+                  style={{ color: "var(--primary)", fontWeight: 600 }}
+                >
+                  {eligibilityDisplay.linkText || "View criteria & rules →"}
                 </Link>
               </div>
             </div>

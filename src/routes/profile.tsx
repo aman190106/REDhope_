@@ -29,6 +29,7 @@ const GENDERS = [
 ];
 
 import { API_BASE_URL } from "../lib/api";
+import { getEligibilityDisplay, type EligibilityEvaluation } from "../lib/eligibility";
 const API_BASE = API_BASE_URL;
 
 interface UserProfile {
@@ -59,6 +60,7 @@ function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [eligibility, setEligibility] = useState<EligibilityEvaluation | null>(null);
 
   // Authentication form state (when unauthenticated)
   const [authEmail, setAuthEmail] = useState("");
@@ -137,6 +139,21 @@ function ProfilePage() {
       }
 
       populateForm(data.user);
+
+      // Fetch unified medical eligibility evaluation
+      try {
+        const elRes = await fetch(`${API_BASE}/eligibility/me`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        const elJson = await elRes.json();
+        if (elJson?.success && elJson.data) {
+          setEligibility(elJson.data);
+        }
+      } catch (elErr) {
+        console.warn("Failed to load medical eligibility evaluation", elErr);
+      }
     } catch (err) {
       console.error(err);
       toast.error("Unable to connect to server. Please check your backend.");
@@ -292,6 +309,8 @@ function ProfilePage() {
     }
   };
 
+  const eligibilityDisplay = getEligibilityDisplay(eligibility, user);
+
   return (
     <>
       <Navbar solid />
@@ -393,7 +412,7 @@ function ProfilePage() {
                   {/* Status Badges */}
                   <span
                     style={{
-                      background: user.isEligible ? "var(--success)" : "var(--gray)",
+                      background: eligibilityDisplay.color,
                       color: "white",
                       padding: "8px 16px",
                       borderRadius: 20,
@@ -404,8 +423,8 @@ function ProfilePage() {
                       gap: 6,
                     }}
                   >
-                    <i className={user.isEligible ? "fas fa-check-circle" : "fas fa-clock"} />
-                    {user.isEligible ? "Eligible to Donate" : "Ineligible / Waiting Period"}
+                    <i className={eligibilityDisplay.icon} />
+                    {eligibilityDisplay.badgeText}
                   </span>
 
                   <Link
@@ -450,9 +469,18 @@ function ProfilePage() {
                   <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
                     Eligibility Status
                   </div>
-                  <div style={{ color: user.isEligible ? "var(--success)" : "var(--primary)", fontWeight: 700, fontSize: 16 }}>
-                    <i className={user.isEligible ? "fas fa-heartbeat" : "fas fa-exclamation-triangle"} style={{ marginRight: 6 }} />
-                    {user.isEligible ? "Verified Eligible" : "Temporarily Ineligible"}
+                  <div style={{ color: eligibilityDisplay.color, fontWeight: 700, fontSize: 16 }}>
+                    <i className={eligibilityDisplay.icon} style={{ marginRight: 6 }} />
+                    {eligibilityDisplay.cardTitle}
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
+                    {eligibilityDisplay.linkTo ? (
+                      <Link to={eligibilityDisplay.linkTo} style={{ color: "var(--primary)", fontWeight: 600 }}>
+                        {eligibilityDisplay.linkText || eligibilityDisplay.cardSubtitle}
+                      </Link>
+                    ) : (
+                      eligibilityDisplay.cardSubtitle
+                    )}
                   </div>
                 </div>
 

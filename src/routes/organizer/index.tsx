@@ -633,7 +633,7 @@ function OrganizerDashboardPage() {
                         {/* Action Buttons */}
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
                           <Link
-                            to={`/organizer/camps/${camp._id}`}
+                            to={`/organizer/camps/${camp._id}` as any}
                             className="btn btn-outline"
                             style={{ padding: "8px 16px", fontSize: 13 }}
                           >

@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<UserProfile> => {
-    const res = await api.post<{ success: boolean; token: string; user: UserProfile }>(
+    const res = await api.post<{ success: boolean; token?: string; user?: UserProfile; message?: string }>(
       "/auth/login",
       { email, password }
     );
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     phone: string;
     bloodGroup: string;
   }): Promise<UserProfile> => {
-    const res = await api.post<{ success: boolean; data: UserProfile }>(
+    const res = await api.post<{ success: boolean; data?: UserProfile; message?: string }>(
       "/auth/register",
       payload
     );
