@@ -215,6 +215,18 @@ const createCamp = async (req, res) => {
         const populatedCamp = await camp.findById(newCamp._id)
             .populate("organizer", "_id name");
 
+        // Trigger nearby donor alerts asynchronously if camp is published
+        if (initialStatus === "published") {
+            try {
+                const { notifyNearbyDonorsForCamp } = require("../services/campNotificationService");
+                notifyNearbyDonorsForCamp(populatedCamp).catch((err) => {
+                    console.error("Failed to notify nearby donors on camp creation:", err.message);
+                });
+            } catch (notifyErr) {
+                console.error("Could not initiate nearby camp notifications:", notifyErr.message);
+            }
+        }
+
         return res.status(201).json({
             success: true,
             message: "camp created successfully",
@@ -743,6 +755,18 @@ const updateCamp = async (req, res) => {
                         },
                         eventKey: `camp-update:${id}:${reg.user}:${Date.now()}`
                     });
+                }
+            }
+
+            // If camp was draft and is now published, notify nearby donors
+            if (status === "published" && existingCamp.status === "draft") {
+                try {
+                    const { notifyNearbyDonorsForCamp } = require("../services/campNotificationService");
+                    notifyNearbyDonorsForCamp(updatedCamp).catch((err) => {
+                        console.error("Failed to notify nearby donors on camp publish:", err.message);
+                    });
+                } catch (notifyErr) {
+                    console.error("Could not initiate nearby camp notifications on publish:", notifyErr.message);
                 }
             }
         } catch (notifErr) {

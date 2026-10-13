@@ -485,6 +485,72 @@ function getDonationRecordedTemplate({ donorName, campName, donationDate, units,
     };
 }
 
+// ─────────────────────────────────────────────
+// I. Nearby Camp Available Alert
+// ─────────────────────────────────────────────
+function getNearbyCampAlertTemplate({ donorName, campName, startDate, endDate, startTime, endTime, address, city, distanceKm, campId }) {
+    const subject = `REDhope - Blood Donation Camp Available Near You: ${campName}`;
+    const heading = "Blood Donation Camp Near You!";
+    const venue = address ? `${address}${city ? `, ${city}` : ""}` : (city || "Camp Venue");
+    const frontendUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",")[0].trim() : "http://localhost:5173";
+    const ctaUrl = campId ? `${frontendUrl}/camps/${campId}` : `${frontendUrl}/camps`;
+
+    const contentHtml = `
+      <p>Hello ${donorName || "Donor"},</p>
+      <p>A new voluntary blood donation drive has been scheduled near your area. Every donation can save up to three lives.</p>
+      <table class="info-table">
+        <tr>
+          <td class="info-label">Camp Name:</td>
+          <td class="info-value"><strong>${campName}</strong></td>
+        </tr>
+        <tr>
+          <td class="info-label">Date:</td>
+          <td class="info-value">${formatDate(startDate)}${endDate && endDate !== startDate ? ` - ${formatDate(endDate)}` : ""}</td>
+        </tr>
+        ${startTime ? `
+        <tr>
+          <td class="info-label">Timings:</td>
+          <td class="info-value">${startTime}${endTime ? ` - ${endTime}` : ""}</td>
+        </tr>` : ""}
+        <tr>
+          <td class="info-label">Venue:</td>
+          <td class="info-value">${venue}</td>
+        </tr>
+        ${distanceKm !== undefined && distanceKm !== null ? `
+        <tr>
+          <td class="info-label">Proximity:</td>
+          <td class="info-value"><span class="badge" style="background-color: rgba(59, 130, 246, 0.12); color: #2563eb;">Approx. ${Math.round(distanceKm)} km away</span></td>
+        </tr>` : ""}
+      </table>
+      <p style="font-size: 13px; color: #64748b;">
+        Walk-ins and advance registrations are welcome. Register online in advance to confirm your slot and avoid waiting time.
+      </p>
+    `;
+
+    const text = `REDhope - Blood Donation Camp Near You: ${campName}\n\n` +
+        `Hello ${donorName || "Donor"},\n\n` +
+        `A blood donation camp has been scheduled near you:\n` +
+        `Camp: ${campName}\n` +
+        `Date: ${formatDate(startDate)}\n` +
+        (startTime ? `Time: ${startTime} - ${endTime}\n` : "") +
+        `Venue: ${venue}\n` +
+        (distanceKm !== undefined && distanceKm !== null ? `Distance: Approx. ${Math.round(distanceKm)} km\n` : "") +
+        `\nView camp details and register: ${ctaUrl}\n\n` +
+        `REDhope Blood Donation Platform`;
+
+    return {
+        subject,
+        html: baseLayout({
+            title: subject,
+            heading,
+            contentHtml,
+            ctaText: "View Camp & Register",
+            ctaUrl
+        }),
+        text
+    };
+}
+
 module.exports = {
     getCampRegistrationTemplate,
     getCampRegistrationCancelledTemplate,
@@ -493,6 +559,7 @@ module.exports = {
     getCampReminderTemplate,
     getBloodMatchTemplate,
     getDonationReminderTemplate,
-    getDonationRecordedTemplate
+    getDonationRecordedTemplate,
+    getNearbyCampAlertTemplate
 };
 
