@@ -238,8 +238,8 @@ function ProfilePage() {
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
         age--;
       }
-      if (age < 18) {
-        toast.error("Donor must be at least 18 years old.");
+      if (isDonorAvailable && user?.role === "user" && age < 18) {
+        toast.error("Blood donors must be at least 18 years old to be medically eligible.");
         return;
       }
     }
@@ -406,38 +406,81 @@ function ProfilePage() {
                   <p style={{ color: "var(--gray)", fontSize: 14 }}>
                     <i className="fas fa-envelope" /> {user.email} &bull;{" "}
                     <i className="fas fa-shield-alt" /> Role:{" "}
-                    <strong style={{ textTransform: "capitalize", color: "var(--secondary)" }}>
-                      {user.role}
+                    <strong style={{ color: "var(--secondary)" }}>
+                      {user.role === "organizer"
+                        ? "Camp Organizer"
+                        : user.role === "user" && !isDonorAvailable
+                        ? "Person Seeking Blood"
+                        : user.role === "admin"
+                        ? "System Administrator"
+                        : "Blood Donor"}
                     </strong>
                   </p>
                 </div>
 
                 <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                   {/* Status Badges */}
-                  <span
-                    style={{
-                      background: eligibilityDisplay.color,
-                      color: "white",
-                      padding: "8px 16px",
-                      borderRadius: 20,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <i className={eligibilityDisplay.icon} />
-                    {eligibilityDisplay.badgeText}
-                  </span>
+                  {user.role === "organizer" ? (
+                    <Link
+                      to="/organizer"
+                      className="btn"
+                      style={{ padding: "8px 16px", fontSize: 13 }}
+                    >
+                      <i className="fas fa-gauge-high" /> Organizer Dashboard
+                    </Link>
+                  ) : user.role === "user" && !isDonorAvailable ? (
+                    <>
+                      <span
+                        style={{
+                          background: "#2563eb",
+                          color: "white",
+                          padding: "8px 16px",
+                          borderRadius: 20,
+                          fontWeight: 700,
+                          fontSize: 13,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <i className="fas fa-hand-holding-medical" /> Recipient Mode
+                      </span>
+                      <Link
+                        to="/matching"
+                        className="btn"
+                        style={{ padding: "8px 16px", fontSize: 13 }}
+                      >
+                        <i className="fas fa-search-location" /> Find Donors
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <span
+                        style={{
+                          background: eligibilityDisplay.color,
+                          color: "white",
+                          padding: "8px 16px",
+                          borderRadius: 20,
+                          fontWeight: 700,
+                          fontSize: 13,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <i className={eligibilityDisplay.icon} />
+                        {eligibilityDisplay.badgeText}
+                      </span>
 
-                  <Link
-                    to="/eligibility"
-                    className="btn"
-                    style={{ padding: "8px 16px", fontSize: 13 }}
-                  >
-                    <i className="fas fa-stethoscope" /> Check Eligibility
-                  </Link>
+                      <Link
+                        to="/eligibility"
+                        className="btn"
+                        style={{ padding: "8px 16px", fontSize: 13 }}
+                      >
+                        <i className="fas fa-stethoscope" /> Check Eligibility
+                      </Link>
+                    </>
+                  )}
 
                   <button
                     type="button"
@@ -463,46 +506,120 @@ function ProfilePage() {
                   <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
                     System Role
                   </div>
-                  <div style={{ color: "var(--secondary)", fontWeight: 700, fontSize: 16, textTransform: "capitalize" }}>
-                    <i className="fas fa-id-badge" style={{ color: "var(--primary)", marginRight: 6 }} />
-                    {user.role} (System Protected)
-                  </div>
-                </div>
-
-                <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
-                  <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                    Eligibility Status
-                  </div>
-                  <div style={{ color: eligibilityDisplay.color, fontWeight: 700, fontSize: 16 }}>
-                    <i className={eligibilityDisplay.icon} style={{ marginRight: 6 }} />
-                    {eligibilityDisplay.cardTitle}
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
-                    {eligibilityDisplay.linkTo ? (
-                      <Link to={eligibilityDisplay.linkTo} style={{ color: "var(--primary)", fontWeight: 600 }}>
-                        {eligibilityDisplay.linkText || eligibilityDisplay.cardSubtitle}
-                      </Link>
-                    ) : (
-                      eligibilityDisplay.cardSubtitle
-                    )}
-                  </div>
-                </div>
-
-                <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
-                  <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                    Last Donation Date
-                  </div>
                   <div style={{ color: "var(--secondary)", fontWeight: 700, fontSize: 16 }}>
-                    <i className="fas fa-calendar-check" style={{ color: "var(--primary)", marginRight: 6 }} />
-                    {user.lastDonationDate
-                      ? new Date(user.lastDonationDate).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : "No recorded donations"}
+                    <i className="fas fa-id-badge" style={{ color: "var(--primary)", marginRight: 6 }} />
+                    {user.role === "organizer"
+                      ? "Camp Organizer"
+                      : user.role === "user" && !isDonorAvailable
+                      ? "Blood Recipient"
+                      : user.role === "admin"
+                      ? "Administrator"
+                      : "Blood Donor"}
                   </div>
                 </div>
+
+                {user.role === "organizer" ? (
+                  <>
+                    <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
+                      <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                        Camp Management
+                      </div>
+                      <div style={{ color: "var(--secondary)", fontWeight: 700, fontSize: 16 }}>
+                        <i className="fas fa-tent" style={{ color: "var(--primary)", marginRight: 6 }} />
+                        Camp Drives Console
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
+                        <Link to="/organizer" style={{ color: "var(--primary)", fontWeight: 600 }}>
+                          Manage camps & donors &rarr;
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
+                      <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                        Camp Analytics
+                      </div>
+                      <div style={{ color: "var(--secondary)", fontWeight: 700, fontSize: 16 }}>
+                        <i className="fas fa-chart-line" style={{ color: "var(--primary)", marginRight: 6 }} />
+                        Registration Insights
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
+                        <Link to="/organizer/analytics" style={{ color: "var(--primary)", fontWeight: 600 }}>
+                          View analytics &rarr;
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                ) : user.role === "user" && !isDonorAvailable ? (
+                  <>
+                    <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
+                      <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                        Blood Needed
+                      </div>
+                      <div style={{ color: "#2563eb", fontWeight: 800, fontSize: 20 }}>
+                        <i className="fas fa-tint" style={{ marginRight: 6 }} />
+                        {user.bloodGroup || "—"}
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
+                        <Link to="/matching" style={{ color: "#2563eb", fontWeight: 600 }}>
+                          Search compatible donors &rarr;
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
+                      <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                        Nearby Drives
+                      </div>
+                      <div style={{ color: "var(--secondary)", fontWeight: 700, fontSize: 16 }}>
+                        <i className="fas fa-map-marked-alt" style={{ color: "var(--primary)", marginRight: 6 }} />
+                        Active Camps
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
+                        <Link to="/camps" style={{ color: "var(--primary)", fontWeight: 600 }}>
+                          Discover local camps &rarr;
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
+                      <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                        Eligibility Status
+                      </div>
+                      <div style={{ color: eligibilityDisplay.color, fontWeight: 700, fontSize: 16 }}>
+                        <i className={eligibilityDisplay.icon} style={{ marginRight: 6 }} />
+                        {eligibilityDisplay.cardTitle}
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 4 }}>
+                        {eligibilityDisplay.linkTo ? (
+                          <Link to={eligibilityDisplay.linkTo} style={{ color: "var(--primary)", fontWeight: 600 }}>
+                            {eligibilityDisplay.linkText || eligibilityDisplay.cardSubtitle}
+                          </Link>
+                        ) : (
+                          eligibilityDisplay.cardSubtitle
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ background: "white", padding: 18, borderRadius: 10, boxShadow: "var(--shadow)" }}>
+                      <div style={{ fontSize: 12, color: "var(--gray)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                        Last Donation Date
+                      </div>
+                      <div style={{ color: "var(--secondary)", fontWeight: 700, fontSize: 16 }}>
+                        <i className="fas fa-calendar-check" style={{ color: "var(--primary)", marginRight: 6 }} />
+                        {user.lastDonationDate
+                          ? new Date(user.lastDonationDate).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "No recorded donations"}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Editable Profile Form */}
@@ -548,7 +665,9 @@ function ProfilePage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="required-field">Blood Group</label>
+                      <label className="required-field">
+                        {user.role === "user" && !isDonorAvailable ? "Needed Blood Group" : "Blood Group"}
+                      </label>
                       <select
                         value={bloodGroup}
                         onChange={(e) => setBloodGroup(e.target.value)}
@@ -645,34 +764,41 @@ function ProfilePage() {
                 {/* Donor Availability & Security */}
                 <div className="form-section">
                   <h3>
-                    <i className="fas fa-sliders-h" /> Donor Availability & Security
+                    <i className="fas fa-sliders-h" />{" "}
+                    {user.role === "organizer" ? "Account Preferences & Security" : "Donor Preferences & Security"}
                   </h3>
 
                   <div className="form-grid">
-                    <div className="form-group full-width">
-                      <label
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 12,
-                          cursor: "pointer",
-                          fontSize: 16,
-                          fontWeight: 600,
-                          color: "var(--secondary)",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isDonorAvailable}
-                          onChange={(e) => setIsDonorAvailable(e.target.checked)}
-                          style={{ width: 20, height: 20, accentColor: "var(--primary)" }}
-                        />
-                        Available for emergency blood donation requests
-                      </label>
-                      <p style={{ color: "var(--gray)", fontSize: 13, marginLeft: 32 }}>
-                        When checked, you will appear in eligible donor matching searches when blood is needed in your area.
-                      </p>
-                    </div>
+                    {user.role === "user" && (
+                      <div className="form-group full-width">
+                        <label
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            cursor: "pointer",
+                            fontSize: 16,
+                            fontWeight: 600,
+                            color: "var(--secondary)",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isDonorAvailable}
+                            onChange={(e) => setIsDonorAvailable(e.target.checked)}
+                            style={{ width: 20, height: 20, accentColor: "var(--primary)" }}
+                          />
+                          {isDonorAvailable
+                            ? "Available for voluntary blood donations & emergency calls"
+                            : "Switch to Donor Mode (Enable voluntary blood donation availability)"}
+                        </label>
+                        <p style={{ color: "var(--gray)", fontSize: 13, marginLeft: 32 }}>
+                          {isDonorAvailable
+                            ? "When enabled, you will appear in compatible donor searches when patients in your area need blood."
+                            : "Currently in Recipient Mode (Seeking Blood). Check this box if you wish to voluntarily donate blood."}
+                        </p>
+                      </div>
+                    )}
 
                     <div className="form-group full-width">
                       <label

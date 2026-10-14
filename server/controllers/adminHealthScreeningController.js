@@ -49,8 +49,12 @@ const listHealthScreenings = async (req, res) => {
 
         const query = {};
 
-        if (status) {
-            query.status = status;
+        if (status && status !== "all") {
+            if (status.includes(",")) {
+                query.status = { $in: status.split(",").map((s) => s.trim()) };
+            } else {
+                query.status = status;
+            }
         }
 
         if (from || to) {
@@ -84,10 +88,27 @@ const listHealthScreenings = async (req, res) => {
             .limit(limitNum)
             .lean();
 
+        const enrichedScreenings = screenings.map((sc) => {
+            if (!sc.user) {
+                return {
+                    ...sc,
+                    user: {
+                        _id: "unregistered",
+                        name: "Unregistered Donor",
+                        email: "unregistered@redhope.com",
+                        phone: "—",
+                        bloodGroup: "O+",
+                        role: "user"
+                    }
+                };
+            }
+            return sc;
+        });
+
         return res.status(200).json({
             success: true,
             data: {
-                screenings,
+                screenings: enrichedScreenings,
                 pagination: {
                     page: pageNum,
                     limit: limitNum,
@@ -137,6 +158,19 @@ const getHealthScreeningDetails = async (req, res) => {
             });
         }
 
+        const screeningObj = screening.toObject();
+        if (!screeningObj.user) {
+            screeningObj.user = {
+                _id: "unregistered",
+                name: "Unregistered Donor",
+                email: "unregistered@redhope.com",
+                phone: "—",
+                bloodGroup: "O+",
+                role: "user",
+                isEligible: false
+            };
+        }
+
         // Fetch documents metadata
         const documents = await MedicalDocument.find({ screening: id })
             .select("-storageKey")
@@ -158,7 +192,7 @@ const getHealthScreeningDetails = async (req, res) => {
         return res.status(200).json({
             success: true,
             data: {
-                screening,
+                screening: screeningObj,
                 documents,
                 auditLogs
             }
@@ -297,6 +331,13 @@ const reviewHealthScreening = async (req, res) => {
         };
 
         await screening.save();
+
+        // Synchronize donor isEligible flag
+        if (decision === "approved") {
+            await user.findByIdAndUpdate(screening.user, { isEligible: true });
+        } else if (decision === "permanently_deferred" || decision === "temporarily_deferred") {
+            await user.findByIdAndUpdate(screening.user, { isEligible: false });
+        }
 
         // Audit log events
         await logMedicalEvent({

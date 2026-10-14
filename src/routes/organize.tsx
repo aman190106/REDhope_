@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { toast } from "../components/AppToaster";
+import { useAuth } from "../lib/auth";
 
 export const Route = createFileRoute("/organize")({
   head: () => ({
@@ -24,7 +25,36 @@ export const Route = createFileRoute("/organize")({
 });
 
 function OrganizePage() {
+  const { user, isAuthenticated } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+
+  if (isAuthenticated && user && user.role !== "organizer" && user.role !== "admin") {
+    return (
+      <>
+        <Navbar solid />
+        <section className="features" style={{ minHeight: "70vh", display: "flex", alignItems: "center" }}>
+          <div className="container" style={{ maxWidth: 540, margin: "40px auto", textAlign: "center" }}>
+            <div className="form-section">
+              <i className="fas fa-tent fa-3x" style={{ color: "var(--primary)", marginBottom: 16 }} />
+              <h2 style={{ marginBottom: 8 }}>Organizer Access Required</h2>
+              <p style={{ color: "var(--gray)", marginBottom: 24, lineHeight: 1.6 }}>
+                You are currently signed in as a <strong>{user.isDonorAvailable === false ? "Blood Recipient" : "Blood Donor"}</strong>. Hosting and managing blood donation camps is reserved for verified Camp Organizers.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                <Link to="/dashboard" className="btn">
+                  My Dashboard
+                </Link>
+                <Link to="/camps" className="btn btn-outline">
+                  Browse Camps
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

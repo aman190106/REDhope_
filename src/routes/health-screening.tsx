@@ -285,6 +285,54 @@ function HealthScreeningPage() {
     );
   }
 
+  if (user.role === "organizer") {
+    return (
+      <>
+        <Navbar solid />
+        <section className="features" style={{ minHeight: "70vh", display: "flex", alignItems: "center" }}>
+          <div className="container" style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
+            <div className="form-section">
+              <i className="fas fa-notes-medical fa-3x" style={{ color: "var(--primary)", marginBottom: 16 }} />
+              <h2>Donor Health Screening</h2>
+              <p style={{ color: "var(--gray)", marginBottom: 24 }}>
+                Health screening questionnaires are for voluntary blood donors. As a Camp Organizer, you can review camp registrations and donor check-ins on your organizer dashboard.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                <Link to="/organizer" className="btn">Organizer Dashboard</Link>
+                <Link to="/camps" className="btn btn-outline">View Camps</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
+
+  if (user.role === "user" && user.isDonorAvailable === false) {
+    return (
+      <>
+        <Navbar solid />
+        <section className="features" style={{ minHeight: "70vh", display: "flex", alignItems: "center" }}>
+          <div className="container" style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
+            <div className="form-section">
+              <i className="fas fa-hand-holding-medical fa-3x" style={{ color: "var(--primary)", marginBottom: 16 }} />
+              <h2>Recipient Account</h2>
+              <p style={{ color: "var(--gray)", marginBottom: 24 }}>
+                Health pre-screening questionnaires are designed for voluntary blood donors. As someone seeking blood, you can search for compatible donors or locate upcoming donation camps.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                <Link to="/matching" className="btn">Find Matching Donors</Link>
+                <Link to="/dashboard" className="btn btn-outline">Recipient Dashboard</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar solid />

@@ -349,7 +349,7 @@ function OrganizerDashboardPage() {
               <p style={{ color: "var(--gray)", marginBottom: 24, fontSize: 14 }}>
                 Please sign in with your organizer or administrator account to access the dashboard.
               </p>
-              <Link to="/profile" className="btn">
+              <Link to="/login" className="btn">
                 Sign In to REDhope
               </Link>
             </div>

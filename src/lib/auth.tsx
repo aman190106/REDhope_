@@ -53,6 +53,8 @@ interface AuthContextType {
     password: string;
     phone: string;
     bloodGroup: string;
+    role?: "user" | "organizer";
+    isDonorAvailable?: boolean;
   }) => Promise<UserProfile>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -123,6 +125,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string;
     phone: string;
     bloodGroup: string;
+    role?: "user" | "organizer";
+    isDonorAvailable?: boolean;
   }): Promise<UserProfile> => {
     const res = await api.post<{ success: boolean; data?: UserProfile; message?: string }>(
       "/auth/register",

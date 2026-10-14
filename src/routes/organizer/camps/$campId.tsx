@@ -532,7 +532,7 @@ function OrganizerCampDetailPage() {
               <i className="fas fa-lock fa-3x" style={{ color: "var(--primary)", marginBottom: 16 }} />
               <h3>Authentication Required</h3>
               <p style={{ color: "var(--gray)", marginBottom: 20 }}>Please sign in to manage this blood donation camp.</p>
-              <Link to="/profile" className="btn">Sign In</Link>
+              <Link to="/login" className="btn">Sign In</Link>
             </div>
           ) : currentUser?.role !== "organizer" && currentUser?.role !== "admin" ? (
             <div className="form-section" style={{ textAlign: "center", padding: "60px 30px", maxWidth: 500, margin: "0 auto" }}>

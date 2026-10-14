@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import { useAuth } from "../lib/auth";
 
 export const Route = createFileRoute("/donations")({
   head: () => ({
@@ -46,7 +47,7 @@ interface DonationRecord {
 }
 
 function DonationsPage() {
-  const [token, setToken] = useState<string | null>(null);
+  const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -54,15 +55,20 @@ function DonationsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
+  const isOrganizer = user?.role === "organizer";
+  const isRecipient = user?.role === "user" && user?.isDonorAvailable === false;
+
   useEffect(() => {
-    const savedToken = localStorage.getItem("token") || localStorage.getItem("redhope_token");
-    if (!savedToken) {
+    if (!authLoading && !isAuthenticated) {
       setLoading(false);
       return;
     }
-    setToken(savedToken);
-    fetchDonations(savedToken, 1);
-  }, []);
+    if (token && !isOrganizer && !isRecipient) {
+      fetchDonations(token, 1);
+    } else {
+      setLoading(false);
+    }
+  }, [authLoading, isAuthenticated, token, isOrganizer, isRecipient]);
 
   const fetchDonations = async (authToken: string, page: number) => {
     setLoading(true);
@@ -161,6 +167,78 @@ function DonationsPage() {
       year: "numeric",
     });
   };
+
+  if (isOrganizer) {
+    return (
+      <>
+        <Navbar solid />
+        <main style={{ backgroundColor: "#f8f9fa", minHeight: "85vh", padding: "60px 16px" }}>
+          <div
+            style={{
+              maxWidth: 540,
+              margin: "40px auto",
+              textAlign: "center",
+              background: "#fff",
+              padding: "48px 24px",
+              borderRadius: 12,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+            }}
+          >
+            <i className="fas fa-hand-holding-heart fa-3x" style={{ color: "var(--primary)", marginBottom: 16 }} />
+            <h2 style={{ color: "var(--secondary)", marginBottom: 10 }}>Organizer Console</h2>
+            <p style={{ color: "var(--gray)", marginBottom: 24, lineHeight: 1.6 }}>
+              Personal donation history is designed for blood donors. As a Camp Organizer, access your camps, registered donors, and check-in logs via the Organizer Dashboard.
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <Link to="/organizer" className="btn">
+                Organizer Dashboard
+              </Link>
+              <Link to="/organize" className="btn btn-outline">
+                Host a Camp
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (isRecipient) {
+    return (
+      <>
+        <Navbar solid />
+        <main style={{ backgroundColor: "#f8f9fa", minHeight: "85vh", padding: "60px 16px" }}>
+          <div
+            style={{
+              maxWidth: 540,
+              margin: "40px auto",
+              textAlign: "center",
+              background: "#fff",
+              padding: "48px 24px",
+              borderRadius: 12,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+            }}
+          >
+            <i className="fas fa-hand-holding-medical fa-3x" style={{ color: "var(--primary)", marginBottom: 16 }} />
+            <h2 style={{ color: "var(--secondary)", marginBottom: 10 }}>Recipient Mode</h2>
+            <p style={{ color: "var(--gray)", marginBottom: 24, lineHeight: 1.6 }}>
+              You are currently registered as a Blood Recipient. Donation records are tracked for voluntary donors. If you need blood, find compatible donors or upcoming camps in your area.
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <Link to="/matching" className="btn">
+                Find Matching Donors
+              </Link>
+              <Link to="/dashboard" className="btn btn-outline">
+                Recipient Dashboard
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

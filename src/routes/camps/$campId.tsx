@@ -886,8 +886,10 @@ function CampDetailsPage() {
                                 color: "#856404",
                               }}
                             >
-                              <i className="fas fa-user-clock" style={{ marginRight: 6 }} />
-                              Your donor status is marked as <strong>Unavailable</strong> in your profile. Update your profile before registering.
+                              Your donor status is currently in <strong>Recipient / Unavailable</strong> mode.{" "}
+                              <Link to="/dashboard" style={{ color: "#856404", fontWeight: 700, textDecoration: "underline" }}>
+                                Switch to Donor Mode &rarr;
+                              </Link>
                             </div>
                           )}
 

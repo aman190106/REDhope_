@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const user = require("../models/user");
+const HealthScreening = require("../models/healthScreening");
 
 const SALT_ROUNDS = 10;
 
@@ -29,7 +30,7 @@ const isSelf = (req, id) => req.user && req.user.id === id.toString();
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password, phone, bloodGroup } = req.body;
+        const { name, email, password, phone, bloodGroup, role, isDonorAvailable } = req.body;
 
         if (!name || !email || !password || !phone || !bloodGroup) {
             return res.status(400).json({
@@ -85,13 +86,22 @@ const registerUser = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-        const newUser = await user.create({
+        const userPayload = {
             name,
             email,
             password: hashedPassword,
             phone,
             bloodGroup: normalizedBloodGroup
-        });
+        };
+
+        if (role === "organizer") {
+            userPayload.role = "organizer";
+        }
+        if (typeof isDonorAvailable === "boolean") {
+            userPayload.isDonorAvailable = isDonorAvailable;
+        }
+
+        const newUser = await user.create(userPayload);
 
         return res.status(201).json({
             success: true,
@@ -411,20 +421,147 @@ const getAllUsers = async (req, res) => {
         if (!isAdmin(req)) {
             return res.status(403).json({
                 success: false,
-                message: "access denied"
+                message: "access denied: administrative access required"
             });
         }
 
-        const users = await user.find().select("-password");
+        const {
+            page = 1,
+            limit = 15,
+            search = "",
+            role = "",
+            bloodGroup = "",
+            isEligible = "",
+            screeningStatus = "",
+            sortBy = "createdAt",
+            sortOrder = "desc"
+        } = req.query;
+
+        const pageNum = Math.max(1, parseInt(page, 10) || 1);
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 15));
+        const skip = (pageNum - 1) * limitNum;
+
+        const query = {};
+
+        if (role && role !== "all") {
+            query.role = role;
+        }
+
+        if (bloodGroup && bloodGroup !== "all") {
+            query.bloodGroup = bloodGroup.toUpperCase().trim();
+        }
+
+        if (isEligible !== undefined && isEligible !== "" && isEligible !== "all") {
+            query.isEligible = isEligible === "true" || isEligible === true;
+        }
+
+        if (search && search.trim()) {
+            const trimmed = search.trim();
+            if (mongoose.Types.ObjectId.isValid(trimmed)) {
+                query.$or = [
+                    { _id: new mongoose.Types.ObjectId(trimmed) },
+                    { name: { $regex: trimmed, $options: "i" } },
+                    { email: { $regex: trimmed, $options: "i" } }
+                ];
+            } else {
+                const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                query.$or = [
+                    { name: { $regex: escaped, $options: "i" } },
+                    { email: { $regex: escaped, $options: "i" } },
+                    { phone: { $regex: escaped, $options: "i" } }
+                ];
+            }
+        }
+
+        // If screeningStatus filter is requested
+        if (screeningStatus && screeningStatus !== "all") {
+            if (screeningStatus === "none" || screeningStatus === "not_submitted") {
+                const screenedUserIds = await HealthScreening.distinct("user");
+                query._id = { $nin: screenedUserIds };
+            } else {
+                const matchingUserIds = await HealthScreening.find({ status: screeningStatus }).distinct("user");
+                query._id = { $in: matchingUserIds };
+            }
+        }
+
+        // Build sort object
+        const sortObj = {};
+        const allowedSortFields = ["createdAt", "name", "email", "bloodGroup", "isEligible", "lastDonationDate"];
+        const field = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
+        sortObj[field] = sortOrder === "asc" ? 1 : -1;
+
+        const totalUsers = await user.countDocuments(query);
+        const rawUsers = await user.find(query)
+            .select("-password")
+            .sort(sortObj)
+            .skip(skip)
+            .limit(limitNum)
+            .lean();
+
+        // Attach latest screening & calculated age for each user
+        const userIds = rawUsers.map((u) => u._id);
+        const screenings = await HealthScreening.find({ user: { $in: userIds } })
+            .select("_id user status preliminaryFlags submittedAt reviewerDecision createdAt")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const screeningByUser = {};
+        for (const sc of screenings) {
+            const uId = sc.user.toString();
+            if (!screeningByUser[uId]) {
+                screeningByUser[uId] = sc;
+            }
+        }
+
+        const enrichedUsers = rawUsers.map((u) => {
+            const uId = u._id.toString();
+            const sc = screeningByUser[uId] || null;
+
+            let age = null;
+            if (u.dateOfBirth) {
+                const bDate = new Date(u.dateOfBirth);
+                if (!isNaN(bDate.getTime())) {
+                    const today = new Date();
+                    age = today.getFullYear() - bDate.getFullYear();
+                    const m = today.getMonth() - bDate.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < bDate.getDate())) {
+                        age--;
+                    }
+                }
+            }
+
+            return {
+                ...u,
+                age,
+                screening: sc
+                    ? {
+                          _id: sc._id,
+                          status: sc.status,
+                          flagsCount: sc.preliminaryFlags?.length || 0,
+                          submittedAt: sc.submittedAt,
+                          reviewerDecision: sc.reviewerDecision?.decision || null,
+                          reviewedAt: sc.reviewerDecision?.reviewedAt || null
+                      }
+                    : null
+            };
+        });
 
         return res.status(200).json({
             success: true,
-            count: users.length,
-            users
+            count: totalUsers,
+            users: enrichedUsers,
+            data: {
+                users: enrichedUsers,
+                pagination: {
+                    total: totalUsers,
+                    page: pageNum,
+                    limit: limitNum,
+                    pages: Math.ceil(totalUsers / limitNum) || 1
+                }
+            }
         });
     } catch (error) {
-        console.log(error);
-
+        console.error("Error in getAllUsers:", error);
         return res.status(500).json({
             success: false,
             message: "internal server error"

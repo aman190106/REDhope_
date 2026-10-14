@@ -63,7 +63,68 @@ export function Navbar({ solid = false }: NavbarProps) {
   if (solid) classes.push("solid");
   else if (scrolled) classes.push("scrolled");
 
-  const isOrganizerOrAdmin = user?.role === "organizer" || user?.role === "admin";
+  const isOrganizer = user?.role === "organizer";
+  const isAdmin = user?.role === "admin";
+  const isRecipient = !isOrganizer && !isAdmin && user?.isDonorAvailable === false;
+  const isDonor = !isOrganizer && !isAdmin && user?.isDonorAvailable !== false;
+
+  const getNavLinks = () => {
+    if (!isAuthenticated) {
+      return [
+        { to: "/", label: "Home" },
+        { to: "/camps", label: "Camps" },
+        { to: "/matching", label: "Find Donors" },
+        { to: "/eligibility", label: "Eligibility" },
+        { to: "/about", label: "About Us" },
+        { to: "/stories", label: "Stories" },
+        { to: "/contact", label: "Contact Us" },
+      ];
+    }
+
+    if (isAdmin) {
+      return [
+        { to: "/admin", label: "Admin Dashboard" },
+        { to: "/admin/health-screenings", label: "Review Queue" },
+        { to: "/camps", label: "Camps" },
+      ];
+    }
+
+    if (isOrganizer) {
+      return [
+        { to: "/", label: "Home" },
+        { to: "/organize", label: "Host a Camp" },
+        { to: "/camps", label: "Camps" },
+        { to: "/organizer/analytics", label: "Analytics" },
+        { to: "/about", label: "About Us" },
+        { to: "/stories", label: "Stories" },
+        { to: "/contact", label: "Contact Us" },
+      ];
+    }
+
+    if (isRecipient) {
+      return [
+        { to: "/", label: "Home" },
+        { to: "/matching", label: "Find Donors" },
+        { to: "/camps", label: "Nearby Camps" },
+        { to: "/about", label: "About Us" },
+        { to: "/stories", label: "Stories" },
+        { to: "/contact", label: "Contact Us" },
+      ];
+    }
+
+    // Default Donor Experience
+    return [
+      { to: "/", label: "Home" },
+      { to: "/camps", label: "Camps" },
+      { to: "/donations", label: "Donations" },
+      { to: "/eligibility", label: "Eligibility" },
+      { to: "/about", label: "About Us" },
+      { to: "/stories", label: "Stories" },
+      { to: "/contact", label: "Contact Us" },
+    ];
+  };
+
+  const navLinks = getNavLinks();
 
   return (
     <nav className={classes.join(" ")}>
@@ -91,106 +152,108 @@ export function Navbar({ solid = false }: NavbarProps) {
             </li>
           ))}
 
-          {isOrganizerOrAdmin && (
-            <li>
-              <Link
-                to="/organizer"
-                className={pathname.startsWith("/organizer") ? "active" : ""}
-                style={{ color: "#ffc107" }}
-              >
-                <i className="fas fa-gauge-high" style={{ marginRight: 6 }} />
-                Organizer
-              </Link>
-            </li>
-          )}
-
-          {user?.role === "admin" && (
-            <li>
-              <Link
-                to="/admin/health-screenings"
-                className={pathname.startsWith("/admin/health-screenings") ? "active" : ""}
-                style={{ color: "#60a5fa" }}
-              >
-                <i className="fas fa-stethoscope" style={{ marginRight: 6 }} />
-                Screenings
-              </Link>
-            </li>
-          )}
 
           {isAuthenticated ? (
             <>
-              <li>
-                <Link
-                  to="/profile"
-                  className={pathname === "/profile" ? "active" : ""}
-                >
-                  Profile
-                </Link>
-              </li>
+              {/* Profile — non-admin only */}
+              {!isAdmin && (
+                <li>
+                  <Link
+                    to="/profile"
+                    className={pathname === "/profile" ? "active" : ""}
+                  >
+                    Profile
+                  </Link>
+                </li>
+              )}
 
-              <li>
-                <Link
-                  to="/notifications"
-                  className={pathname === "/notifications" ? "active" : ""}
-                  aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
-                  title="Notifications"
-                  style={{
-                    position: "relative",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    padding: "4px 8px",
-                  }}
-                >
-                  <i className="fas fa-bell" style={{ fontSize: "1.15rem" }} />
-                  {open && <span style={{ marginLeft: 8 }}>Notifications</span>}
-                  {unreadCount > 0 && (
-                    <span
-                      style={{
-                        position: open ? "static" : "absolute",
-                        marginLeft: open ? 8 : 0,
-                        top: open ? "auto" : "-4px",
-                        right: open ? "auto" : "-4px",
-                        backgroundColor: "#e63946",
-                        color: "#ffffff",
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        lineHeight: "14px",
-                        minWidth: "16px",
-                        height: "16px",
-                        borderRadius: "8px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "0 4px",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                      }}
-                    >
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </Link>
-              </li>
+              {/* Notifications bell — non-admin only */}
+              {!isAdmin && (
+                <li>
+                  <Link
+                    to="/notifications"
+                    className={pathname === "/notifications" ? "active" : ""}
+                    aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+                    title="Notifications"
+                    style={{
+                      position: "relative",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "4px 8px",
+                    }}
+                  >
+                    <i className="fas fa-bell" style={{ fontSize: "1.15rem" }} />
+                    {open && <span style={{ marginLeft: 8 }}>Notifications</span>}
+                    {unreadCount > 0 && (
+                      <span
+                        style={{
+                          position: open ? "static" : "absolute",
+                          marginLeft: open ? 8 : 0,
+                          top: open ? "auto" : "-4px",
+                          right: open ? "auto" : "-4px",
+                          backgroundColor: "#e63946",
+                          color: "#ffffff",
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          lineHeight: "14px",
+                          minWidth: "16px",
+                          height: "16px",
+                          borderRadius: "8px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "0 4px",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              )}
 
-              <li>
-                <Link to="/dashboard" className="btn" style={{ padding: "8px 18px", fontSize: 14 }}>
-                  Dashboard
-                </Link>
-              </li>
+              {/* Role badge — non-admin only */}
+              {!isAdmin && (
+                <li style={{ display: "inline-flex", alignItems: "center" }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 800,
+                      textTransform: "uppercase",
+                      padding: "2px 8px",
+                      borderRadius: 10,
+                      backgroundColor: isOrganizer ? "rgba(245, 158, 11, 0.2)" : isRecipient ? "rgba(59, 130, 246, 0.2)" : "rgba(239, 68, 68, 0.2)",
+                      color: isOrganizer ? "#fbbf24" : isRecipient ? "#93c5fd" : "#fca5a5",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {isOrganizer ? "Organizer" : isRecipient ? "Recipient" : "Donor"}
+                  </span>
+                </li>
+              )}
+
+              {/* Dashboard button — non-admin only */}
+              {!isAdmin && (
+                <li>
+                  <Link
+                    to={isOrganizer ? "/organizer" : "/dashboard"}
+                    className="nav-btn nav-btn-primary"
+                  >
+                    <i className="fas fa-th-large" style={{ marginRight: 6 }} />
+                    Dashboard
+                  </Link>
+                </li>
+              )}
 
               <li>
                 <button
                   type="button"
                   onClick={logout}
-                  className="btn btn-outline"
-                  style={{
-                    padding: "7px 14px",
-                    fontSize: 13,
-                    borderColor: "rgba(255,255,255,0.4)",
-                    color: "inherit",
-                    cursor: "pointer",
-                  }}
+                  className="nav-btn nav-btn-logout"
                 >
-                  <i className="fas fa-sign-out-alt" style={{ marginRight: 4 }} /> Logout
+                  <i className="fas fa-sign-out-alt" style={{ marginRight: 6 }} />
+                  <span>Logout</span>
                 </button>
               </li>
             </>

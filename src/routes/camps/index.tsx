@@ -111,6 +111,9 @@ function CampsListPage() {
       const json = await res.json();
       if (res.ok && json.success && json.user) {
         setUserProfile(json.user);
+        if (typeof json.user.notificationRadiusKm === "number" && json.user.notificationRadiusKm > 0) {
+          setNearbyRadiusKm(json.user.notificationRadiusKm);
+        }
       }
     } catch (err) {
       console.error("Error loading user profile for nearby discovery:", err);

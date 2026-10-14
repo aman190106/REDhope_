@@ -17,6 +17,7 @@ const campRegistration = require("../models/campRegistration");
 const donation = require("../models/donation");
 const user = require("../models/user");
 const bloodRequest = require("../models/bloodRequest");
+const HealthScreening = require("../models/healthScreening");
 
 const ALL_BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const ALL_CAMP_STATUSES = ["draft", "published", "completed", "cancelled"];
@@ -321,13 +322,43 @@ async function getAnalytics({ userId, userRole, from, to }) {
     let bloodRequestMetrics = null;
 
     if (userRole === "admin") {
-        // Aggregate user stats without returning any PII
-        const [totalUsersCount, availableDonorsCount, eligibleDonorsCount, usersByGroupAgg] = await Promise.all([
+        // Aggregate real platform user & health stats without returning any PII
+        const [
+            totalUsersCount,
+            totalDonorsCount,
+            totalOrganizersCount,
+            totalAdminsCount,
+            availableDonorsCount,
+            eligibleDonorsCount,
+            deferredDonorsCount,
+            pendingReviewsCount,
+            usersByGroupAgg,
+            userRegTrendAgg,
+            screeningStatusAgg
+        ] = await Promise.all([
             user.countDocuments({}),
+            user.countDocuments({ role: "user" }),
+            user.countDocuments({ role: "organizer" }),
+            user.countDocuments({ role: "admin" }),
             user.countDocuments({ isDonorAvailable: true }),
-            user.countDocuments({ isEligible: true }),
+            user.countDocuments({ role: "user", isEligible: true }),
+            user.countDocuments({ role: "user", isEligible: false }),
+            HealthScreening.countDocuments({ status: { $in: ["submitted", "under_review", "pending_review"] } }),
             user.aggregate([
                 { $group: { _id: "$bloodGroup", count: { $sum: 1 } } }
+            ]),
+            user.aggregate([
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } },
+                { $project: { _id: 0, period: "$_id", registrations: "$count" } }
+            ]),
+            HealthScreening.aggregate([
+                { $group: { _id: "$status", count: { $sum: 1 } } }
             ])
         ]);
 
@@ -339,14 +370,34 @@ async function getAnalytics({ userId, userRole, from, to }) {
             }
         }
 
+        const screeningMap = {};
+        for (const s of screeningStatusAgg) {
+            if (s._id) screeningMap[s._id] = s.count;
+        }
+
         userMetrics = {
+            totalUsers: totalUsersCount,
             totalRegisteredUsers: totalUsersCount,
+            totalDonors: totalDonorsCount,
+            totalOrganizers: totalOrganizersCount,
+            totalAdmins: totalAdminsCount,
             availableDonors: availableDonorsCount,
             eligibleDonors: eligibleDonorsCount,
+            deferredDonors: deferredDonorsCount,
+            pendingMedicalReviews: pendingReviewsCount,
             usersByBloodGroup: ALL_BLOOD_GROUPS.map((bg) => ({
                 bloodGroup: bg,
                 count: userGroupMap[bg] || 0
-            }))
+            })),
+            registrationTrend: userRegTrendAgg,
+            screeningDistribution: [
+                { name: "Approved / Eligible", value: screeningMap["approved"] || 0, color: "#10b981" },
+                { name: "Pending Review", value: (screeningMap["submitted"] || 0) + (screeningMap["under_review"] || 0), color: "#3b82f6" },
+                { name: "Needs Info", value: screeningMap["needs_information"] || 0, color: "#f59e0b" },
+                { name: "Temp Deferred", value: screeningMap["temporarily_deferred"] || 0, color: "#ef4444" },
+                { name: "Perm Deferred", value: screeningMap["permanently_deferred"] || 0, color: "#991b1b" },
+                { name: "Incomplete / Draft", value: screeningMap["draft"] || 0, color: "#64748b" }
+            ]
         };
 
         // Aggregate Blood Requests

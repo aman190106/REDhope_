@@ -26,6 +26,7 @@ function RegisterPage() {
   const { register, login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
+  const [accountType, setAccountType] = useState<"donor" | "organizer" | "recipient">("donor");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -58,8 +59,8 @@ function RegisterPage() {
       setErrorMsg("Please enter a valid email address.");
       return;
     }
-    if (!phone || !/^\d{10}$/.test(phone.trim())) {
-      setErrorMsg("Phone number must be exactly 10 digits.");
+    if (!phone || !/^[6-9]\d{9}$/.test(phone.trim())) {
+      setErrorMsg("Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9).");
       return;
     }
     if (!password || password.length < 6) {
@@ -77,19 +78,28 @@ function RegisterPage() {
 
     try {
       setIsSubmitting(true);
+      const isOrganizer = accountType === "organizer";
+      const isDonor = accountType === "donor";
+
       const registeredUser = await register({
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
         phone: phone.trim(),
         bloodGroup,
+        role: isOrganizer ? "organizer" : "user",
+        isDonorAvailable: isDonor,
       });
 
-      // Seamlessly log the newly registered donor in
+      // Seamlessly log the newly registered user in
       try {
         await login(email.trim().toLowerCase(), password);
         toast.success(`Account created! Welcome to REDhope, ${registeredUser.name}!`);
-        navigate({ to: "/dashboard" });
+        if (isOrganizer) {
+          navigate({ to: "/organizer" });
+        } else {
+          navigate({ to: "/dashboard" });
+        }
       } catch {
         toast.success("Account created successfully! Please sign in.");
         navigate({ to: "/login" });
@@ -118,7 +128,10 @@ function RegisterPage() {
                 You are currently signed in as <strong>{user.name}</strong> ({user.bloodGroup}).
               </p>
               <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                <Link to="/dashboard" className="btn">
+                <Link
+                  to={user.role === "organizer" || user.role === "admin" ? "/organizer" : "/dashboard"}
+                  className="btn"
+                >
                   Go to Dashboard
                 </Link>
                 <Link to="/profile" className="btn btn-outline">
@@ -137,36 +150,257 @@ function RegisterPage() {
     <>
       <Navbar solid />
 
-      <section className="hero hero-compact" style={{ minHeight: "30vh", padding: "60px 0 40px" }}>
+      <section className="hero hero-compact" style={{ minHeight: "26vh", padding: "50px 0 30px" }}>
         <div className="hero-inner">
-          <h1>Join as a Blood Donor</h1>
-          <p>Register once and be a beacon of hope for someone in urgent medical need.</p>
+          <h1 style={{ fontSize: "2.4rem", marginBottom: 8 }}>Create Your Account</h1>
+          <p style={{ fontSize: "1.05rem", opacity: 0.9 }}>Join REDhope and be part of a stronger, healthier India.</p>
         </div>
       </section>
 
-      <section className="features" style={{ padding: "40px 0 80px" }}>
+      <section className="features" style={{ padding: "30px 0 80px" }}>
         <div className="container">
-          <div className="form-section" style={{ maxWidth: 520, margin: "0 auto", padding: "32px 28px" }}>
+          <div className="form-section" style={{ maxWidth: 580, margin: "0 auto", padding: "32px 28px" }}>
+            {/* Register As Role Selector */}
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ textAlign: "center", marginBottom: 14 }}>
+                <h3 style={{ fontSize: "1.25rem", margin: 0, fontWeight: 700 }}>Register As</h3>
+                <p style={{ color: "var(--gray)", fontSize: 13, margin: "4px 0 0" }}>
+                  Choose how you want to be part of REDhope
+                </p>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                  gap: 12,
+                }}
+              >
+                {/* 1. Blood Donor */}
+                <button
+                  type="button"
+                  onClick={() => setAccountType("donor")}
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    padding: "16px 14px",
+                    borderRadius: 10,
+                    border: accountType === "donor" ? "2px solid #e63946" : "1.5px solid #e2e8f0",
+                    background: accountType === "donor" ? "#fef2f2" : "#ffffff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {accountType === "donor" && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        backgroundColor: "#e63946",
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                      }}
+                    >
+                      <i className="fas fa-check" />
+                    </span>
+                  )}
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: "50%",
+                      backgroundColor: accountType === "donor" ? "rgba(230, 57, 70, 0.15)" : "#f1f5f9",
+                      color: accountType === "donor" ? "#e63946" : "#64748b",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 18,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <i className="fas fa-heart" />
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#1e293b", marginBottom: 2 }}>
+                    Blood Donor
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.3 }}>
+                    Donate blood and save lives
+                  </div>
+                </button>
+
+                {/* 2. Camp Organizer */}
+                <button
+                  type="button"
+                  onClick={() => setAccountType("organizer")}
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    padding: "16px 14px",
+                    borderRadius: 10,
+                    border: accountType === "organizer" ? "2px solid #e63946" : "1.5px solid #e2e8f0",
+                    background: accountType === "organizer" ? "#fef2f2" : "#ffffff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {accountType === "organizer" && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        backgroundColor: "#e63946",
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                      }}
+                    >
+                      <i className="fas fa-check" />
+                    </span>
+                  )}
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: "50%",
+                      backgroundColor: accountType === "organizer" ? "rgba(230, 57, 70, 0.15)" : "#f1f5f9",
+                      color: accountType === "organizer" ? "#e63946" : "#64748b",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 18,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <i className="fas fa-hospital" />
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#1e293b", marginBottom: 2 }}>
+                    Camp Organizer
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.3 }}>
+                    Host blood donation camps
+                  </div>
+                </button>
+
+                {/* 3. Need Blood */}
+                <button
+                  type="button"
+                  onClick={() => setAccountType("recipient")}
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    padding: "16px 14px",
+                    borderRadius: 10,
+                    border: accountType === "recipient" ? "2px solid #e63946" : "1.5px solid #e2e8f0",
+                    background: accountType === "recipient" ? "#fef2f2" : "#ffffff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {accountType === "recipient" && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        backgroundColor: "#e63946",
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                      }}
+                    >
+                      <i className="fas fa-check" />
+                    </span>
+                  )}
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: "50%",
+                      backgroundColor: accountType === "recipient" ? "rgba(230, 57, 70, 0.15)" : "#f1f5f9",
+                      color: accountType === "recipient" ? "#e63946" : "#64748b",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 18,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <i className="fas fa-users" />
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#1e293b", marginBottom: 2 }}>
+                    Need Blood
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.3 }}>
+                    Find donors and available blood
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Header */}
             <div style={{ textAlign: "center", marginBottom: 24 }}>
               <div
                 style={{
-                  width: 56,
-                  height: 56,
+                  width: 50,
+                  height: 50,
                   borderRadius: "50%",
                   background: "rgba(230, 57, 70, 0.1)",
                   color: "var(--primary)",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 24,
-                  marginBottom: 12,
+                  fontSize: 22,
+                  marginBottom: 10,
                 }}
               >
-                <i className="fas fa-hand-holding-heart" />
+                {accountType === "organizer" ? (
+                  <i className="fas fa-hospital" />
+                ) : accountType === "recipient" ? (
+                  <i className="fas fa-users" />
+                ) : (
+                  <i className="fas fa-heart" />
+                )}
               </div>
-              <h3 style={{ fontSize: "1.4rem", margin: 0 }}>Donor Registration</h3>
+              <h3 style={{ fontSize: "1.35rem", margin: 0, fontWeight: 700 }}>
+                {accountType === "organizer"
+                  ? "Organizer Registration"
+                  : accountType === "recipient"
+                  ? "Recipient Registration"
+                  : "Donor Registration"}
+              </h3>
               <p style={{ color: "var(--gray)", fontSize: 14, margin: "6px 0 0" }}>
-                Quick registration to join India's blood hero network
+                {accountType === "organizer"
+                  ? "Register your organization to host blood donation drives"
+                  : accountType === "recipient"
+                  ? "Quick registration to connect with matching donors in urgent need"
+                  : "Quick registration to join India's blood hero network"}
               </p>
             </div>
 
@@ -263,7 +497,7 @@ function RegisterPage() {
                 <div className="form-group">
                   <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
                     <i className="fas fa-tint" style={{ marginRight: 6, color: "var(--primary)" }} />
-                    Blood Group *
+                    {accountType === "recipient" ? "Blood Group Needed *" : "Blood Group *"}
                   </label>
                   <select
                     name="bloodGroup"
@@ -354,17 +588,27 @@ function RegisterPage() {
 
               <div
                 style={{
-                  padding: 12,
-                  background: "#f8fafc",
+                  padding: "10px 14px",
+                  background: "#eff6ff",
                   borderRadius: 6,
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid #bfdbfe",
                   fontSize: 12,
-                  color: "#64748b",
-                  marginBottom: 20,
+                  color: "#1e40af",
+                  marginBottom: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                <i className="fas fa-shield-alt" style={{ marginRight: 6, color: "var(--primary)" }} />
-                By registering, you agree to REDhope's donor privacy and volunteer guidelines. Your contact details will only be used for life-saving donation coordination.
+                <i className="fas fa-shield-alt" style={{ color: "#2563eb", fontSize: 14 }} />
+                <span>Your information is secure and will only be used to support blood donation activities.</span>
+              </div>
+
+              <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
+                <input type="checkbox" id="termsCheck" required defaultChecked style={{ accentColor: "var(--primary)" }} />
+                <label htmlFor="termsCheck">
+                  I agree to the <Link to="/about" style={{ color: "var(--primary)", fontWeight: 600 }}>Terms of Service</Link> and <Link to="/about" style={{ color: "var(--primary)", fontWeight: 600 }}>Privacy Policy</Link>
+                </label>
               </div>
 
               <button
@@ -391,8 +635,14 @@ function RegisterPage() {
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-heart" />
-                    Register as Donor
+                    <span>
+                      {accountType === "organizer"
+                        ? "Create Organizer Account"
+                        : accountType === "recipient"
+                        ? "Create Recipient Account"
+                        : "Create Donor Account"}
+                    </span>
+                    <i className="fas fa-arrow-right" style={{ fontSize: 13 }} />
                   </>
                 )}
               </button>

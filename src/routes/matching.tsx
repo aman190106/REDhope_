@@ -4,6 +4,7 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { toast } from "../components/AppToaster";
 import { LocationPickerMap } from "../components/LocationPickerMap";
+import { useAuth } from "../lib/auth";
 
 export const Route = createFileRoute("/matching")({
   head: () => ({
@@ -51,8 +52,7 @@ interface MatchingResponseData {
 }
 
 function BloodMatchingPage() {
-  const [token, setToken] = useState<string | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
+  const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Form search state
   const [selectedBloodGroup, setSelectedBloodGroup] = useState("A+");
@@ -67,10 +67,18 @@ function BloodMatchingPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("token") || localStorage.getItem("redhope_token");
-    setToken(savedToken);
-    setLoadingAuth(false);
-  }, []);
+    if (user?.bloodGroup && BLOOD_GROUPS.includes(user.bloodGroup)) {
+      setSelectedBloodGroup(user.bloodGroup);
+    }
+    if (user?.notificationRadiusKm) {
+      setRadiusKm(String(user.notificationRadiusKm));
+    }
+    if (user?.location?.coordinates && user.location.coordinates.length === 2) {
+      setLongitude(String(user.location.coordinates[0]));
+      setLatitude(String(user.location.coordinates[1]));
+      setEnableLocation(true);
+    }
+  }, [user]);
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -196,12 +204,12 @@ function BloodMatchingPage() {
         }}
       >
         <div className="container">
-          {loadingAuth ? (
+          {authLoading ? (
             <div style={{ textAlign: "center", padding: "60px 0" }}>
               <i className="fas fa-spinner fa-spin fa-2x" style={{ color: "var(--primary)" }} />
               <p style={{ marginTop: 12, color: "var(--gray)" }}>Loading matching interface...</p>
             </div>
-          ) : !token ? (
+          ) : !isAuthenticated || !token ? (
             /* Unauthenticated Prompt */
             <div
               className="form-section"
@@ -217,7 +225,7 @@ function BloodMatchingPage() {
               <p style={{ color: "var(--gray)", marginBottom: 24, fontSize: 14 }}>
                 Please sign in to your REDhope account to access the blood donor matching engine.
               </p>
-              <Link to="/profile" className="btn">
+              <Link to="/login" className="btn">
                 Sign In to REDhope
               </Link>
             </div>

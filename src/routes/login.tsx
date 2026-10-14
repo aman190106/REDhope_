@@ -45,7 +45,9 @@ function LoginPage() {
       const loggedUser = await login(trimmedEmail, password);
       toast.success(`Welcome back, ${loggedUser.name}!`);
 
-      if (loggedUser.role === "admin" || loggedUser.role === "organizer") {
+      if (loggedUser.role === "admin") {
+        navigate({ to: "/admin" });
+      } else if (loggedUser.role === "organizer") {
         navigate({ to: "/organizer" });
       } else {
         navigate({ to: "/dashboard" });
@@ -74,7 +76,10 @@ function LoginPage() {
                 You are currently signed in as <strong>{user.name}</strong> ({user.email}).
               </p>
               <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                <Link to="/dashboard" className="btn">
+                <Link
+                  to={user.role === "admin" ? "/admin" : user.role === "organizer" ? "/organizer" : "/dashboard"}
+                  className="btn"
+                >
                   Go to Dashboard
                 </Link>
                 <Link to="/profile" className="btn btn-outline">
