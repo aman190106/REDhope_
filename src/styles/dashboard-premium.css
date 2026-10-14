@@ -1,0 +1,84 @@
+﻿/* Premium Dashboard Shell Overrides — Cohesive with REDhope Landing Theme */
+
+.app-shell {
+  background-color: var(--landing-bg, #070508) !important;
+  color: var(--landing-text, #faf7f5) !important;
+}
+
+.app-sidebar {
+  background-color: var(--landing-bg-elevated, #110a0d) !important;
+  border-right: 1px solid var(--landing-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+.app-topbar {
+  background-color: rgba(7, 5, 8, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--landing-border, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--landing-text, #faf7f5) !important;
+}
+
+.sidebar-user {
+  border-bottom: 1px solid var(--landing-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+.sidebar-user-name {
+  color: var(--landing-text, #faf7f5) !important;
+}
+
+.sidebar-user-role {
+  color: var(--landing-muted, rgba(250, 247, 245, 0.62)) !important;
+}
+
+.sidebar-link {
+  color: var(--landing-muted, rgba(250, 247, 245, 0.62)) !important;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--landing-text, #faf7f5) !important;
+}
+
+.sidebar-link.active {
+  background-color: rgba(225, 29, 72, 0.15) !important;
+  color: var(--landing-crimson-soft, #fb7185) !important;
+}
+
+/* Panels and Cards in Dashboards */
+.panel, .rh-card, .metric {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)) !important;
+  border: 1px solid var(--landing-border, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--landing-text, #faf7f5) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.metric {
+  border-left: 3px solid var(--landing-crimson, #e11d48) !important;
+}
+
+/* Tables */
+.table-wrap th, .rh-table th {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  color: var(--landing-muted, rgba(250, 247, 245, 0.62)) !important;
+  border-bottom: 1px solid var(--landing-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+.table-wrap td, .rh-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  color: var(--landing-text, #faf7f5) !important;
+}
+
+.table-wrap tr:hover td, .rh-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Fields and Inputs */
+.field, .rh-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--landing-border, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--landing-text, #faf7f5) !important;
+}
+
+.field:focus, .rh-input:focus {
+  border-color: var(--landing-crimson, #e11d48) !important;
+  box-shadow: 0 0 0 3px var(--landing-glow, rgba(225, 29, 72, 0.35)) !important;
+}

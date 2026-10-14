@@ -112,12 +112,12 @@ function NotificationsPage() {
       localStorage.setItem("token", activeToken);
       localStorage.setItem("redhope_token", activeToken);
       setToken(activeToken);
-      toast.success("Welcome back!", "Signed in successfully.");
+      toast.success("Welcome back!", { description: "Signed in successfully." });
 
       fetchNotifications(activeToken, 1);
       fetchUnreadCount(activeToken);
     } catch {
-      toast.error("Network Error", "Unable to sign in. Please verify your backend connection.");
+      toast.error("Network Error", { description: "Unable to sign in. Please verify your backend connection." });
     } finally {
       setAuthLoading(false);
     }
@@ -152,10 +152,10 @@ function NotificationsPage() {
           setPage(data.pagination.page);
         }
       } else {
-        toast.error("Fetch Error", data.message || "Failed to load notifications.");
+        toast.error("Fetch Error", { description: data.message || "Failed to load notifications." });
       }
     } catch {
-      toast.error("Network Error", "Unable to retrieve notifications.");
+      toast.error("Network Error", { description: "Unable to retrieve notifications." });
     } finally {
       setLoadingList(false);
     }
@@ -176,12 +176,12 @@ function NotificationsPage() {
           prev.map((item) => (item._id === id ? { ...item, isRead: true } : item))
         );
         setUnreadCount((c) => Math.max(0, c - 1));
-        toast.success("Notification updated", "Marked as read.");
+        toast.success("Notification updated", { description: "Marked as read." });
       } else {
-        toast.error("Error", data.message || "Failed to mark notification as read.");
+        toast.error("Error", { description: data.message || "Failed to mark notification as read." });
       }
     } catch {
-      toast.error("Network Error", "Unable to update notification.");
+      toast.error("Network Error", { description: "Unable to update notification." });
     } finally {
       setActionLoadingId(null);
     }
@@ -200,12 +200,12 @@ function NotificationsPage() {
       if (res.ok && data.success) {
         setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })));
         setUnreadCount(0);
-        toast.success("Success", "All notifications marked as read.");
+        toast.success("Success", { description: "All notifications marked as read." });
       } else {
-        toast.error("Error", data.message || "Failed to mark all as read.");
+        toast.error("Error", { description: data.message || "Failed to mark all as read." });
       }
     } catch {
-      toast.error("Network Error", "Unable to update all notifications.");
+      toast.error("Network Error", { description: "Unable to update all notifications." });
     } finally {
       setMarkingAllRead(false);
     }
@@ -232,12 +232,12 @@ function NotificationsPage() {
           ...prev,
           total: Math.max(0, prev.total - 1),
         }));
-        toast.success("Deleted", "Notification removed.");
+        toast.success("Deleted", { description: "Notification removed." });
       } else {
-        toast.error("Error", data.message || "Failed to delete notification.");
+        toast.error("Error", { description: data.message || "Failed to delete notification." });
       }
     } catch {
-      toast.error("Network Error", "Unable to delete notification.");
+      toast.error("Network Error", { description: "Unable to delete notification." });
     } finally {
       setActionLoadingId(null);
     }

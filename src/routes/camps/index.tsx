@@ -326,6 +326,16 @@ function CampsListPage() {
             >
               <i className="fas fa-location-crosshairs" /> Nearby Camps (Radius Search)
             </button>
+
+            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+              <Link
+                to="/organize"
+                className="btn btn-outline"
+                style={{ padding: "6px 14px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <i className="fas fa-plus-circle" /> Host / Register a Camp
+              </Link>
+            </div>
           </div>
 
           {/* TAB 1: ALL CAMPS (STANDARD DISCOVERY) */}
@@ -699,7 +709,7 @@ function CampsListPage() {
                             }}
                           >
                             <Link
-                              to={`/camps/${camp._id}`}
+                              to={`/camps/${camp._id}` as any}
                               className="btn"
                               style={{
                                 width: "100%",
@@ -1063,7 +1073,7 @@ function CampsListPage() {
                                 }}
                               >
                                 <Link
-                                  to={`/camps/${camp._id}`}
+                                  to={`/camps/${camp._id}` as any}
                                   className="btn"
                                   style={{
                                     width: "100%",

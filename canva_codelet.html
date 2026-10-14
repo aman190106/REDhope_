@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+ <head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20261009-04-61a833b","C":{"Abril Fatface":"YACgEZbkUVE,0","Albert Sans":"YAHO2HRfeh4,0","Alfa Slab One":"YACgEYS9sJU,0","Anton":"YACgEcYqQ-A,0","Archivo Black":"YACgEZulLoA,0","Archivo":"YAHO2-t-jNE,0","Arial":"YAGyDvJ_4Ts,0","Baloo 2":"YAHO2IcQUcM,0","Barlow Condensed":"YAFdJljEuFc,0","Barlow":"YAFdJsyuOPM,1","Bebas Neue":"YACgESME5ew,0","Bricolage Grotesque":"YAFyMcdwzpc,0","Canva Sans":"YAFdJjTk5UU,1","Caveat":"YALBs2ploWQ,0","Cinzel":"YACgEeV8bIQ,0","Cormorant Garamond":"YAFdJhX-538,0","Courier New":"YAGzXiGs0_8,0","Courier Prime":"YAD1aFjegN8,0","DM Sans":"YAD1aU3sLnI,0","DM Serif Display":"YAD1aYG82rc,0","Figtree":"YAHO2b-mV7A,0","Forum":"YACgEcnnqB4,0","Fraunces":"YAFdJpU7Kkk,0","Fredoka":"YACgEZml080,0","Georgia":"YAGzXkO0pEM,0","Hanken Grotesk":"YAHO2VB9G0I,0","Helvetica":"YAFcf7zkXN0,0","IBM Plex Mono":"YAFdJkmvhGI,0","IBM Plex Sans":"YAFdJgT0SHI,0","Impact":"YAFcfnjI7Vk,0","Instrument Sans":"YAHO2bKyaSQ,0","Instrument Serif":"YAHFeOnZNEk,0","Inter":"YAFdJvSyp_k,3","Italiana":"YAHO2Toik_w,0","Jacques Francois":"YAHO2a5g66Q,0","JetBrains Mono":"YAFdJksXcAk,0","Josefin Sans":"YAFdJjvw9Ps,0","Karla":"YAHO2V2NSXM,0","Lato":"YAFdJuFCnaw,0","Libre Baskerville":"YACgEUFdPdA,0","Libre Caslon Display":"YAHO2XhLmt0,0","Lobster":"YAD8SnSjSFI,0","Lora":"YACgEXvxf8Q,0","Manrope":"YAHO2b2feC4,0","Merriweather":"YACgEXvHxxs,0","Montserrat":"YAFdtQi73Xs,0","Noto Sans JP":"YAFdJiHXlcI,0","Noto Sans KR":"YAGsojZj-RQ,0","Nunito Sans":"YAFdtQJYB9w,1","Nunito":"YAFdJoNRMmU,1","Oleo Script":"YACgEQQ14jI,0","Oswald":"YACgEQY10lw,0","Outfit":"YAHO2nVlg14,0","Pacifico":"YADLjORQ1u4,0","Playfair Display":"YAFdJhem5V8,1","Plus Jakarta Sans":"YAHO2gdhi18,0","Poppins":"YAFdJjbTu24,1","Press Start 2P":"YAFyGr-8pmQ,0","Public Sans":"YAFdJj8NdaU,1","Quicksand":"YAFdJpYtCxE,1","Raleway":"YAFdJhmxbVQ,1","Roboto Slab":"YAFdJswIKAg,0","Rockwell":"YAFcfyVZnN0,0","Rye":"YACgEdQP21k,0","Sarabun":"YAFdJssSnME,0","Schibsted Grotesk":"YAHO2sWydRk,0","Segoe UI":"YAHNdRD1Klw,0","Source Sans 3":"YAG4lO1Mj10,0","Space Grotesk":"YAHO2sjPCSM,0","Space Mono":"YADW1-vpsoc,0","Spectral":"YAHO2rVUHIM,0","Times New Roman":"YAGzXW3gftg,0","Trebuchet MS":"YAFcfrglpVA,0","Ubuntu":"YACgERDU--Q,0","Verdana":"YAGzXTctYtQ,0","Work Sans":"YAGXhLOKv44,0","Yellowtail":"YACgEYG4kG4,0"}}');</script><script src="/_sdk/3ea5843eacd3e51f.telemetry_sdk.js" integrity="sha512-1IT905GQp6Xezy7dJYJjQl6KtI/PDxD5Vu755gJMNA+luF1QkRT8rHzF+xP7Ekem4HWP8sPFcQQAmx6FCSGaMg=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REDhope — Blood Donation Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root { --red:#DC2626; --navy:#172033; --ink:#182235; --muted:#64748b; --line:#e5e7eb; --surface:#f7f8fa; --green:#15803d; --amber:#b45309; }
+    * { box-sizing:border-box; }
+    body { margin:0; width:100%; font-family:"DM Sans",sans-serif; color:var(--ink); background:#fff; }
+    button, input, select, textarea { font:inherit; }
+    button { cursor:pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:3px solid #fecaca; outline-offset:2px; }
+    .view { display:none; min-height:calc(100 * min(var(--vh, 1vh), 1vh)); }
+    .view.active { display:block; }
+    .app-view.active { display:flex; }
+    .shell { width:100%; min-height:calc(100 * min(var(--vh, 1vh), 1vh)); background:#f7f8fa; }
+    .sidebar { width:250px; flex:none; background:var(--navy); color:#d8e0ed; min-height:calc(100 * min(var(--vh, 1vh), 1vh)); }
+    .sidebar-link { display:flex; gap:.75rem; align-items:center; width:100%; padding:.7rem .85rem; border-radius:.5rem; color:#bfccdc; text-align:left; font-size:.9rem; }
+    .sidebar-link:hover,.sidebar-link.active { background:#25314a; color:#fff; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:.75rem; }
+    .field { width:100%; border:1px solid #cbd5e1; border-radius:.5rem; padding:.7rem .8rem; background:#fff; color:var(--ink); }
+    .field:focus { border-color:var(--red); outline:none; box-shadow:0 0 0 3px #fee2e2; }
+    .btn-primary { background:var(--red); color:#fff; padding:.7rem 1rem; border-radius:.5rem; font-weight:700; border:1px solid var(--red); }
+    .btn-primary:hover { background:#b91c1c; }
+    .btn-secondary { background:#fff; color:#334155; padding:.7rem 1rem; border-radius:.5rem; font-weight:700; border:1px solid #cbd5e1; }
+    .btn-secondary:hover { background:#f8fafc; }
+    .badge { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .5rem; border-radius:999px; font-size:.72rem; font-weight:700; }
+    .badge-green { background:#dcfce7; color:#166534; }.badge-amber {background:#fef3c7;color:#92400e}.badge-red{background:#fee2e2;color:#b91c1c}.badge-slate{background:#e2e8f0;color:#475569}
+    .metric { padding:1rem; border-left:3px solid var(--red); background:#fff; border-radius:.5rem; border-top:1px solid var(--line); border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+    .icon-btn { padding:.55rem; color:#475569; border-radius:.5rem; }.icon-btn:hover {background:#f1f5f9;}
+    .notice { border-left:3px solid var(--red); background:#fff7f7; padding:.75rem .9rem; font-size:.8rem; color:#7f1d1d; }
+    .hidden-ui { display:none!important; }
+    .blood-card.selected { border-color:var(--red); background:#fff5f5; box-shadow:0 0 0 2px #fecaca; }
+    .role-card.selected { border-color:var(--red); background:#fff7f7; }
+    .bar { height:8px; background:#e2e8f0; border-radius:99px; overflow:hidden; }.bar > span {display:block;height:100%;background:var(--red);border-radius:99px}
+    .table-wrap { overflow-x:auto; }
+    table { min-width:650px; width:100%; border-collapse:collapse; font-size:.84rem; }
+    th { color:#64748b; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; text-align:left; background:#f8fafc; }
+    th,td { padding:.75rem; border-bottom:1px solid #edf0f3; }
+    .drawer-open .sidebar { transform:translateX(0); }
+    @media(max-width:900px){
+      .sidebar { position:fixed; z-index:40; transform:translateX(-100%); transition:transform .2s; box-shadow:10px 0 30px rgba(0,0,0,.18); }
+      .mobile-shade { display:none; position:fixed; inset:0; z-index:30; background:rgba(15,23,42,.45); }.drawer-open .mobile-shade{display:block}
+      .app-main { width:100%; }
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/263f7f1ec427fef1.data_sdk.js" type="text/javascript" integrity="sha512-G5r5+ZpgQ1ELqZ8tI9imlWClKvYZ57SrzbGr898u8le5l2OuBwnWDOf9qbb9mCGSCmLi/3zszXyL+nX96lu7Lg=="></script>
+  <script src="/_sdk/7f51878a26dda571.editing_sdk.js" type="text/javascript" integrity="sha512-lv2tc4rONGhIWbY0ih8IjIqw943uiwvC9BM8dCj48SpTnOr728gJkoyMnfD0Yfa9KbBgBGdq6uAFyQuDfezvEg=="></script>
+  <script src="/_sdk/221ab7571fc66e1b.resizing_sdk.js" type="text/javascript" integrity="sha512-brXJ8PEVMWyvFfRXR3J+lXcBL9xcTCDHg4wYW7JDpQNdbOBkBezAQsQLUeUc2BOFREYS4N9GREjyhzX1N1VFdA=="></script>
+ </head>
+ <body data-template-id="__page-root">
+  <div id="prototype-note" class="w-full bg-slate-900 text-white text-center py-2 px-4 text-xs">
+   Prototype UI — all people, donor counts, availability, and records are fictional example placeholder data only, not live inventory.
+  </div>
+  <div id="landing" class="view active">
+   <header data-template-id="landing-header" class="canva-header w-full bg-white border-b border-slate-200">
+    <nav class="max-w-7xl mx-auto px-5 h-18 min-h-[72px] flex items-center justify-between gap-5" aria-label="Primary navigation"><button class="flex items-center gap-2 font-bold text-xl text-slate-900" onclick="go('landing')" aria-label="REDhope home"><span class="w-8 h-8 bg-red-600 rounded-md grid place-items-center text-white">R</span>REDhope</button>
+     <div class="hidden md:flex gap-6 text-sm text-slate-600"><button onclick="scrollToId('how')">How it works</button><button onclick="go('donors')">Find donors</button><button onclick="go('camps')">Donation camps</button><button onclick="go('auth')">Sign in</button>
+     </div><button data-template-id="landing-register-button" class="canva-button btn-primary" onclick="go('auth')"></button>
+    </nav>
+   </header>
+   <main>
+    <section class="max-w-7xl mx-auto px-5 py-14 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
+     <div class="lg:col-span-6"><span data-template-id="hero-eyebrow" class="canva-tag badge badge-red"></span>
+      <h1 data-template-id="hero-title" class="canva-text text-4xl sm:text-5xl font-bold tracking-tight mt-5 leading-tight"></h1>
+      <p data-template-id="hero-description" class="canva-text mt-5 text-lg leading-8 text-slate-600 max-w-xl"></p>
+      <div class="flex flex-wrap gap-3 mt-7"><button data-template-id="hero-donors-button" class="canva-button btn-primary" onclick="go('donors')"></button> <button data-template-id="hero-camps-button" class="canva-button btn-secondary" onclick="go('camps')"></button>
+      </div>
+      <p data-template-id="hero-note" class="canva-text text-xs text-slate-500 mt-5"></p>
+     </div>
+     <div class="lg:col-span-6 panel overflow-hidden"><img data-template-id="hero-image" class="canva-image w-full h-[340px] lg:h-[420px] object-cover" loading="lazy">
+      <div class="p-5 flex items-center justify-between">
+       <div>
+        <p class="text-xs text-slate-500">Securely coordinated</p>
+        <p class="font-semibold">A more human way to give</p>
+       </div><span class="badge badge-green"><i data-lucide="shield-check" class="w-4"></i>Privacy-first</span>
+      </div>
+     </div>
+    </section>
+    <section id="how" data-template-id="how-section" class="canva-section bg-slate-50 border-y border-slate-200 py-14">
+     <div class="max-w-7xl mx-auto px-5">
+      <p data-template-id="how-kicker" class="canva-text text-red-600 font-bold text-sm"></p>
+      <h2 data-template-id="how-title" class="canva-text text-3xl font-bold mt-2"></h2>
+      <div class="grid md:grid-cols-4 gap-5 mt-8">
+       <article class="panel p-5">
+        <span class="text-red-600 font-bold">01</span>
+        <h3 data-template-id="step-one-title" class="canva-text font-bold mt-4"></h3>
+        <p data-template-id="step-one-body" class="canva-text text-sm text-slate-600 mt-2"></p>
+       </article>
+       <article class="panel p-5">
+        <span class="text-red-600 font-bold">02</span>
+        <h3 data-template-id="step-two-title" class="canva-text font-bold mt-4"></h3>
+        <p data-template-id="step-two-body" class="canva-text text-sm text-slate-600 mt-2"></p>
+       </article>
+       <article class="panel p-5">
+        <span class="text-red-600 font-bold">03</span>
+        <h3 data-template-id="step-three-title" class="canva-text font-bold mt-4"></h3>
+        <p data-template-id="step-three-body" class="canva-text text-sm text-slate-600 mt-2"></p>
+       </article>
+       <article class="panel p-5">
+        <span class="text-red-600 font-bold">04</span>
+        <h3 data-template-id="step-four-title" class="canva-text font-bold mt-4"></h3>
+        <p data-template-id="step-four-body" class="canva-text text-sm text-slate-600 mt-2"></p>
+       </article>
+      </div>
+     </div>
+    </section>
+    <section class="max-w-7xl mx-auto px-5 py-14 grid lg:grid-cols-12 gap-9 items-center"><img data-template-id="trust-image" class="canva-image lg:col-span-5 w-full h-72 object-cover rounded-xl" loading="lazy">
+     <div class="lg:col-span-6 lg:col-start-7"><span data-template-id="trust-kicker" class="canva-text text-red-600 font-bold text-sm"></span>
+      <h2 data-template-id="trust-title" class="canva-text text-3xl font-bold mt-2"></h2>
+      <p data-template-id="trust-body" class="canva-text text-slate-600 leading-7 mt-4"></p>
+      <ul class="mt-5 space-y-3 text-sm text-slate-700">
+       <li class="flex gap-3"><i data-lucide="check-circle-2" class="w-5 text-green-700"></i>Approximate distance, never a home address</li>
+       <li class="flex gap-3"><i data-lucide="check-circle-2" class="w-5 text-green-700"></i>Consent-based contact requests</li>
+       <li class="flex gap-3"><i data-lucide="check-circle-2" class="w-5 text-green-700"></i>Screening records are access-controlled</li>
+      </ul>
+     </div>
+    </section>
+    <section data-template-id="register-section" class="canva-section bg-slate-900 py-14">
+     <div class="max-w-7xl mx-auto px-5 flex flex-col lg:flex-row gap-8 justify-between items-start lg:items-center">
+      <div>
+       <h2 data-template-id="register-title" class="canva-text text-3xl font-bold text-white"></h2>
+       <p data-template-id="register-body" class="canva-text text-slate-300 mt-2"></p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+       <button data-template-id="donor-path-button" class="canva-button btn-primary" onclick="go('auth');selectRole('donor')"></button><button data-template-id="organizer-path-button" class="canva-button bg-white text-slate-900 font-bold px-4 py-3 rounded-lg" onclick="go('auth');selectRole('organizer')"></button>
+      </div>
+     </div>
+    </section>
+   </main>
+   <footer data-template-id="landing-footer" class="canva-footer bg-white border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-5 py-8 flex flex-col sm:flex-row gap-4 justify-between text-sm text-slate-500">
+     <span>© REDhope prototype</span><span>Product · Privacy · Terms · Contact · Fictional data only</span>
+    </div>
+   </footer>
+  </div>
+  <div id="auth" class="view bg-slate-50">
+   <main class="w-full max-w-5xl mx-auto px-5 py-10 lg:py-16 grid lg:grid-cols-2 gap-8 items-start">
+    <section class="lg:pt-10">
+     <button onclick="go('landing')" class="font-bold text-xl flex gap-2 items-center"><span class="w-8 h-8 rounded-md bg-red-600 text-white grid place-items-center">R</span>REDhope</button>
+     <h1 data-template-id="auth-title" class="canva-text mt-10 text-4xl font-bold"></h1>
+     <p data-template-id="auth-description" class="canva-text mt-4 text-slate-600 leading-7"></p>
+     <div class="notice mt-8">
+      This interactive concept does not collect credentials or create a real account.
+     </div>
+    </section>
+    <section class="panel p-6 sm:p-8">
+     <div class="flex border-b border-slate-200 mb-6">
+      <button id="sign-tab" class="px-4 py-3 font-bold border-b-2 border-red-600 text-red-600" onclick="authMode('sign')">Sign in</button><button id="register-tab" class="px-4 py-3 font-bold text-slate-500" onclick="authMode('register')">Register</button>
+     </div>
+     <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+      <div id="role-area" class="hidden-ui">
+       <p class="font-bold text-sm mb-3">Choose your role</p>
+       <div class="grid grid-cols-2 gap-3">
+        <button type="button" class="role-card border p-3 rounded-lg text-left selected" data-role="donor" onclick="selectRole('donor')"><i data-lucide="heart" class="w-5 text-red-600"></i><b class="block mt-2">Donor</b><small class="text-slate-500">Give when eligible</small></button><button type="button" class="role-card border p-3 rounded-lg text-left" data-role="organizer" onclick="selectRole('organizer')"><i data-lucide="calendar-days" class="w-5 text-red-600"></i><b class="block mt-2">Organizer</b><small class="text-slate-500">Manage camps</small></button>
+       </div>
+      </div>
+      <div>
+       <label for="auth-email" class="text-sm font-semibold">Email address</label><input id="auth-email" type="email" class="field mt-1" placeholder="you@example.org">
+      </div>
+      <div>
+       <div class="flex justify-between">
+        <label for="auth-password" class="text-sm font-semibold">Password</label><button type="button" class="text-sm text-red-600">Forgot password?</button>
+       </div><input id="auth-password" type="password" class="field mt-1" placeholder="At least 8 characters">
+      </div><label class="flex gap-2 text-sm text-slate-600"><input type="checkbox"> Remember me on this device</label>
+      <p id="auth-feedback" class="hidden-ui text-sm" aria-live="polite"></p><button data-template-id="auth-submit" class="canva-button btn-primary w-full" type="submit"></button>
+     </form>
+     <p data-template-id="auth-trust-note" class="canva-text text-xs text-slate-500 leading-5 mt-5"></p>
+    </section>
+   </main>
+  </div>
+  <div id="donors" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div>
+    <nav id="shared-nav" aria-label="App navigation"></nav>
+    <div class="border-t border-slate-700 mt-7 pt-4 text-xs text-slate-400">
+     Privacy-conscious donor matching.<br>
+     Example placeholder data only.
+    </div>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div id="app-topbar"></div>
+    <main class="p-5 lg:p-8 max-w-7xl mx-auto">
+     <div class="flex justify-between gap-4 items-start">
+      <div>
+       <h1 data-template-id="donors-title" class="canva-text text-3xl font-bold"></h1>
+       <p data-template-id="donors-subtitle" class="canva-text text-slate-600 mt-2"></p>
+      </div><button class="btn-secondary lg:hidden" onclick="toggleDrawer(true)"><i data-lucide="menu" class="w-5"></i></button>
+     </div>
+     <div class="notice mt-5">
+      Example placeholder data — not live inventory. Contact requests are consent-based and distances are approximate.
+     </div>
+     <div class="grid lg:grid-cols-12 gap-6 mt-6">
+      <section class="panel p-5 lg:col-span-8">
+       <h2 class="font-bold text-lg">Choose a blood group</h2>
+       <div id="blood-groups" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4"></div>
+       <p class="text-xs text-slate-500 mt-3">Displayed counts are fictional placeholder design data.</p>
+      </section>
+      <aside class="panel p-5 lg:col-span-4">
+       <h2 class="font-bold">Search area</h2><label for="donor-location" class="text-sm font-semibold block mt-4">Location</label><input id="donor-location" class="field mt-1" value="Ahmedabad, Gujarat"><button class="text-red-600 text-sm font-bold mt-3" onclick="useLocation('donor-location')"><i data-lucide="crosshair" class="inline w-4"></i> Use My Location</button><label for="radius" class="text-sm font-semibold block mt-5">Radius <span id="radius-value">50 km</span></label><input id="radius" class="w-full accent-red-600" type="range" min="5" max="500" value="50" oninput="document.getElementById('radius-value').textContent=this.value+' km'"><button class="btn-primary w-full mt-5" onclick="donorSearch()">Search donors</button>
+      </aside>
+     </div>
+     <div class="flex justify-between mt-8 mb-3">
+      <h2 class="font-bold text-xl">Nearby matches</h2><button class="text-sm text-red-600 font-bold" onclick="showDonorEmpty()">Show no matches</button>
+     </div>
+     <div id="donor-results" class="grid md:grid-cols-3 gap-4"></div>
+     <section id="donor-empty" class="hidden-ui panel p-8 text-center">
+      <i data-lucide="search-x" class="w-10 h-10 text-slate-400 mx-auto"></i>
+      <h2 class="font-bold mt-3">No matching donors in this area</h2>
+      <p class="text-slate-600 text-sm mt-2">Try broadening the radius, selecting another blood group, or searching donation camps.</p><button class="btn-primary mt-5" onclick="document.getElementById('radius').value=150;document.getElementById('radius-value').textContent='150 km';donorSearch()">Broaden to 150 km</button>
+     </section>
+    </main>
+   </section>
+  </div>
+  <div id="camps" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div>
+    <nav class="nav-copy"></nav>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div class="top-copy"></div>
+    <main class="p-5 lg:p-8 max-w-7xl mx-auto">
+     <div class="flex justify-between">
+      <div>
+       <h1 data-template-id="camps-title" class="canva-text text-3xl font-bold"></h1>
+       <p data-template-id="camps-subtitle" class="canva-text text-slate-600 mt-2"></p>
+      </div><button class="btn-secondary lg:hidden" onclick="toggleDrawer(true)"><i data-lucide="menu" class="w-5"></i></button>
+     </div>
+     <section class="panel p-4 mt-6 grid md:grid-cols-4 gap-3">
+      <div>
+       <label for="camp-location" class="text-xs font-bold">LOCATION</label><input id="camp-location" class="field mt-1" value="Ahmedabad">
+      </div>
+      <div>
+       <label for="camp-date" class="text-xs font-bold">DATE</label><input id="camp-date" type="date" class="field mt-1">
+      </div>
+      <div>
+       <label for="camp-type" class="text-xs font-bold">CAMP TYPE</label><select id="camp-type" class="field mt-1"><option>All donation camps</option><option>Community drive</option><option>Hospital camp</option></select>
+      </div><button class="btn-primary self-end" onclick="campSearch()">Search camps</button>
+     </section>
+     <div class="flex flex-wrap gap-3 justify-between mt-7 mb-4">
+      <p id="camp-count" class="text-sm text-slate-600">3 example camps found near Ahmedabad</p><select class="field w-auto text-sm"><option>Sort: soonest</option><option>Sort: nearest</option></select>
+     </div>
+     <div id="camp-results" class="grid lg:grid-cols-3 gap-4"></div>
+     <section id="camp-empty" class="hidden-ui panel p-8 text-center">
+      <i data-lucide="calendar-x" class="w-10 h-10 text-slate-400 mx-auto"></i>
+      <h2 class="font-bold mt-3">No camps match those filters</h2>
+      <p class="text-sm text-slate-600 mt-2">Try another date or search a nearby area.</p>
+     </section>
+    </main>
+   </section>
+  </div>
+  <div id="donor-dashboard" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div>
+    <nav class="nav-copy"></nav>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div class="top-copy"></div>
+    <main class="p-5 lg:p-8 max-w-7xl mx-auto">
+     <div class="flex justify-between">
+      <div>
+       <p class="text-red-600 text-sm font-bold">DONOR DASHBOARD</p>
+       <h1 data-template-id="donor-dashboard-title" class="canva-text text-3xl font-bold mt-1"></h1>
+       <p class="text-slate-600 mt-2">Your private donation overview · fictional prototype record</p>
+      </div><button class="btn-secondary lg:hidden" onclick="toggleDrawer(true)"><i data-lucide="menu" class="w-5"></i></button>
+     </div>
+     <div class="flex flex-wrap gap-3 mt-6">
+      <button data-template-id="dash-find-blood" class="canva-button btn-primary" onclick="go('donors')"></button><button data-template-id="dash-find-camps" class="canva-button btn-secondary" onclick="go('camps')"></button>
+     </div>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div class="metric">
+       <p class="text-xs text-slate-500">Blood group</p>
+       <p class="text-2xl font-bold mt-1">O+</p><span class="badge badge-green mt-2">Eligible</span>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Total donations</p>
+       <p class="text-2xl font-bold mt-1">4</p>
+       <p class="text-xs text-slate-500 mt-2">Example record</p>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Lives potentially helped</p>
+       <p class="text-2xl font-bold mt-1">12</p>
+       <p class="text-xs text-slate-500 mt-2">Educational estimate</p>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Next eligible date</p>
+       <p class="text-lg font-bold mt-1">22 Nov 2026</p>
+       <p class="text-xs text-slate-500 mt-2">Subject to screening</p>
+      </div>
+     </div>
+     <div class="grid lg:grid-cols-3 gap-5 mt-6">
+      <section class="panel p-5 lg:col-span-2">
+       <h2 class="font-bold">Upcoming camps</h2>
+       <div class="mt-4 space-y-3">
+        <div class="flex justify-between border-b pb-3">
+         <div>
+          <b>Community Care Drive</b>
+          <p class="text-sm text-slate-500">18 Oct · Riverfront Hall</p>
+         </div><span class="badge badge-green">Registered</span>
+        </div>
+        <div class="flex justify-between">
+         <div>
+          <b>City Hospital Blood Day</b>
+          <p class="text-sm text-slate-500">02 Nov · Navrangpura</p>
+         </div><button class="text-red-600 font-bold text-sm" onclick="go('camps')">View</button>
+        </div>
+       </div>
+      </section>
+      <aside class="panel p-5">
+       <h2 class="font-bold">Health screening</h2><span class="badge badge-amber mt-3">Review due</span>
+       <p class="text-sm text-slate-600 mt-3">Update your questionnaire before your next registration.</p><button class="btn-secondary mt-4 w-full" onclick="go('health')">Open screening</button>
+      </aside>
+     </div>
+     <div class="grid lg:grid-cols-2 gap-5 mt-5">
+      <section class="panel p-5">
+       <h2 class="font-bold">Recent donations</h2>
+       <p class="text-sm text-slate-500 mt-4">14 Aug 2026 · City Hospital Camp · Completed</p>
+       <p class="text-sm text-slate-500 mt-3">18 Apr 2026 · Community Drive · Completed</p>
+      </section>
+      <section class="panel p-5">
+       <h2 class="font-bold">Notifications</h2>
+       <p class="text-sm mt-4"><span class="badge badge-amber">New</span> Screening update needed before 18 October.</p>
+       <p class="text-sm text-slate-500 mt-3">Your location is shared only approximately when you choose to be discoverable.</p>
+      </section>
+     </div>
+    </main>
+   </section>
+  </div>
+  <div id="health" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div>
+    <nav class="nav-copy"></nav>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div class="top-copy"></div>
+    <main class="p-5 lg:p-8 max-w-5xl mx-auto">
+     <h1 data-template-id="health-title" class="canva-text text-3xl font-bold"></h1>
+     <p data-template-id="health-subtitle" class="canva-text text-slate-600 mt-2"></p>
+     <div class="grid grid-cols-4 mt-7 text-center text-xs gap-2">
+      <div class="text-red-600 font-bold border-b-2 border-red-600 pb-3">
+       1. Personal health
+      </div>
+      <div class="text-slate-500 border-b pb-3">
+       2. Eligibility questions
+      </div>
+      <div class="text-slate-500 border-b pb-3">
+       3. Medical documents
+      </div>
+      <div class="text-slate-500 border-b pb-3">
+       4. Review &amp; submit
+      </div>
+     </div>
+     <form onsubmit="screenSubmit(event)" class="mt-7 space-y-5">
+      <section class="panel p-5">
+       <h2 class="font-bold text-lg">Personal health</h2>
+       <p class="text-sm text-slate-600 mt-1">Answer carefully. This is a conceptual prototype and not medical advice.</p>
+       <div class="grid sm:grid-cols-2 gap-4 mt-5">
+        <div>
+         <label for="health-age" class="text-sm font-semibold">Age</label><input id="health-age" class="field mt-1" type="number" placeholder="Enter age">
+        </div>
+        <div>
+         <label for="health-weight" class="text-sm font-semibold">Weight (kg)</label><input id="health-weight" class="field mt-1" type="number" placeholder="Enter weight">
+        </div>
+       </div>
+       <fieldset class="mt-5">
+        <legend class="font-semibold text-sm">Are you feeling well today?</legend><label class="mr-5 text-sm"><input type="radio" name="well" value="yes"> Yes</label><label class="text-sm"><input type="radio" name="well" value="no"> No</label>
+       </fieldset>
+      </section>
+      <section class="panel p-5">
+       <h2 class="font-bold text-lg">Eligibility questions</h2>
+       <div class="space-y-3 mt-4 text-sm">
+        <label class="flex gap-3"><input type="checkbox"> I understand that eligibility is determined by a qualified medical professional.</label><label class="flex gap-3"><input type="checkbox"> I consent to my submitted screening information being reviewed by authorized care teams.</label><label class="flex gap-3"><input type="checkbox"> I have reviewed the details provided and they are accurate to the best of my knowledge.</label>
+       </div>
+      </section>
+      <section class="panel p-5">
+       <div class="flex justify-between">
+        <div>
+         <h2 class="font-bold text-lg">Medical documents</h2>
+         <p class="text-sm text-slate-500 mt-1">PDF, JPG or PNG · secure review concept</p>
+        </div><button type="button" class="btn-secondary text-sm" onclick="addFile()">Add sample file</button>
+       </div>
+       <div id="file-list" class="mt-4 space-y-2">
+        <div class="border rounded-lg p-3 flex justify-between text-sm">
+         <span><i data-lucide="file-text" class="inline w-4"></i> wellness-note.pdf · PDF · 224 KB <span class="badge badge-amber">In review</span></span><button type="button" class="text-red-600" onclick="this.parentElement.remove()">Remove</button>
+        </div>
+       </div>
+      </section>
+      <div id="screen-feedback" class="hidden-ui notice"></div>
+      <div class="flex flex-wrap justify-end gap-3">
+       <button type="button" class="btn-secondary" onclick="draftScreen()">Save draft</button><button data-template-id="screen-submit-button" class="canva-button btn-primary" type="submit"></button>
+      </div>
+     </form>
+    </main>
+   </section>
+  </div>
+  <div id="organizer" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div><button data-template-id="create-camp-button" class="canva-button btn-primary w-full mb-6" onclick="toast('Camp creation is ready for a production workflow.')"></button>
+    <nav class="nav-copy"></nav>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div class="top-copy"></div>
+    <main class="p-5 lg:p-8 max-w-7xl mx-auto">
+     <h1 data-template-id="organizer-title" class="canva-text text-3xl font-bold"></h1>
+     <p class="text-slate-600 mt-2">Community Care Foundation · organizer workspace</p>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div class="metric">
+       <p class="text-xs text-slate-500">Total camps</p>
+       <p class="text-2xl font-bold">12</p>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Registered donors</p>
+       <p class="text-2xl font-bold">248</p>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Donations recorded</p>
+       <p class="text-2xl font-bold">189</p>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Pending screenings</p>
+       <p class="text-2xl font-bold">16</p>
+      </div>
+     </div>
+     <section class="panel p-5 mt-6">
+      <div class="flex justify-between">
+       <h2 class="font-bold text-lg">Upcoming camps</h2><button class="text-red-600 font-bold text-sm" onclick="go('camps')">View public listing</button>
+      </div>
+      <div class="table-wrap mt-4">
+       <table>
+        <thead>
+         <tr>
+          <th>Date</th>
+          <th>Camp</th>
+          <th>Location</th>
+          <th>Capacity</th>
+          <th>Registrations</th>
+          <th>Status</th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td>18 Oct</td>
+          <td>Community Care Drive</td>
+          <td>Riverfront Hall</td>
+          <td>80</td>
+          <td>62</td>
+          <td><span class="badge badge-green">Open</span></td>
+         </tr>
+         <tr>
+          <td>02 Nov</td>
+          <td>City Hospital Blood Day</td>
+          <td>Navrangpura</td>
+          <td>120</td>
+          <td>91</td>
+          <td><span class="badge badge-amber">Filling fast</span></td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </section>
+     <section class="panel p-5 mt-5">
+      <div class="flex justify-between items-center">
+       <h2 class="font-bold text-lg">Recent registrations</h2><select class="field w-auto text-sm"><option>All screening statuses</option><option>Needs review</option></select>
+      </div>
+      <div class="table-wrap mt-4">
+       <table>
+        <thead>
+         <tr>
+          <th>Donor</th>
+          <th>Blood group</th>
+          <th>Registered</th>
+          <th>Screening</th>
+          <th></th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td>Donor A-104</td>
+          <td>O+</td>
+          <td>Today, 09:40</td>
+          <td><span class="badge badge-amber">In review</span></td>
+          <td><button class="text-red-600 font-bold" onclick="go('manual')">Review</button></td>
+         </tr>
+         <tr>
+          <td>Donor B-219</td>
+          <td>A+</td>
+          <td>Yesterday</td>
+          <td><span class="badge badge-green">Approved</span></td>
+          <td><button class="text-red-600 font-bold" onclick="go('manual')">View</button></td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+      <div class="flex justify-between text-sm mt-4">
+       <span>Showing 1–2 of 248</span><span><button class="btn-secondary py-1 px-2">Previous</button> <button class="btn-secondary py-1 px-2">Next</button></span>
+      </div>
+     </section>
+    </main>
+   </section>
+  </div>
+  <div id="manual" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div>
+    <nav class="nav-copy"></nav>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div class="top-copy"></div>
+    <main class="p-5 lg:p-8 max-w-6xl mx-auto">
+     <div class="flex justify-between items-start">
+      <div>
+       <p class="text-red-600 font-bold text-sm">MANUAL CAMP SCREENING</p>
+       <h1 data-template-id="manual-title" class="canva-text text-3xl font-bold mt-1"></h1>
+      </div><span class="badge badge-amber">Needs review</span>
+     </div>
+     <div class="notice mt-5">
+      Private prototype record. Only authorized screening personnel should access medical information in a real implementation.
+     </div>
+     <div class="grid lg:grid-cols-3 gap-5 mt-5">
+      <section class="panel p-5">
+       <h2 class="font-bold">Donor summary</h2>
+       <p class="text-xl font-bold mt-4">Donor A-104</p>
+       <p class="text-sm text-slate-500">Approximate area: Ahmedabad West</p>
+       <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <div>
+         <span class="text-slate-500">Blood group</span><b class="block">O+</b>
+        </div>
+        <div>
+         <span class="text-slate-500">Registered</span><b class="block">Today 09:40</b>
+        </div>
+       </div>
+      </section>
+      <section class="panel p-5 lg:col-span-2">
+       <h2 class="font-bold">Submitted health questionnaire</h2>
+       <div class="grid sm:grid-cols-2 gap-4 mt-4 text-sm">
+        <p><span class="text-slate-500">Feeling well today</span><br><b>Yes</b></p>
+        <p><span class="text-slate-500">Consent for review</span><br><b>Provided</b></p>
+        <p><span class="text-slate-500">Age declaration</span><br><b>Eligible range declared</b></p>
+        <p><span class="text-slate-500">Medical review</span><br><b>Pending manual check</b></p>
+       </div>
+      </section>
+     </div>
+     <div class="grid lg:grid-cols-2 gap-5 mt-5">
+      <section class="panel p-5">
+       <h2 class="font-bold">Private documents</h2>
+       <div class="mt-4 space-y-3 text-sm">
+        <div class="flex justify-between border-b pb-3">
+         <span><i data-lucide="file-text" class="inline w-4"></i> wellness-note.pdf · 224 KB</span><button class="text-red-600 font-bold" onclick="toast('Secure document viewer opened in this prototype.')">View securely</button>
+        </div>
+        <p class="text-xs text-slate-500">Viewing activity should be audited and access-controlled in production.</p>
+       </div>
+      </section>
+      <form class="panel p-5" onsubmit="saveManual(event)">
+       <h2 class="font-bold">Camp-specific observations</h2>
+       <div class="grid grid-cols-2 gap-3 mt-4">
+        <div>
+         <label for="bp" class="text-sm">Blood pressure</label><input id="bp" class="field mt-1" placeholder="e.g. 120/80">
+        </div>
+        <div>
+         <label for="pulse" class="text-sm">Pulse</label><input id="pulse" class="field mt-1" placeholder="bpm">
+        </div>
+        <div>
+         <label for="temp" class="text-sm">Temperature</label><input id="temp" class="field mt-1" placeholder="°C">
+        </div>
+        <div>
+         <label for="hb" class="text-sm">Hemoglobin</label><input id="hb" class="field mt-1" placeholder="g/dL">
+        </div>
+       </div><label for="observations" class="text-sm block mt-4">Notes</label><textarea id="observations" class="field mt-1" rows="3" placeholder="Record only clinically relevant observations."></textarea><label for="decision" class="text-sm font-semibold block mt-4">Screening decision</label><select id="decision" class="field mt-1"><option value="">Select a decision</option><option>Approved</option><option>Needs review</option><option>Deferred</option></select><label for="reason" class="text-sm block mt-3">Reason / follow-up</label><input id="reason" class="field mt-1" placeholder="Required for review or deferral">
+       <p id="manual-feedback" class="hidden-ui text-sm mt-3" aria-live="polite"></p><button data-template-id="save-screening-button" class="canva-button btn-primary w-full mt-5" type="submit"></button>
+      </form>
+     </div>
+    </main>
+   </section>
+  </div>
+  <div id="admin" class="view app-view shell">
+   <div class="mobile-shade" onclick="toggleDrawer(false)"></div>
+   <aside class="sidebar p-4">
+    <div class="font-bold text-xl text-white flex gap-2 items-center mb-8">
+     <span class="bg-red-600 w-8 h-8 rounded grid place-items-center">R</span>REDhope
+    </div>
+    <p class="text-xs text-slate-400 mb-4">ADMINISTRATOR</p>
+    <nav class="nav-copy"></nav>
+   </aside>
+   <section class="app-main flex-1 min-w-0">
+    <div class="top-copy"></div>
+    <main class="p-5 lg:p-8 max-w-7xl mx-auto">
+     <h1 data-template-id="admin-title" class="canva-text text-3xl font-bold"></h1>
+     <p class="text-slate-600 mt-2">Role context: platform administration · fictional example records</p>
+     <div class="notice mt-5">
+      All analytics below are example placeholder data only and are not live health, donor, or regional inventory information.
+     </div>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-5">
+      <div class="metric">
+       <p class="text-xs text-slate-500">Users</p><b class="text-2xl">8,426</b>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Active donors</p><b class="text-2xl">2,104</b>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Active camps</p><b class="text-2xl">34</b>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Medical reviews</p><b class="text-2xl">48</b>
+      </div>
+      <div class="metric">
+       <p class="text-xs text-slate-500">Recorded donations</p><b class="text-2xl">1,289</b>
+      </div>
+     </div>
+     <div class="grid lg:grid-cols-2 gap-5 mt-6">
+      <section class="panel p-5">
+       <div class="flex gap-2 justify-between">
+        <h2 class="font-bold">Medical review queue</h2><button class="btn-secondary text-sm" onclick="toast('Queue filter applied.')">Filter</button>
+       </div>
+       <div class="table-wrap mt-4">
+        <table>
+         <thead>
+          <tr>
+           <th>Priority</th>
+           <th>Record</th>
+           <th>Status</th>
+           <th>Reviewer</th>
+           <th></th>
+          </tr>
+         </thead>
+         <tbody>
+          <tr>
+           <td><span class="badge badge-red">High</span></td>
+           <td>Screening #R-104</td>
+           <td><span class="badge badge-amber">Pending</span></td>
+           <td>Unassigned</td>
+           <td><button class="text-red-600 font-bold" onclick="go('manual')">Review</button></td>
+          </tr>
+          <tr>
+           <td><span class="badge badge-slate">Normal</span></td>
+           <td>Screening #R-131</td>
+           <td><span class="badge badge-amber">In review</span></td>
+           <td>Dr. Mehta</td>
+           <td><button class="text-red-600 font-bold">Open</button></td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </section>
+      <section class="panel p-5">
+       <h2 class="font-bold">Donation activity by month</h2>
+       <div class="mt-5 space-y-4 text-sm">
+        <div>
+         <div class="flex justify-between">
+          <span>August</span><b>218</b>
+         </div>
+         <div class="bar mt-1">
+          <span style="width:72%"></span>
+         </div>
+        </div>
+        <div>
+         <div class="flex justify-between">
+          <span>September</span><b>263</b>
+         </div>
+         <div class="bar mt-1">
+          <span style="width:88%"></span>
+         </div>
+        </div>
+        <div>
+         <div class="flex justify-between">
+          <span>October</span><b>196</b>
+         </div>
+         <div class="bar mt-1">
+          <span style="width:65%"></span>
+         </div>
+        </div>
+       </div>
+       <p class="text-xs text-slate-500 mt-5">Example placeholder data — not live inventory.</p>
+      </section>
+     </div>
+     <section class="panel p-5 mt-5">
+      <div class="flex flex-wrap gap-3 justify-between">
+       <h2 class="font-bold">User &amp; camp management</h2>
+       <div class="flex gap-2">
+        <input class="field w-48" placeholder="Search example records"><select class="field w-auto"><option>All statuses</option><option>Active</option><option>Review</option></select>
+       </div>
+      </div>
+      <div class="table-wrap mt-4">
+       <table>
+        <thead>
+         <tr>
+          <th>Type</th>
+          <th>Record</th>
+          <th>Area</th>
+          <th>Status</th>
+          <th>Updated</th>
+          <th>Safe action</th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td>Donor</td>
+          <td>Donor A-104</td>
+          <td>Ahmedabad West</td>
+          <td><span class="badge badge-green">Active</span></td>
+          <td>Today</td>
+          <td><button class="text-red-600 font-bold">View record</button></td>
+         </tr>
+         <tr>
+          <td>Camp</td>
+          <td>Community Care Drive</td>
+          <td>Riverfront</td>
+          <td><span class="badge badge-green">Published</span></td>
+          <td>Yesterday</td>
+          <td><button class="text-red-600 font-bold">Manage</button></td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </section>
+     <section class="panel p-5 mt-5">
+      <h2 class="font-bold">Recent activity</h2>
+      <div class="mt-4 text-sm space-y-3">
+       <p><b>Organizer</b> published a camp listing <span class="badge badge-green">Complete</span> <span class="text-slate-500">· 09:15</span></p>
+       <p><b>Medical reviewer</b> assigned Screening #R-131 <span class="badge badge-amber">In review</span> <span class="text-slate-500">· 08:40</span></p>
+      </div>
+     </section>
+    </main>
+   </section>
+  </div>
+  <div id="toast" class="hidden-ui fixed bottom-5 right-5 z-50 bg-slate-900 text-white p-4 rounded-lg shadow-lg text-sm" role="status"></div>
+  <script>
+    const navItems=[['landing','Home','house'],['donors','Find donors','search'],['camps','Donation camps','calendar-days'],['donor-dashboard','Donor dashboard','layout-dashboard'],['health','Health screening','clipboard-check'],['organizer','Organizer dashboard','building-2'],['manual','Manual screening','stethoscope'],['admin','Admin dashboard','shield-check']];
+    const groups=['A+','A-','B+','B-','O+','O-','AB+','AB-'];
+    let activeGroup='O+', selectedRole='donor';
+    function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');toggleDrawer(false);window.scrollTo(0,0);syncNav();if(window.lucide)lucide.createIcons();}
+    function renderNav(){const html=navItems.map(([id,name,icon])=>`<button class="sidebar-link" data-nav="${id}" onclick="go('${id}')"><i data-lucide="${icon}" class="w-4"></i>${name}</button>`).join('');document.getElementById('shared-nav').innerHTML=html;document.querySelectorAll('.nav-copy').forEach(x=>x.innerHTML=html);document.querySelectorAll('.top-copy').forEach(x=>x.innerHTML=`<header class="h-[65px] bg-white border-b border-slate-200 px-5 flex justify-between items-center"><button class="lg:hidden icon-btn" onclick="toggleDrawer(true)"><i data-lucide="menu"></i></button><span class="text-sm text-slate-500 hidden lg:block">REDhope secure workspace · Prototype data only</span><div class="relative flex gap-2"><button class="icon-btn" onclick="togglePop('notifications')"><i data-lucide="bell" class="w-5"></i></button><button class="icon-btn" onclick="togglePop('profile')"><i data-lucide="circle-user-round" class="w-5"></i></button><div id="notifications" class="hidden-ui absolute right-12 top-11 w-72 panel p-4 z-20 text-sm"><b>Notifications</b><p class="text-slate-600 mt-2">Screening update is waiting for review.</p></div><div id="profile" class="hidden-ui absolute right-0 top-11 w-48 panel p-3 z-20 text-sm"><b>Alex Morgan</b><p class="text-slate-500 mt-1">Prototype account</p><button class="text-red-600 mt-3 font-bold" onclick="go('landing')">Sign out</button></div></div></header>`);syncNav();}
+    function syncNav(){const active=document.querySelector('.view.active')?.id;document.querySelectorAll('[data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===active));}
+    function toggleDrawer(open){document.querySelectorAll('.shell').forEach(x=>x.classList.toggle('drawer-open',open));}
+    function togglePop(id){['notifications','profile'].forEach(x=>{const e=document.getElementById(x);if(e)e.classList.toggle('hidden-ui',x!==id||!e.classList.contains('hidden-ui'));});}
+    function scrollToId(id){go('landing');setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),50);}
+    function renderGroups(){document.getElementById('blood-groups').innerHTML=groups.map((g,i)=>`<button class="blood-card ${g===activeGroup?'selected':''} border rounded-lg p-3 text-left" onclick="chooseGroup('${g}')"><b class="text-lg">${g}</b><span class="badge ${i===5?'badge-amber':'badge-green'} float-right">${i===5?'Limited':'Available'}</span><p class="text-xs text-slate-500 mt-2">${12+i*7} example donors</p></button>`).join('');}
+    function chooseGroup(g){activeGroup=g;renderGroups();donorSearch();}
+    function donorSearch(){document.getElementById('donor-empty').classList.add('hidden-ui');document.getElementById('donor-results').classList.remove('hidden-ui');const names=['Donor A-104','Priya (consented)','Donor C-212'];document.getElementById('donor-results').innerHTML=names.map((n,i)=>`<article class="panel p-5"><div class="flex justify-between"><b class="text-2xl text-red-600">${activeGroup}</b><span class="badge badge-green">Verified</span></div><h3 class="font-bold mt-5">${n}</h3><p class="text-sm text-slate-500 mt-1">${(2.4+i*3.1).toFixed(1)} km away · active ${i+1} day ago</p><p class="text-xs text-slate-500 mt-4">Approximate location only. Contact requires consent.</p><button class="btn-secondary w-full mt-4" onclick="toast('A consent-based contact request would be prepared.')">Request contact</button></article>`).join('');}
+    function showDonorEmpty(){document.getElementById('donor-results').classList.add('hidden-ui');document.getElementById('donor-empty').classList.remove('hidden-ui');}
+    function campSearch(){const empty=document.getElementById('camp-location').value.trim()==='';document.getElementById('camp-empty').classList.toggle('hidden-ui',!empty);document.getElementById('camp-results').classList.toggle('hidden-ui',empty);document.getElementById('camp-count').textContent=empty?'0 camps found':'3 example camps found near '+document.getElementById('camp-location').value;}
+    function renderCamps(){const camps=[['Community Care Drive','18 Oct 2026','09:00–16:00','Riverfront Hall','62 / 80'],['City Hospital Blood Day','02 Nov 2026','10:00–17:00','Navrangpura Clinic','91 / 120'],['Neighbourhood Giving Day','16 Nov 2026','08:30–14:00','Vastrapur Centre','32 / 60']];document.getElementById('camp-results').innerHTML=camps.map((c,i)=>`<article class="panel overflow-hidden"><div class="h-1 bg-red-600"></div><div class="p-5"><span class="badge badge-green">Organizer verified</span><h2 class="font-bold text-lg mt-4">${c[0]}</h2><p class="text-sm text-slate-600 mt-2">${c[1]} · ${c[2]}</p><p class="text-sm text-slate-600 mt-1">${c[3]} · ${(i+1)*2}.1 km away</p><div class="flex justify-between mt-5 text-sm"><span>Capacity</span><b>${c[4]}</b></div><button class="btn-primary w-full mt-4" onclick="toast('Registration flow is ready for a real verified camp.')">Register interest</button></div></article>`).join('');}
+    function authMode(mode){const reg=mode==='register';document.getElementById('role-area').classList.toggle('hidden-ui',!reg);document.getElementById('sign-tab').className=reg?'px-4 py-3 font-bold text-slate-500':'px-4 py-3 font-bold border-b-2 border-red-600 text-red-600';document.getElementById('register-tab').className=reg?'px-4 py-3 font-bold border-b-2 border-red-600 text-red-600':'px-4 py-3 font-bold text-slate-500';document.querySelector('[data-template-id="auth-submit"]').textContent=reg?'Create prototype profile':'Sign in to prototype';}
+    function selectRole(role){selectedRole=role;document.querySelectorAll('.role-card').forEach(x=>x.classList.toggle('selected',x.dataset.role===role));}
+    function handleAuth(e){e.preventDefault();const email=document.getElementById('auth-email').value;const feedback=document.getElementById('auth-feedback');feedback.classList.remove('hidden-ui');if(!email){feedback.textContent='Enter an email address to continue.';feedback.className='text-sm text-red-600';return;}feedback.textContent='Success: prototype access prepared. Opening your dashboard.';feedback.className='text-sm text-green-700';setTimeout(()=>go(selectedRole==='organizer'?'organizer':'donor-dashboard'),500);}
+    function useLocation(id){document.getElementById(id).value='Ahmedabad, Gujarat';toast('Example location applied.');}
+    function addFile(){const row=document.createElement('div');row.className='border rounded-lg p-3 flex justify-between text-sm';row.innerHTML='<span><i data-lucide="file-text" class="inline w-4"></i> eligibility-note.jpg · JPG · 186 KB <span class="badge badge-amber">Queued</span></span><button type="button" class="text-red-600" onclick="this.parentElement.remove()">Remove</button>';document.getElementById('file-list').appendChild(row);lucide.createIcons();}
+    function draftScreen(){const e=document.getElementById('screen-feedback');e.textContent='Draft saved in this prototype session.';e.classList.remove('hidden-ui');}
+    function screenSubmit(e){e.preventDefault();const age=document.getElementById('health-age').value;const feedback=document.getElementById('screen-feedback');feedback.classList.remove('hidden-ui');feedback.textContent=age?'Screening submitted for example review. Your status is now In review.':'Please complete your age before submitting.';}
+    function saveManual(e){e.preventDefault();const d=document.getElementById('decision').value, f=document.getElementById('manual-feedback');f.classList.remove('hidden-ui');if(!d){f.textContent='Select an Approved, Needs review, or Deferred decision before saving.';f.className='text-sm mt-3 text-red-600';return;}f.textContent='Screening saved as '+d+'. A confirmation would be recorded in an audited production workflow.';f.className='text-sm mt-3 text-green-700';}
+    function toast(message){const t=document.getElementById('toast');t.textContent=message;t.classList.remove('hidden-ui');setTimeout(()=>t.classList.add('hidden-ui'),3000);}
+    renderNav();renderGroups();donorSearch();renderCamps();authMode('sign');lucide.createIcons();
+  </script>
+ </body>
+</html>

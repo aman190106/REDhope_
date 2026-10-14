@@ -16,7 +16,8 @@ const {
     getCampReminderTemplate,
     getBloodMatchTemplate,
     getDonationReminderTemplate,
-    getDonationRecordedTemplate
+    getDonationRecordedTemplate,
+    getNearbyCampAlertTemplate
 } = require("../templates/emailTemplates");
 
 /**
@@ -105,7 +106,20 @@ async function deliverNotificationEmail({
                 break;
 
             case "camp_update":
-                if ((eventKey && eventKey.includes("camp-reminder")) || title.toLowerCase().includes("reminder")) {
+                if (metadata.isNearbyCampAlert || (eventKey && eventKey.includes("camp-nearby")) || title.toLowerCase().includes("near you")) {
+                    emailContent = getNearbyCampAlertTemplate({
+                        donorName,
+                        campName: metadata.campName || "Blood Donation Camp",
+                        startDate: metadata.startDate,
+                        endDate: metadata.endDate,
+                        startTime: metadata.startTime,
+                        endTime: metadata.endTime,
+                        address: metadata.address,
+                        city: metadata.city,
+                        distanceKm: metadata.distanceKm,
+                        campId: metadata.campId
+                    });
+                } else if ((eventKey && eventKey.includes("camp-reminder")) || title.toLowerCase().includes("reminder")) {
                     emailContent = getCampReminderTemplate({
                         donorName,
                         campName: metadata.campName || "Blood Donation Camp",
