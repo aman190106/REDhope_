@@ -332,6 +332,11 @@ function AdminDashboardPage() {
     (item: any) => item.value > 0
   );
 
+  const monthlyDonationData = (analytics?.donations?.monthlyTrend || cSummary?.monthlyTrend || []).map((item: any) => ({
+    period: item.period || item.month || item._id || "Recent",
+    donations: item.donations ?? item.count ?? item.units ?? 0,
+  }));
+
   const getInitials = (name: string) => {
     if (!name) return "DN";
     const parts = name.trim().split(" ");
@@ -381,33 +386,58 @@ function AdminDashboardPage() {
           </div>
 
           {/* Header Actions */}
-          <div className="flex items-center gap-2">
-            {activeTab === "donors" ? (
+          <div className="flex flex-wrap items-center justify-start lg:justify-end gap-2">
+            <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Admin sections">
               <button
                 type="button"
-                onClick={() => {
+                role="tab"
+                aria-selected={activeTab === "overview"}
+                onClick={() => handleTabSelect("overview")}
+                className={`px-3.5 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                  activeTab === "overview"
+                    ? "bg-[#e60023] border-[#e60023] text-white shadow-sm"
+                    : "bg-white border-slate-200 text-[#0e2439] hover:bg-slate-50"
+                }`}
+              >
+                Overview &amp; Metrics
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "donors"}
+                onClick={() => handleTabSelect("donors")}
+                className={`px-3.5 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                  activeTab === "donors"
+                    ? "bg-[#e60023] border-[#e60023] text-white shadow-sm"
+                    : "bg-white border-slate-200 text-[#0e2439] hover:bg-slate-50"
+                }`}
+              >
+                <i className="fas fa-users mr-1.5" /> User &amp; Donor Registry
+              </button>
+              <Link
+                to="/admin/health-screenings"
+                className="px-3.5 py-2 text-xs font-bold rounded-lg bg-white border border-slate-200 text-[#0e2439] hover:bg-slate-50 transition-all"
+              >
+                <i className="fas fa-stethoscope mr-1.5" /> Review Queue
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (activeTab === "donors") {
                   loadDonors();
                   toast.success("User registry refreshed from database");
-                }}
-                className="px-3.5 py-2 text-xs font-bold rounded-lg bg-white border border-slate-200 text-[#0284c7] hover:bg-slate-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
-              >
-                <i className="fas fa-rotate text-xs text-[#0284c7]" />
-                <span>Refresh Registry</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
+                } else {
                   loadAnalytics();
                   loadReviewQueue();
                   toast.success("Live metrics refreshed from database");
-                }}
-                className="px-3.5 py-2 text-xs font-bold rounded-lg bg-white border border-slate-200 text-[#0284c7] hover:bg-slate-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
-              >
-                <i className="fas fa-rotate text-xs text-[#0284c7]" />
-                <span>Refresh Live Metrics</span>
-              </button>
-            )}
+                }
+              }}
+              className="px-3.5 py-2 text-xs font-bold rounded-lg bg-white border border-blue-200 text-[#0284c7] hover:bg-blue-50 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+            >
+              <i className="fas fa-rotate text-xs text-[#0284c7]" />
+              <span>{activeTab === "donors" ? "Refresh Registry" : "Refresh Live Metrics"}</span>
+            </button>
           </div>
         </div>
 
