@@ -143,6 +143,13 @@ const userSchema = new mongoose.Schema({
     emailNotifications: {
         type: Boolean,
         default: true
+    },
+
+    notificationRadiusKm: {
+        type: Number,
+        default: 25,
+        min: [1, "radius must be at least 1 km"],
+        max: [200, "radius cannot exceed 200 km"]
     }
 
 }, {

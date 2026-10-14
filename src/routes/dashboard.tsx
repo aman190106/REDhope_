@@ -57,6 +57,39 @@ function DashboardPage() {
   const [campsRegistered, setCampsRegistered] = useState<CampRegistrationItem[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [togglingStatus, setTogglingStatus] = useState(false);
+  const [customRadius, setCustomRadius] = useState<number | string>(user?.notificationRadiusKm ?? 25);
+  const [isSavingRadius, setIsSavingRadius] = useState(false);
+
+  useEffect(() => {
+    if (user?.notificationRadiusKm !== undefined) {
+      setCustomRadius(user.notificationRadiusKm);
+    }
+  }, [user?.notificationRadiusKm]);
+
+  const handleSaveRadius = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!user) return;
+    const parsed = Number(customRadius);
+    if (!Number.isFinite(parsed) || parsed < 1 || parsed > 200) {
+      toast.error("Please enter a valid coverage radius between 1 and 200 km.");
+      return;
+    }
+    const rounded = Math.round(parsed);
+    setIsSavingRadius(true);
+    try {
+      const res = await api.put<{ success: boolean; user: any }>("/auth/me", {
+        notificationRadiusKm: rounded,
+      });
+      if (res?.success) {
+        updateUserInMemory({ notificationRadiusKm: rounded });
+        toast.success(`Camp alert coverage radius updated to ${rounded} km!`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update notification coverage radius.");
+    } finally {
+      setIsSavingRadius(false);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -399,6 +432,114 @@ function DashboardPage() {
                   <Link to="/profile" className="btn btn-outline" style={{ fontSize: 13, padding: "6px 14px" }}>
                     Complete / Update Details
                   </Link>
+                </div>
+              </div>
+
+              {/* Camp Alert Coverage Radius Card */}
+              <div className="form-section" style={{ marginBottom: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <h3 style={{ margin: 0, fontSize: "1.05rem" }}>
+                    <i className="fas fa-radar" style={{ marginRight: 8, color: "var(--primary)" }} />
+                    Camp Notification Radius
+                  </h3>
+                  <span
+                    style={{
+                      background: "rgba(230, 57, 70, 0.1)",
+                      color: "var(--primary)",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      padding: "3px 10px",
+                      borderRadius: 20,
+                    }}
+                  >
+                    Active: {user.notificationRadiusKm ?? 25} km
+                  </span>
+                </div>
+
+                <p style={{ fontSize: 13, color: "var(--gray)", margin: "0 0 14px", lineHeight: 1.5 }}>
+                  Define the maximum coverage area (in kilometers) around your location to receive email and in-app alerts whenever a blood donation camp is scheduled near you.
+                </p>
+
+                <form onSubmit={handleSaveRadius} style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <input
+                      type="number"
+                      min={1}
+                      max={200}
+                      step={1}
+                      value={customRadius}
+                      onChange={(e) => setCustomRadius(e.target.value)}
+                      placeholder="e.g. 25"
+                      style={{
+                        width: "100%",
+                        padding: "10px 48px 10px 14px",
+                        border: "1.5px solid #cbd5e1",
+                        borderRadius: 8,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "var(--secondary)",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        right: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "#94a3b8",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      km
+                    </span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn"
+                    disabled={
+                      isSavingRadius ||
+                      Number(customRadius) === (user.notificationRadiusKm ?? 25) ||
+                      !customRadius ||
+                      Number(customRadius) < 1 ||
+                      Number(customRadius) > 200
+                    }
+                    style={{
+                      padding: "10px 18px",
+                      fontSize: 14,
+                      whiteSpace: "nowrap",
+                      opacity:
+                        Number(customRadius) === (user.notificationRadiusKm ?? 25) ? 0.6 : 1,
+                    }}
+                  >
+                    {isSavingRadius ? (
+                      <>
+                        <i className="fas fa-circle-notch fa-spin" style={{ marginRight: 6 }} /> Saving...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-save" style={{ marginRight: 6 }} /> Save Radius
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginTop: 12,
+                    fontSize: 12,
+                    color: "var(--gray)",
+                  }}
+                >
+                  <i className="fas fa-info-circle" style={{ color: "var(--primary)" }} />
+                  <span>Enter any custom distance between 1 km and 200 km.</span>
                 </div>
               </div>
 

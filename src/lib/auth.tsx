@@ -36,6 +36,7 @@ export interface UserProfile {
   isEligible: boolean;
   lastDonationDate?: string | null;
   emailNotifications?: boolean;
+  notificationRadiusKm?: number;
   createdAt?: string;
   updatedAt?: string;
 }

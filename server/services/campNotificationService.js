@@ -78,9 +78,10 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
 
         const donorsMap = new Map();
 
-        // 2. Query donors by geospatial coordinates if camp has coordinates
+        // 2. Query candidate donors within max radius (up to 200 km) if camp has coordinates
         if (hasCoordinates) {
-            const radiusInRadians = radiusKm / EARTH_RADIUS_KM;
+            const queryRadiusKm = Math.max(Number(options.radiusKm) || DEFAULT_RADIUS_KM, 200);
+            const radiusInRadians = queryRadiusKm / EARTH_RADIUS_KM;
             const geoQuery = {
                 isEligible: true,
                 "location.coordinates": {
@@ -94,7 +95,7 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
             }
 
             const geoDonors = await userModel.find(geoQuery)
-                .select("_id name email location emailNotifications")
+                .select("_id name email location emailNotifications notificationRadiusKm")
                 .lean();
 
             for (const d of geoDonors) {
@@ -114,7 +115,7 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
             }
 
             const cityDonors = await userModel.find(cityQuery)
-                .select("_id name email location emailNotifications")
+                .select("_id name email location emailNotifications notificationRadiusKm")
                 .lean();
 
             for (const d of cityDonors) {
@@ -127,7 +128,7 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
         const eligibleDonors = Array.from(donorsMap.values());
         let notifiedCount = 0;
 
-        // 4. Dispatch notification to each nearby donor
+        // 4. Dispatch notification to each nearby donor within their custom coverage area
         for (const donor of eligibleDonors) {
             try {
                 const donorId = donor._id.toString();
@@ -136,6 +137,16 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
                 let distanceKm = null;
                 if (hasCoordinates && donor.location?.coordinates && donor.location.coordinates.length === 2) {
                     distanceKm = calculateHaversineDistanceKm(donor.location.coordinates, campCoords);
+                }
+
+                // Check donor's custom notification radius (defaults to 25 km if not set)
+                const donorRadiusKm = Number(donor.notificationRadiusKm) > 0
+                    ? Number(donor.notificationRadiusKm)
+                    : DEFAULT_RADIUS_KM;
+
+                // If coordinates distance was calculated, verify it falls within the donor's chosen radius
+                if (distanceKm !== null && distanceKm > donorRadiusKm) {
+                    continue;
                 }
 
                 const venue = campDoc.location?.address
@@ -157,7 +168,8 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
                         endTime: campDoc.endTime,
                         address: campDoc.location?.address,
                         city: campDoc.location?.city,
-                        distanceKm
+                        distanceKm,
+                        donorRadiusKm
                     },
                     eventKey
                 });

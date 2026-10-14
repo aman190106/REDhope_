@@ -11,6 +11,7 @@ interface NavbarProps {
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/camps", label: "Camps" },
+  { to: "/organize", label: "Host a Camp" },
   { to: "/donations", label: "Donations" },
   { to: "/about", label: "About Us" },
   { to: "/stories", label: "Stories" },

@@ -256,6 +256,7 @@ const updateMe = async (req, res) => {
             location,
             isDonorAvailable,
             emailNotifications,
+            notificationRadiusKm,
             role,
             isEligible,
             lastDonationDate
@@ -343,6 +344,16 @@ const updateMe = async (req, res) => {
         }
         if (isDonorAvailable !== undefined) updateData.isDonorAvailable = isDonorAvailable;
         if (emailNotifications !== undefined) updateData.emailNotifications = Boolean(emailNotifications);
+        if (notificationRadiusKm !== undefined) {
+            const parsedRadius = Number(notificationRadiusKm);
+            if (!Number.isFinite(parsedRadius) || parsedRadius < 1 || parsedRadius > 200) {
+                return res.status(400).json({
+                    success: false,
+                    message: "notification radius must be a number between 1 and 200 km"
+                });
+            }
+            updateData.notificationRadiusKm = Math.round(parsedRadius);
+        }
 
         if (password !== undefined) {
             if (typeof password !== "string" || password.trim().length < 6) {
@@ -506,6 +517,8 @@ const updateUser = async (req, res) => {
             gender,
             location,
             isDonorAvailable,
+            emailNotifications,
+            notificationRadiusKm,
             role,
             isEligible,
             lastDonationDate
@@ -592,6 +605,17 @@ const updateUser = async (req, res) => {
             updateData.location = locData;
         }
         if (isDonorAvailable !== undefined) updateData.isDonorAvailable = isDonorAvailable;
+        if (emailNotifications !== undefined) updateData.emailNotifications = Boolean(emailNotifications);
+        if (notificationRadiusKm !== undefined) {
+            const parsedRadius = Number(notificationRadiusKm);
+            if (!Number.isFinite(parsedRadius) || parsedRadius < 1 || parsedRadius > 200) {
+                return res.status(400).json({
+                    success: false,
+                    message: "notification radius must be a number between 1 and 200 km"
+                });
+            }
+            updateData.notificationRadiusKm = Math.round(parsedRadius);
+        }
 
         // Admin-only fields
         if (role !== undefined && isAdmin(req)) updateData.role = role;
