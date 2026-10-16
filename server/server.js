@@ -76,16 +76,21 @@ app.use("/health-screening", express.json({ limit: "10mb" }), healthScreeningRou
 app.use("/admin/health-screenings", adminHealthScreeningRoutes);
 app.use("/", testRoutes);
 
-connectDB()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
-            if (process.env.ENABLE_NOTIFICATION_SCHEDULER !== "false") {
-                notificationScheduler.startScheduler();
-            }
+if (require.main === module) {
+    connectDB()
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`Server is running on http://localhost:${PORT}`);
+                if (process.env.ENABLE_NOTIFICATION_SCHEDULER !== "false") {
+                    notificationScheduler.startScheduler();
+                }
+            });
+        })
+        .catch((error) => {
+            console.error(error.message);
+            process.exit(1);
         });
-    })
-    .catch((error) => {
-        console.error(error.message);
-        process.exit(1);
-    });
+}
+
+module.exports = app;
+

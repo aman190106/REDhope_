@@ -156,10 +156,11 @@ a { color: inherit; }
 }
 .nav-container {
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 12px 28px;
   max-width: 1440px;
+  width: 100%;
   margin: 0 auto;
   gap: 24px;
 }
@@ -186,6 +187,7 @@ a { color: inherit; }
   gap: 16px;
   align-items: center;
   margin: 0;
+  margin-left: auto;
   flex-wrap: nowrap;
 }
 .nav-menu li {

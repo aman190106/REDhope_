@@ -71,7 +71,9 @@ async function notifyNearbyDonorsForCamp(campParam, options = {}) {
         }
 
         const campId = campDoc._id.toString();
-        const organizerId = campDoc.organizer ? campDoc.organizer.toString() : null;
+        const organizerId = campDoc.organizer
+            ? (campDoc.organizer._id ? campDoc.organizer._id.toString() : campDoc.organizer.toString())
+            : null;
         const campCoords = campDoc.location?.coordinates;
         const hasCoordinates = Array.isArray(campCoords) && campCoords.length === 2 &&
             typeof campCoords[0] === "number" && typeof campCoords[1] === "number";

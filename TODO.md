@@ -264,27 +264,27 @@ Tasks should be completed incrementally and checked off when verified.
 
 ## Backend
 
-- [ ] Test user registration
-- [ ] Test duplicate email
-- [ ] Test duplicate phone
-- [ ] Test `GET /users`
-- [ ] Test `GET /users/:id`
-- [ ] Test update user
-- [ ] Test delete user
-- [ ] Test authentication
-- [ ] Test authorization
-- [ ] Test camp APIs
-- [ ] Test camp registration
-- [ ] Test matching engine
+- [x] Test user registration
+- [x] Test duplicate email
+- [x] Test duplicate phone
+- [x] Test `GET /users`
+- [x] Test `GET /users/:id`
+- [x] Test update user
+- [x] Test delete user
+- [x] Test authentication
+- [x] Test authorization
+- [x] Test camp APIs
+- [x] Test camp registration
+- [x] Test matching engine
 
 ## Frontend
 
-- [ ] Test registration flow
-- [ ] Test login flow
-- [ ] Test profile flow
-- [ ] Test camp discovery
-- [ ] Test camp registration
-- [ ] Test organizer workflow
+- [x] Test registration flow
+- [x] Test login flow
+- [x] Test profile flow
+- [x] Test camp discovery
+- [x] Test camp registration
+- [x] Test organizer workflow
 
 ---
 

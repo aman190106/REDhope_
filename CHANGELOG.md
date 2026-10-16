@@ -13,6 +13,25 @@ Changes currently being developed.
 
 ---
 
+# [2026-10-15]
+
+## Client Workflows & Full-Stack Testing Verification
+
+- **Automated Frontend Client Workflows Integration Suite** (`server/tests/frontend_flows.test.js`):
+  - Created a 23-test native integration suite validating all 6 core client workflows with 100% pass rate.
+  - **Registration Flow**: Validated donor & organizer registration, input validation enforcement, duplicate phone/email rejection, password exclusion from API responses, and automated login token acquisition.
+  - **Login Flow**: Verified credentials authentication, JWT token issuance, role-based client redirect logic (admin -> `/admin`, organizer -> `/organizer`, user -> `/dashboard`), and session persistence via `GET /auth/me`.
+  - **Profile Flow**: Tested full profile loading, medical eligibility advisory integration (`GET /eligibility/me`), and profile updates via `PUT /auth/me` with 2dsphere location coordinates.
+  - **Camp Discovery Flow**: Validated public camp querying, multi-field city/state filtering, and geospatial radial nearby discovery (`GET /camps/nearby`).
+  - **Camp Registration Flow**: Verified camp details fetching, unregistered vs registered status checks, atomic capacity-locking registration, 409 duplicate registration prevention, and cancellation with capacity decrement.
+  - **Organizer Workflow**: Tested camp creation via `POST /camps`, hosted drives management (`GET /camps?status=all`), registered attendee roster queries (`GET /camps/:campId/registrations`), and lifecycle status updates.
+- **Navbar Layout & Alignment Defect Fix** (`src/styles.css`):
+  - Corrected invalid CSS property `justifyContent: space-between` to standard `justify-content: space-between` on `.nav-container`.
+  - Added `width: 100%` and `margin-left: auto` to `.nav-menu` to guarantee proper flush-right alignment across all viewport sizes.
+  - Verified frontend production build compiles with 0 errors via `npm run build`.
+
+---
+
 # [2026-10-09]
 
 ## Camp-Specific Manual Donor Screening
