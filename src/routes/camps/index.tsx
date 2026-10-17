@@ -291,6 +291,7 @@ function CampsListPage() {
             <button
               type="button"
               onClick={() => setActiveTab("all")}
+              className="tab-btn"
               style={{
                 background: "none",
                 border: "none",
@@ -304,6 +305,7 @@ function CampsListPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
+                transition: "all 0.25s ease",
               }}
             >
               <i className="fas fa-list" /> All Camps
@@ -312,6 +314,7 @@ function CampsListPage() {
             <button
               type="button"
               onClick={() => setActiveTab("nearby")}
+              className="tab-btn"
               style={{
                 background: "none",
                 border: "none",
@@ -325,6 +328,7 @@ function CampsListPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
+                transition: "all 0.25s ease",
               }}
             >
               <i className="fas fa-location-crosshairs" /> Nearby Camps (Radius Search)
@@ -343,7 +347,7 @@ function CampsListPage() {
 
           {/* TAB 1: ALL CAMPS (STANDARD DISCOVERY) */}
           {activeTab === "all" && (
-            <>
+            <div className="tab-animated">
               {/* Filter Bar */}
               <div className="form-section" style={{ marginBottom: 35, padding: "24px 28px" }}>
                 <h3 style={{ fontSize: "1.2rem", marginBottom: 16 }}>
@@ -730,12 +734,12 @@ function CampsListPage() {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {/* TAB 2: NEARBY CAMPS (GEOSPATIAL DISCOVERY) */}
           {activeTab === "nearby" && (
-            <div>
+            <div className="tab-animated">
               {!token ? (
                 /* Unauthenticated Notice */
                 <div

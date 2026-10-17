@@ -9,100 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StoriesRouteImport } from './routes/stories'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as OrganizeRouteImport } from './routes/organize'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as MatchingRouteImport } from './routes/matching'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as HealthScreeningRouteImport } from './routes/health-screening'
-import { Route as EligibilityRouteImport } from './routes/eligibility'
-import { Route as DonationsRouteImport } from './routes/donations'
-import { Route as DonateRouteImport } from './routes/donate'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OrganizerIndexRouteImport } from './routes/organizer/index'
-import { Route as CampsIndexRouteImport } from './routes/camps/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DonateRouteImport } from './routes/donate'
+import { Route as DonationsRouteImport } from './routes/donations'
+import { Route as EligibilityRouteImport } from './routes/eligibility'
+import { Route as HealthScreeningRouteImport } from './routes/health-screening'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MatchingRouteImport } from './routes/matching'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OrganizeRouteImport } from './routes/organize'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as OrganizerAnalyticsRouteImport } from './routes/organizer/analytics'
+import { Route as CampsIndexRouteImport } from './routes/camps/index'
 import { Route as CampsCampIdRouteImport } from './routes/camps/$campId'
+import { Route as OrganizerIndexRouteImport } from './routes/organizer/index'
+import { Route as OrganizerAnalyticsRouteImport } from './routes/organizer/analytics'
 import { Route as AdminHealthScreeningsIndexRouteImport } from './routes/admin/health-screenings/index'
-import { Route as OrganizerCampsCampIdRouteImport } from './routes/organizer/camps/$campId'
 import { Route as AdminHealthScreeningsScreeningIdRouteImport } from './routes/admin/health-screenings/$screeningId'
+import { Route as OrganizerCampsCampIdRouteImport } from './routes/organizer/camps/$campId'
 import { Route as OrganizerCampsCampIdScreeningRegistrationIdRouteImport } from './routes/organizer/camps/$campId.screening.$registrationId'
 
-const StoriesRoute = StoriesRouteImport.update({
-  id: '/stories',
-  path: '/stories',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrganizeRoute = OrganizeRouteImport.update({
-  id: '/organize',
-  path: '/organize',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MatchingRoute = MatchingRouteImport.update({
-  id: '/matching',
-  path: '/matching',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HealthScreeningRoute = HealthScreeningRouteImport.update({
-  id: '/health-screening',
-  path: '/health-screening',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EligibilityRoute = EligibilityRouteImport.update({
-  id: '/eligibility',
-  path: '/eligibility',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DonationsRoute = DonationsRouteImport.update({
-  id: '/donations',
-  path: '/donations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DonateRoute = DonateRouteImport.update({
-  id: '/donate',
-  path: '/donate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -110,19 +45,74 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizerIndexRoute = OrganizerIndexRouteImport.update({
-  id: '/organizer/',
-  path: '/organizer/',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CampsIndexRoute = CampsIndexRouteImport.update({
-  id: '/camps/',
-  path: '/camps/',
+const DonateRoute = DonateRouteImport.update({
+  id: '/donate',
+  path: '/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonationsRoute = DonationsRouteImport.update({
+  id: '/donations',
+  path: '/donations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EligibilityRoute = EligibilityRouteImport.update({
+  id: '/eligibility',
+  path: '/eligibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthScreeningRoute = HealthScreeningRouteImport.update({
+  id: '/health-screening',
+  path: '/health-screening',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchingRoute = MatchingRouteImport.update({
+  id: '/matching',
+  path: '/matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizeRoute = OrganizeRouteImport.update({
+  id: '/organize',
+  path: '/organize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoriesRoute = StoriesRouteImport.update({
+  id: '/stories',
+  path: '/stories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -130,14 +120,24 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizerAnalyticsRoute = OrganizerAnalyticsRouteImport.update({
-  id: '/organizer/analytics',
-  path: '/organizer/analytics',
+const CampsIndexRoute = CampsIndexRouteImport.update({
+  id: '/camps/',
+  path: '/camps/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CampsCampIdRoute = CampsCampIdRouteImport.update({
   id: '/camps/$campId',
   path: '/camps/$campId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerIndexRoute = OrganizerIndexRouteImport.update({
+  id: '/organizer/',
+  path: '/organizer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerAnalyticsRoute = OrganizerAnalyticsRouteImport.update({
+  id: '/organizer/analytics',
+  path: '/organizer/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminHealthScreeningsIndexRoute =
@@ -146,17 +146,17 @@ const AdminHealthScreeningsIndexRoute =
     path: '/admin/health-screenings/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const OrganizerCampsCampIdRoute = OrganizerCampsCampIdRouteImport.update({
-  id: '/organizer/camps/$campId',
-  path: '/organizer/camps/$campId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminHealthScreeningsScreeningIdRoute =
   AdminHealthScreeningsScreeningIdRouteImport.update({
     id: '/admin/health-screenings/$screeningId',
     path: '/admin/health-screenings/$screeningId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const OrganizerCampsCampIdRoute = OrganizerCampsCampIdRouteImport.update({
+  id: '/organizer/camps/$campId',
+  path: '/organizer/camps/$campId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizerCampsCampIdScreeningRegistrationIdRoute =
   OrganizerCampsCampIdScreeningRegistrationIdRouteImport.update({
     id: '/screening/$registrationId',
@@ -359,102 +359,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/stories': {
-      id: '/stories'
-      path: '/stories'
-      fullPath: '/stories'
-      preLoaderRoute: typeof StoriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/organize': {
-      id: '/organize'
-      path: '/organize'
-      fullPath: '/organize'
-      preLoaderRoute: typeof OrganizeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/matching': {
-      id: '/matching'
-      path: '/matching'
-      fullPath: '/matching'
-      preLoaderRoute: typeof MatchingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/health-screening': {
-      id: '/health-screening'
-      path: '/health-screening'
-      fullPath: '/health-screening'
-      preLoaderRoute: typeof HealthScreeningRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/eligibility': {
-      id: '/eligibility'
-      path: '/eligibility'
-      fullPath: '/eligibility'
-      preLoaderRoute: typeof EligibilityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/donations': {
-      id: '/donations'
-      path: '/donations'
-      fullPath: '/donations'
-      preLoaderRoute: typeof DonationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/donate': {
-      id: '/donate'
-      path: '/donate'
-      fullPath: '/donate'
-      preLoaderRoute: typeof DonateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -464,25 +373,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organizer/': {
-      id: '/organizer/'
-      path: '/organizer'
-      fullPath: '/organizer/'
-      preLoaderRoute: typeof OrganizerIndexRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/camps/': {
-      id: '/camps/'
-      path: '/camps'
-      fullPath: '/camps/'
-      preLoaderRoute: typeof CampsIndexRouteImport
+    '/donate': {
+      id: '/donate'
+      path: '/donate'
+      fullPath: '/donate'
+      preLoaderRoute: typeof DonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donations': {
+      id: '/donations'
+      path: '/donations'
+      fullPath: '/donations'
+      preLoaderRoute: typeof DonationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eligibility': {
+      id: '/eligibility'
+      path: '/eligibility'
+      fullPath: '/eligibility'
+      preLoaderRoute: typeof EligibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health-screening': {
+      id: '/health-screening'
+      path: '/health-screening'
+      fullPath: '/health-screening'
+      preLoaderRoute: typeof HealthScreeningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matching': {
+      id: '/matching'
+      path: '/matching'
+      fullPath: '/matching'
+      preLoaderRoute: typeof MatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organize': {
+      id: '/organize'
+      path: '/organize'
+      fullPath: '/organize'
+      preLoaderRoute: typeof OrganizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stories': {
+      id: '/stories'
+      path: '/stories'
+      fullPath: '/stories'
+      preLoaderRoute: typeof StoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -492,11 +478,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organizer/analytics': {
-      id: '/organizer/analytics'
-      path: '/organizer/analytics'
-      fullPath: '/organizer/analytics'
-      preLoaderRoute: typeof OrganizerAnalyticsRouteImport
+    '/camps/': {
+      id: '/camps/'
+      path: '/camps'
+      fullPath: '/camps/'
+      preLoaderRoute: typeof CampsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/camps/$campId': {
@@ -506,6 +492,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampsCampIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizer/': {
+      id: '/organizer/'
+      path: '/organizer'
+      fullPath: '/organizer/'
+      preLoaderRoute: typeof OrganizerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/analytics': {
+      id: '/organizer/analytics'
+      path: '/organizer/analytics'
+      fullPath: '/organizer/analytics'
+      preLoaderRoute: typeof OrganizerAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/health-screenings/': {
       id: '/admin/health-screenings/'
       path: '/admin/health-screenings'
@@ -513,18 +513,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHealthScreeningsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organizer/camps/$campId': {
-      id: '/organizer/camps/$campId'
-      path: '/organizer/camps/$campId'
-      fullPath: '/organizer/camps/$campId'
-      preLoaderRoute: typeof OrganizerCampsCampIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/health-screenings/$screeningId': {
       id: '/admin/health-screenings/$screeningId'
       path: '/admin/health-screenings/$screeningId'
       fullPath: '/admin/health-screenings/$screeningId'
       preLoaderRoute: typeof AdminHealthScreeningsScreeningIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/camps/$campId': {
+      id: '/organizer/camps/$campId'
+      path: '/organizer/camps/$campId'
+      fullPath: '/organizer/camps/$campId'
+      preLoaderRoute: typeof OrganizerCampsCampIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organizer/camps/$campId/screening/$registrationId': {

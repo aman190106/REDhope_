@@ -5,8 +5,12 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const connectDB = require("./config/db");
+const { disconnectDB } = require("./config/db");
+const validateEnv = require("./config/validateEnv");
 const logger = require("./middleware/loggerMiddleware");
 const { generalLimiter, authLimiter, matchingLimiter } = require("./middleware/rateLimitMiddleware");
+const { notFoundHandler, errorHandler } = require("./middleware/errorMiddleware");
+
 const homeRoutes = require("./routes/homeRoutes");
 const authRoutes = require("./routes/authRoutes");
 const eligibilityRoutes = require("./routes/eligibilityRoutes");
@@ -23,6 +27,9 @@ const notificationScheduler = require("./services/notificationScheduler");
 const app = express();
 
 const PORT = process.env.PORT || 5000;
+
+// Trust reverse proxy (Render, Railway, Heroku, Cloudflare, Nginx) for accurate client IP & rate limiting
+app.set("trust proxy", 1);
 
 // Security Headers with Helmet (safe for API and SSR)
 app.use(
@@ -76,21 +83,61 @@ app.use("/health-screening", express.json({ limit: "10mb" }), healthScreeningRou
 app.use("/admin/health-screenings", adminHealthScreeningRoutes);
 app.use("/", testRoutes);
 
+// Centralized 404 & Error Handling
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+// Process-level crash guards
+process.on("unhandledRejection", (reason) => {
+    console.error("[PROCESS] Unhandled Promise Rejection:", reason);
+});
+
+process.on("uncaughtException", (error) => {
+    console.error("[PROCESS FATAL] Uncaught Exception:", error.message);
+    process.exit(1);
+});
+
+let serverInstance = null;
+
 if (require.main === module) {
+    // 1. Validate required environment configuration
+    validateEnv();
+
+    // 2. Connect to database and start HTTP listener
     connectDB()
         .then(() => {
-            app.listen(PORT, () => {
-                console.log(`Server is running on http://localhost:${PORT}`);
+            serverInstance = app.listen(PORT, () => {
+                console.log(`[SERVER] REDhope server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
                 if (process.env.ENABLE_NOTIFICATION_SCHEDULER !== "false") {
                     notificationScheduler.startScheduler();
                 }
             });
         })
         .catch((error) => {
-            console.error(error.message);
+            console.error(`[SERVER BOOT FAILED] ${error.message}`);
             process.exit(1);
         });
+
+    // Graceful shutdown handling (SIGINT / SIGTERM)
+    const gracefulShutdown = async (signal) => {
+        console.log(`\n[SHUTDOWN] Received ${signal}. Closing server gracefully...`);
+        if (serverInstance) {
+            serverInstance.close(async () => {
+                console.log("[SHUTDOWN] HTTP server closed.");
+                try {
+                    await disconnectDB();
+                } catch (err) {
+                    console.error("[SHUTDOWN ERROR] Error while disconnecting database:", err.message);
+                }
+                process.exit(0);
+            });
+        } else {
+            process.exit(0);
+        }
+    };
+
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 }
 
 module.exports = app;
-

@@ -30,5 +30,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-#enviroment variable
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
 server/.env
+server/.env.*
+!server/.env.example

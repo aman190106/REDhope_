@@ -378,7 +378,7 @@ const updateMe = async (req, res) => {
         const updatedUser = await user.findByIdAndUpdate(
             userId,
             updateData,
-            { new: true, runValidators: true }
+            { returnDocument: "after", runValidators: true }
         ).select("-password");
 
         return res.status(200).json({
@@ -772,7 +772,7 @@ const updateUser = async (req, res) => {
         const updatedUser = await user.findByIdAndUpdate(
             id,
             updateData,
-            { new: true, runValidators: true }
+            { returnDocument: "after", runValidators: true }
         ).select("-password");
 
         return res.status(200).json({

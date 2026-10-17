@@ -92,47 +92,113 @@ a { color: inherit; }
   font-size: 1.1rem;
 }
 
-/* -------- buttons -------- */
+/* -------- buttons & interactive animations -------- */
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 12px 28px;
   background: var(--primary);
   color: white;
   text-decoration: none;
-  border-radius: 4px;
-  font-weight: 600;
+  border-radius: 6px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  border: none;
+  letter-spacing: 0.75px;
+  border: 2px solid transparent;
   cursor: pointer;
-  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   font-size: 14px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 14px rgba(230, 57, 70, 0.3);
   font-family: inherit;
 }
+
+/* Subtle Shimmer Light Sweep Effect on Button Hover */
+.btn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.btn:hover::before {
+  left: 130%;
+  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .btn:hover {
   background: var(--primary-dark);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(230, 57, 70, 0.45);
 }
+
+.btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
+}
+
+.btn i, .btn svg {
+  transition: transform 0.22s ease;
+}
+
+.btn:hover i.fa-arrow-right,
+.btn:hover i.fa-chevron-right {
+  transform: translateX(4px);
+}
+
+.btn:hover i.fa-plus-circle,
+.btn:hover i.fa-heart {
+  transform: scale(1.15);
+}
+
 .btn-outline {
   background: transparent;
   border: 2px solid var(--primary);
   color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
+
 .btn-outline:hover {
   background: var(--primary);
   color: white;
+  border-color: var(--primary);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 22px rgba(230, 57, 70, 0.35);
 }
+
+.btn-outline:active {
+  transform: translateY(1px) scale(0.98);
+}
+
 .btn-secondary {
   background: var(--secondary);
+  box-shadow: 0 4px 14px rgba(26, 54, 93, 0.28);
 }
+
 .btn-secondary:hover {
   background: #12294a;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(26, 54, 93, 0.4);
 }
+
 .btn-large {
-  padding: 15px 35px;
-  font-size: 16px;
+  padding: 15px 36px;
+  font-size: 15px;
+  border-radius: 8px;
 }
 
 /* -------- navbar (transparent over hero, solid on scroll) -------- */
@@ -766,4 +832,98 @@ a { color: inherit; }
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(230, 57, 70, 0.35);
 }
+
+/* =========================================================================
+   Tab Transitions, Content Animations & Interactive Micro-Effects
+   ========================================================================= */
+
+@keyframes tabFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tabFadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.98) translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tab-animated {
+  animation: tabFadeInUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.tab-pane-fade {
+  animation: tabFadeInScale 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Tab button interactive hover & active indicator */
+.tab-btn {
+  position: relative;
+  transition: all 0.22s ease-in-out;
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  color: var(--primary) !important;
+  transform: translateY(-2px);
+}
+
+.tab-btn:active {
+  transform: translateY(0);
+}
+
+/* Subtle pulse for urgent badges / status pills */
+@keyframes subtlePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.35);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 10px 2px rgba(230, 57, 70, 0.2);
+  }
+}
+
+.pulse-badge {
+  animation: subtlePulse 2.2s infinite ease-in-out;
+}
+
+/* Card hover animation enhancements */
+.feature-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(26, 54, 93, 0.12);
+}
+
+.feature-img img {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-card:hover .feature-img img {
+  transform: scale(1.06);
+}
+
+/* Stat counter boxes hover */
+.counter-box {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.counter-box:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
 

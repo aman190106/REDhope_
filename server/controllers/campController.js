@@ -714,7 +714,7 @@ const updateCamp = async (req, res) => {
         const updatedCamp = await camp.findByIdAndUpdate(
             id,
             updateData,
-            { new: true, runValidators: true }
+            { returnDocument: "after", runValidators: true }
         ).populate("organizer", "_id name");
 
         // Notify registered donors if camp was cancelled or significantly updated

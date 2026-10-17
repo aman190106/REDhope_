@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import { useAuth } from "../lib/auth";
 import missionImg from "../assets/mission.jpg";
 
 export const Route = createFileRoute("/about")({
@@ -72,6 +73,8 @@ const community = [
 ];
 
 function AboutPage() {
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <>
       <Navbar />
@@ -120,11 +123,26 @@ function AboutPage() {
                 the blood donation ecosystem in India.
               </p>
             </div>
-            <img
-              src={missionImg}
-              alt="Blood donation camp"
-              style={{ width: "100%", borderRadius: 12, boxShadow: "var(--shadow-lg)" }}
-            />
+            <div
+              style={{
+                position: "relative",
+                overflow: "hidden",
+                borderRadius: 16,
+                boxShadow: "0 16px 36px rgba(27, 54, 93, 0.16)",
+              }}
+            >
+              <img
+                src={missionImg}
+                alt="Blood donation camp volunteers and donor"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  display: "block",
+                  borderRadius: 16,
+                  transition: "transform 0.4s ease",
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -205,7 +223,12 @@ function AboutPage() {
                 />
                 <h3 style={{ color: "var(--secondary)", marginBottom: 12 }}>{c.title}</h3>
                 <p style={{ color: "var(--gray)", marginBottom: 18 }}>{c.body}</p>
-                <Link to={c.to} className="btn">{c.cta}</Link>
+                <Link
+                  to={!isAuthenticated && c.to === "/donate" ? "/register" : c.to}
+                  className="btn"
+                >
+                  {c.cta}
+                </Link>
               </div>
             ))}
           </div>
@@ -220,8 +243,17 @@ function AboutPage() {
             blood shortages in India.
           </p>
           <div className="hero-buttons">
-            <Link to="/donate" className="btn btn-large">Register as Donor</Link>
-            <Link to="/organize" className="btn btn-large" style={{ background: "var(--secondary)", color: "white" }}>
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/register"}
+              className="btn btn-large"
+            >
+              {isAuthenticated ? "My Dashboard" : "Register as Donor"}
+            </Link>
+            <Link
+              to={isAuthenticated ? (user?.role === "organizer" ? "/organizer" : "/organize") : "/register"}
+              className="btn btn-large"
+              style={{ background: "var(--secondary)", color: "white" }}
+            >
               Organize a Camp
             </Link>
           </div>

@@ -376,6 +376,7 @@ function HealthScreeningPage() {
                   type="button"
                   onClick={() => setActiveStep(step.num)}
                   disabled={step.num === 5 && (!screening || screening.status === "draft")}
+                  className="tab-btn"
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -400,7 +401,7 @@ function HealthScreeningPage() {
 
           {/* STEP 1: CONSENT & DISCLAIMER */}
           {activeStep === 1 && (
-            <div className="form-section">
+            <div key={1} className="form-section tab-animated">
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                 <i className="fas fa-shield-alt fa-2x" style={{ color: "var(--primary)" }} />
                 <h2 style={{ margin: 0, color: "var(--secondary)" }}>Medical Disclaimer & Informed Consent</h2>
@@ -471,7 +472,7 @@ function HealthScreeningPage() {
 
           {/* STEP 2: STRUCTURED QUESTIONNAIRE */}
           {activeStep === 2 && (
-            <div className="form-section">
+            <div key={2} className="form-section tab-animated">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <div>
                   <h2 style={{ margin: 0, color: "var(--secondary)" }}>Health Screening Questionnaire</h2>
@@ -639,7 +640,7 @@ function HealthScreeningPage() {
 
           {/* STEP 3: DOCUMENT UPLOAD */}
           {activeStep === 3 && (
-            <div className="form-section">
+            <div key={3} className="form-section tab-animated">
               <h2 style={{ margin: "0 0 8px", color: "var(--secondary)" }}>Medical Document Upload</h2>
               <p style={{ color: "var(--gray)", fontSize: 14, marginBottom: 24 }}>
                 Upload verified blood test reports, hemoglobin lab slips, or medical fitness certificates (PDF, JPG, PNG up to 5MB).
@@ -755,7 +756,7 @@ function HealthScreeningPage() {
 
           {/* STEP 4: REVIEW & SUBMIT */}
           {activeStep === 4 && (
-            <div className="form-section">
+            <div key={4} className="form-section tab-animated">
               <h2 style={{ margin: "0 0 8px", color: "var(--secondary)" }}>Review & Submit Screening</h2>
               <p style={{ color: "var(--gray)", fontSize: 14, marginBottom: 24 }}>
                 Review your responses and attached documents before submitting for clinical review.
@@ -818,7 +819,7 @@ function HealthScreeningPage() {
 
           {/* STEP 5: STATUS VIEW */}
           {activeStep === 5 && (
-            <div className="form-section" style={{ textAlign: "center", padding: "40px 24px" }}>
+            <div key={5} className="form-section tab-animated" style={{ textAlign: "center", padding: "40px 24px" }}>
               <StatusBadge status={screening?.status || "draft"} />
 
               <h2 style={{ marginTop: 16, marginBottom: 8, color: "var(--secondary)" }}>

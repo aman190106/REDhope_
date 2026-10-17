@@ -231,5 +231,30 @@ describe("Authentication & Token Verification APIs", () => {
             assert.strictEqual(res.body.message, "you cannot modify last donation date directly");
         });
     });
+
+    describe("Production Health Check & Error Handling", () => {
+        it("GET /health should return 200 with database status and no leaked secrets", async () => {
+            const res = await request("/health");
+
+            assert.strictEqual(res.status, 200);
+            assert.strictEqual(res.body.status, "healthy");
+            assert.strictEqual(res.body.database, "connected");
+            assert.ok(typeof res.body.uptime === "number");
+            assert.ok(res.body.timestamp);
+            assert.strictEqual(res.body.version, "1.0.0");
+            // Verify no secret leak
+            assert.strictEqual(res.body.password, undefined);
+            assert.strictEqual(res.body.MONGODB_URI, undefined);
+            assert.strictEqual(res.body.JWT_SECRET, undefined);
+        });
+
+        it("GET /unknown-route-xyz should return 404 in clean JSON format", async () => {
+            const res = await request("/unknown-route-xyz-404");
+
+            assert.strictEqual(res.status, 404);
+            assert.strictEqual(res.body.success, false);
+            assert.ok(res.body.message.includes("Endpoint not found"));
+        });
+    });
 });
 

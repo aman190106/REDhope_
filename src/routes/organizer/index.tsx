@@ -503,6 +503,7 @@ function OrganizerDashboardPage() {
                     key={tab.key}
                     type="button"
                     onClick={() => setStatusFilter(tab.key)}
+                    className="tab-btn"
                     style={{
                       background: "none",
                       border: "none",
@@ -512,6 +513,7 @@ function OrganizerDashboardPage() {
                       fontWeight: 600,
                       color: statusFilter === tab.key ? "var(--primary)" : "var(--gray)",
                       borderBottom: statusFilter === tab.key ? "2px solid var(--primary)" : "2px solid transparent",
+                      transition: "all 0.22s ease",
                     }}
                   >
                     {tab.label}
@@ -547,7 +549,7 @@ function OrganizerDashboardPage() {
                   </button>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div key={statusFilter} className="tab-animated" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   {displayedCamps.map((camp) => {
                     const remainingSlots = Math.max(0, camp.capacity - camp.registrationCount);
                     const isFull = camp.registrationCount >= camp.capacity;

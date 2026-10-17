@@ -2,12 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { CounterSection } from "../components/CounterSection";
+import { useAuth } from "../lib/auth";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
 function HomePage() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <>
       <Navbar />
@@ -21,8 +24,12 @@ function HomePage() {
           </p>
           <div className="hero-buttons">
             <Link to="/camps" className="btn btn-large">Find Blood Camps</Link>
-            <Link to="/register" className="btn btn-outline btn-large" style={{ color: "white", borderColor: "white" }}>
-              Register as Donor
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/register"}
+              className="btn btn-outline btn-large"
+              style={{ color: "white", borderColor: "white" }}
+            >
+              {isAuthenticated ? "My Dashboard" : "Register as Donor"}
             </Link>
           </div>
         </div>
@@ -93,7 +100,12 @@ function HomePage() {
             and give the gift of life.
           </p>
           <div className="hero-buttons">
-            <Link to="/register" className="btn btn-large">Register as a Donor</Link>
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/register"}
+              className="btn btn-large"
+            >
+              {isAuthenticated ? "Go to Dashboard" : "Register as a Donor"}
+            </Link>
           </div>
         </div>
       </section>

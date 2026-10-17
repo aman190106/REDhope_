@@ -554,6 +554,7 @@ function NotificationsPage() {
                   <button
                     key={tab.id}
                     onClick={() => setFilterType(tab.id)}
+                    className="tab-btn"
                     style={{
                       border: "none",
                       padding: "8px 16px",
@@ -561,10 +562,10 @@ function NotificationsPage() {
                       cursor: "pointer",
                       fontSize: 13,
                       fontWeight: 600,
-                      transition: "all 0.2s ease",
+                      transition: "all 0.22s ease",
                       backgroundColor: filterType === tab.id ? "var(--secondary)" : "#ffffff",
                       color: filterType === tab.id ? "#ffffff" : "var(--gray)",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                      boxShadow: filterType === tab.id ? "0 4px 12px rgba(26, 54, 93, 0.2)" : "0 1px 3px rgba(0,0,0,0.06)",
                     }}
                   >
                     {tab.label}
@@ -614,7 +615,7 @@ function NotificationsPage() {
                   </p>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div key={filterType} className="tab-animated" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {filteredNotifications.map((item) => {
                     const badge = getTypeBadge(item.type);
                     const isLoading = actionLoadingId === item._id;

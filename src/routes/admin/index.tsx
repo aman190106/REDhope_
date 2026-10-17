@@ -415,7 +415,7 @@ function AdminDashboardPage() {
             TAB 1: OVERVIEW & REAL DATABASE ANALYTICS
            ========================================================================= */}
         {activeTab === "overview" && (
-          <div className="space-y-6 mt-6">
+          <div className="tab-animated space-y-6 mt-6">
             {/* Filter Bar matching Image 2 */}
             <div className="flex items-center justify-between gap-3">
               <div className="inline-flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
@@ -864,7 +864,7 @@ function AdminDashboardPage() {
             TAB 2: SEARCHABLE & FILTERABLE DONOR MANAGEMENT TABLE
            ========================================================================= */}
         {activeTab === "donors" && (
-          <div className="space-y-6 mt-6">
+          <div className="tab-animated space-y-6 mt-6">
             {/* Control & Search Bar */}
             <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
               {/* Top Search Input */}
@@ -1286,7 +1286,7 @@ function AdminDashboardPage() {
             TAB 3: DEDICATED MEDICAL REVIEW QUEUE
            ========================================================================= */}
         {activeTab === "queue" && (
-          <div className="space-y-6 mt-6">
+          <div className="tab-animated space-y-6 mt-6">
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
                 <div>
