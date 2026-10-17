@@ -298,7 +298,7 @@ function CampScreeningPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar solid />
 
       <section className="hero hero-compact" style={{ minHeight: "24vh", backgroundColor: "var(--primary)" }}>
         <div className="hero-inner">

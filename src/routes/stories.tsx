@@ -91,7 +91,7 @@ const roleColor: Record<Role, string> = {
 function StoriesPage() {
   return (
     <>
-      <Navbar />
+      <Navbar solid />
 
       <section className="hero hero-compact">
         <div className="hero-inner">

@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
 import { api } from "../../lib/api";
 
 interface CampLocation {
@@ -34,7 +33,6 @@ export function LandingCampPreview() {
   const [camps, setCamps] = useState<CampItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     let cancelled = false;
@@ -67,12 +65,7 @@ export function LandingCampPreview() {
   return (
     <section className="relative py-20 md:py-28">
       <div className="mx-auto w-[var(--landing-content)]">
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div>
           <span className="landing-kicker">Camp discovery</span>
           <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight max-w-2xl">
             Upcoming drives you can join today
@@ -80,7 +73,7 @@ export function LandingCampPreview() {
           <p className="mt-3 text-[var(--landing-muted)] max-w-xl leading-relaxed">
             Browse published camps from organizers on REDhope — capacity and dates come from live registrations.
           </p>
-        </motion.div>
+        </div>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {loading &&
@@ -103,15 +96,10 @@ export function LandingCampPreview() {
           )}
 
           {!loading &&
-            camps.map((camp, index) => (
-              <motion.article
+            camps.map((camp) => (
+              <article
                 key={camp._id}
-                className="landing-panel p-5 flex flex-col gap-3"
-                initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: index * 0.08, duration: 0.45 }}
-                whileHover={reduceMotion ? undefined : { y: -4 }}
+                className="landing-panel p-5 flex flex-col gap-3 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div>
                   <h3 className="text-lg font-semibold leading-snug">{camp.name}</h3>
@@ -139,7 +127,7 @@ export function LandingCampPreview() {
                 >
                   View camp →
                 </Link>
-              </motion.article>
+              </article>
             ))}
         </div>
 

@@ -8,12 +8,40 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+const PARTNERS = [
+  {
+    name: "AIIMS",
+    category: "Medical Institute",
+    icon: "/images/partners/aiims.png",
+  },
+  {
+    name: "Fortis Healthcare",
+    category: "Hospital Partner",
+    icon: "/images/partners/fortis.png",
+  },
+  {
+    name: "Red Cross",
+    category: "Blood Bank Network",
+    icon: "/images/partners/red-cross.png",
+  },
+  {
+    name: "Apollo Hospitals",
+    category: "Healthcare Network",
+    icon: "/images/partners/apollo.png",
+  },
+  {
+    name: "NGO Partner",
+    category: "Community Support",
+    icon: "/images/partners/ngo-partner.png",
+  },
+];
+
 function HomePage() {
   const { isAuthenticated } = useAuth();
 
   return (
     <>
-      <Navbar />
+      <Navbar solid />
 
       <section className="hero">
         <div className="hero-inner">
@@ -110,19 +138,32 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="partners">
+      <section className="partners" aria-labelledby="partners-heading">
         <div className="container">
           <div className="section-title">
-            <h2>Our Trusted Partners</h2>
+            <h2 id="partners-heading">Our Trusted Partners</h2>
             <p>We collaborate with leading healthcare organizations to maximize our impact and reach.</p>
           </div>
-          <div className="partners-grid">
-            <div className="partner-logo">AIIMS</div>
-            <div className="partner-logo">Fortis Healthcare</div>
-            <div className="partner-logo">Red Cross</div>
-            <div className="partner-logo">Apollo Hospitals</div>
-            <div className="partner-logo">NGO Partner</div>
-          </div>
+          <ul className="partners-grid" role="list">
+            {PARTNERS.map((partner) => (
+              <li key={partner.name} className="partner-card" role="listitem">
+                <div className="partner-icon-wrapper">
+                  <img
+                    src={partner.icon}
+                    alt={`${partner.name} — ${partner.category}`}
+                    className="partner-icon"
+                    width={76}
+                    height={76}
+                    loading="lazy"
+                  />
+                </div>
+                <div className="partner-info">
+                  <h3 className="partner-name">{partner.name}</h3>
+                  <span className="partner-category">{partner.category}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

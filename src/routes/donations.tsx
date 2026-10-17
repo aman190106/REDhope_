@@ -47,7 +47,7 @@ interface DonationRecord {
 }
 
 function DonationsPage() {
-  const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, token, isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -79,9 +79,7 @@ function DonationsPage() {
       });
 
       if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("redhope_token");
-        setToken(null);
+        logout();
         setDonations([]);
         return;
       }

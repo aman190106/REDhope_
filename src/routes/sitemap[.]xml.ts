@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-
-const BASE_URL = "";
-
+const BASE_URL =
+  (typeof process !== "undefined" && process.env?.APP_URL) || "https://redhope.org";
 interface SitemapEntry {
   path: string;
   changefreq?: "weekly" | "monthly";

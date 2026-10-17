@@ -77,7 +77,7 @@ function AboutPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar solid />
 
       <section className="hero hero-compact">
         <div className="hero-inner">

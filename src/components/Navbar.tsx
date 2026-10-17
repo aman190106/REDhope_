@@ -4,7 +4,7 @@ import { useAuth } from "../lib/auth";
 import { api } from "../lib/api";
 
 interface NavbarProps {
-  /** When true, navbar always renders with the solid dark background (used on pages without a hero). */
+  /** When true, navbar always renders with the solid dark background. Defaults to true. */
   solid?: boolean;
 }
 
@@ -20,7 +20,7 @@ const navLinks = [
   { to: "/contact", label: "Contact Us" },
 ];
 
-export function Navbar({ solid = false }: NavbarProps) {
+export function Navbar({ solid = true }: NavbarProps) {
   const { user, isAuthenticated, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);

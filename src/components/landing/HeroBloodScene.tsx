@@ -1,124 +1,193 @@
-import { useRef, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-
-function BloodDropSculpture({ interactive }: { interactive: boolean }) {
-  const group = useRef<THREE.Group>(null);
-  const target = useRef({ x: 0, y: 0 });
-
-  const geometry = useMemo(() => {
-    const points: THREE.Vector2[] = [];
-    for (let i = 0; i <= 32; i++) {
-      const t = i / 32;
-      const y = t * 2.2 - 1.1;
-      const radius = Math.sin(t * Math.PI) * 0.72 * (1 - t * 0.15) + 0.08 * (1 - t);
-      points.push(new THREE.Vector2(radius, y));
-    }
-    return new THREE.LatheGeometry(points, 64);
-  }, []);
-
-  useFrame((state, delta) => {
-    if (!group.current) return;
-    const t = state.clock.elapsedTime;
-    group.current.rotation.y += delta * 0.22;
-    group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 0.12 + target.current.y * 0.08, 0.06);
-    group.current.rotation.z = THREE.MathUtils.lerp(group.current.rotation.z, target.current.x * 0.08, 0.06);
-    group.current.position.y = Math.sin(t * 0.9) * 0.06;
-  });
-
-  return (
-    <group
-      ref={group}
-      onPointerMove={
-        interactive
-          ? (e) => {
-              e.stopPropagation();
-              const x = (e.point.x / 2) * 2;
-              const y = (e.point.y / 2) * 2;
-              target.current = { x, y };
-            }
-          : undefined
-      }
-    >
-      <mesh geometry={geometry} castShadow receiveShadow>
-        <meshPhysicalMaterial
-          color="#ff1f49"
-          roughness={0.08}
-          metalness={0.05}
-          transmission={0.92}
-          thickness={1.4}
-          ior={1.45}
-          clearcoat={1}
-          clearcoatRoughness={0.08}
-          attenuationColor="#7f1d1d"
-          attenuationDistance={0.8}
-          envMapIntensity={1.2}
-        />
-      </mesh>
-      <mesh geometry={geometry} scale={1.015}>
-        <meshBasicMaterial color="#fb7185" transparent opacity={0.08} side={THREE.BackSide} />
-      </mesh>
-    </group>
-  );
-}
-
-function AmbientParticles({ count = 120 }: { count?: number }) {
-  const ref = useRef<THREE.Points>(null);
-  const positions = useMemo(() => {
-    const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 8;
-      arr[i * 3 + 1] = (Math.random() - 0.5) * 6;
-      arr[i * 3 + 2] = (Math.random() - 0.5) * 6;
-    }
-    return arr;
-  }, [count]);
-
-  useFrame((_, delta) => {
-    if (ref.current) ref.current.rotation.y += delta * 0.03;
-  });
-
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial size={0.025} color="#fda4af" transparent opacity={0.55} sizeAttenuation />
-    </points>
-  );
-}
-
-function SceneContent({ interactive }: { interactive: boolean }) {
-  return (
-    <>
-      <color attach="background" args={["#070508"]} />
-      <fog attach="fog" args={["#070508", 6, 14]} />
-      <ambientLight intensity={0.35} />
-      <spotLight position={[4, 6, 5]} intensity={90} angle={0.45} penumbra={0.6} color="#ffe4e6" castShadow />
-      <pointLight position={[-3, -1, 2]} intensity={28} color="#e11d48" />
-      <pointLight position={[2, 2, -3]} intensity={18} color="#fda4af" />
-      <BloodDropSculpture interactive={interactive} />
-      <AmbientParticles />
-    </>
-  );
-}
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface HeroBloodSceneProps {
   interactive?: boolean;
   className?: string;
 }
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  duration: number;
+  delay: number;
+  opacity: number;
+}
+
 export function HeroBloodScene({ interactive = true, className = "" }: HeroBloodSceneProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  // Generate floating ambient particles once on mount
+  useEffect(() => {
+    const p: Particle[] = Array.from({ length: 42 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: 2 + Math.random() * 4,
+      duration: 5 + Math.random() * 7,
+      delay: Math.random() * 4,
+      opacity: 0.2 + Math.random() * 0.6,
+    }));
+    setParticles(p);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!interactive || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const deltaX = (e.clientX - centerX) / (rect.width / 2);
+      const deltaY = (e.clientY - centerY) / (rect.height / 2);
+
+      // Clamp tilt between -18deg and 18deg
+      setRotate({
+        x: -deltaY * 18,
+        y: deltaX * 22,
+      });
+    },
+    [interactive],
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    if (!interactive) return;
+    setRotate({ x: 0, y: 0 });
+  }, [interactive]);
+
   return (
-    <div className={className} aria-hidden="true">
-      <Canvas
-        dpr={[1, 1.75]}
-        camera={{ position: [0, 0.2, 4.2], fov: 42 }}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        shadows
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`relative w-full h-full overflow-hidden flex items-center justify-center select-none ${className}`}
+      aria-hidden="true"
+      style={{ perspective: "1000px" }}
+    >
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 bg-radial from-rose-950/30 via-slate-950/60 to-[#070508] pointer-events-none" />
+
+      {/* Floating ambient particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {particles.map((pt) => (
+          <span
+            key={pt.id}
+            className="absolute rounded-full bg-rose-400 animate-pulse pointer-events-none"
+            style={{
+              left: `${pt.x}%`,
+              top: `${pt.y}%`,
+              width: `${pt.size}px`,
+              height: `${pt.size}px`,
+              opacity: pt.opacity,
+              animationDuration: `${pt.duration}s`,
+              animationDelay: `${pt.delay}s`,
+              boxShadow: "0 0 8px rgba(251, 113, 133, 0.6)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Interactive 3D Blood Drop Sculpture */}
+      <div
+        className="relative transition-transform duration-300 ease-out flex items-center justify-center"
+        style={{
+          transform: `rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
+          transformStyle: "preserve-3d",
+        }}
       >
-        <SceneContent interactive={interactive} />
-      </Canvas>
+        {/* Soft back-shadow */}
+        <div
+          className="absolute -bottom-10 w-48 h-12 rounded-full bg-rose-950/50 blur-xl pointer-events-none transition-transform duration-300"
+          style={{
+            transform: `translateZ(-50px) scale(${1 + Math.abs(rotate.y) * 0.01})`,
+          }}
+        />
+
+        {/* 3D Sculpted Blood Drop SVG */}
+        <svg
+          viewBox="0 0 240 320"
+          className="w-48 sm:w-60 md:w-72 h-auto filter drop-shadow-[0_15px_35px_rgba(225,29,72,0.45)]"
+          style={{ transform: "translateZ(30px)" }}
+        >
+          <defs>
+            {/* Primary ruby liquid gradient */}
+            <linearGradient id="bloodBodyGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+              <stop offset="0%" stopColor="#ff4d6d" />
+              <stop offset="35%" stopColor="#e11d48" />
+              <stop offset="70%" stopColor="#be123c" />
+              <stop offset="100%" stopColor="#881337" />
+            </linearGradient>
+
+            {/* Specular front gloss */}
+            <radialGradient id="specularGlow" cx="35%" cy="30%" r="45%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.75" />
+              <stop offset="25%" stopColor="#fda4af" stopOpacity="0.35" />
+              <stop offset="70%" stopColor="#e11d48" stopOpacity="0" />
+            </radialGradient>
+
+            {/* Depth vignette */}
+            <radialGradient id="depthShade" cx="65%" cy="70%" r="55%">
+              <stop offset="0%" stopColor="#4c0519" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#e11d48" stopOpacity="0" />
+            </radialGradient>
+
+            {/* Outer edge rim light */}
+            <filter id="rimGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* Droplet outer body */}
+          <path
+            d="M 120 18 C 120 18, 40 148, 40 212 C 40 262, 76 298, 120 298 C 164 298, 200 262, 200 212 C 200 148, 120 18, 120 18 Z"
+            fill="url(#bloodBodyGrad)"
+          />
+
+          {/* Inner depth shadow */}
+          <path
+            d="M 120 18 C 120 18, 40 148, 40 212 C 40 262, 76 298, 120 298 C 164 298, 200 262, 200 212 C 200 148, 120 18, 120 18 Z"
+            fill="url(#depthShade)"
+            style={{ mixBlendMode: "multiply" }}
+          />
+
+          {/* Inner specular highlight curve */}
+          <ellipse
+            cx="88"
+            cy="172"
+            rx="24"
+            ry="48"
+            transform="rotate(-28 88 172)"
+            fill="url(#specularGlow)"
+          />
+
+          {/* Secondary bright gleam */}
+          <ellipse
+            cx="80"
+            cy="145"
+            rx="7"
+            ry="18"
+            transform="rotate(-25 80 145)"
+            fill="#ffffff"
+            opacity="0.85"
+          />
+
+          {/* Bottom rim light bounce */}
+          <path
+            d="M 68 245 C 80 275, 120 290, 155 280"
+            fill="none"
+            stroke="#fecdd3"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            opacity="0.45"
+            filter="url(#rimGlow)"
+          />
+        </svg>
+      </div>
     </div>
   );
 }
+
+export default HeroBloodScene;

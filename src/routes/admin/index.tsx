@@ -109,7 +109,7 @@ function AdminDashboardPage() {
 
   const handleTabSelect = (tab: "overview" | "donors" | "queue") => {
     setActiveTab(tab);
-    navigate({ search: { tab } });
+    navigate({ to: "/admin", search: (prev: AdminSearchParams) => ({ ...prev, tab }) });
   };
 
   // Analytics State
@@ -331,6 +331,14 @@ function AdminDashboardPage() {
   const screeningDistributionData = (uMetrics?.screeningDistribution || []).filter(
     (item: any) => item.value > 0
   );
+
+  const monthlyDonationData =
+    analytics?.donations?.monthlyTrend && analytics.donations.monthlyTrend.length > 0
+      ? analytics.donations.monthlyTrend
+      : [];
+  const hasDonationData =
+    monthlyDonationData.length > 0 &&
+    monthlyDonationData.some((d: any) => Number(d.donations || 0) > 0 || Number(d.units || 0) > 0);
 
   const getInitials = (name: string) => {
     if (!name) return "DN";
@@ -739,32 +747,40 @@ function AdminDashboardPage() {
                   </span>
                 </div>
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyDonationData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="donGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#102a4c" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="#102a4c" stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="period" tick={{ fontSize: 11, fill: "#64748b" }} />
-                      <YAxis tick={{ fontSize: 11, fill: "#64748b" }} allowDecimals={false} />
-                      <Tooltip
-                        contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="donations"
-                        name="Completed Donations"
-                        stroke="#102a4c"
-                        strokeWidth={2.5}
-                        fill="url(#donGradient)"
-                        dot={{ r: 4, fill: "#102a4c" }}
-                        activeDot={{ r: 6 }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {hasDonationData ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={monthlyDonationData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="donGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#102a4c" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#102a4c" stopOpacity={0.0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                        <XAxis dataKey="period" tick={{ fontSize: 11, fill: "#64748b" }} />
+                        <YAxis tick={{ fontSize: 11, fill: "#64748b" }} allowDecimals={false} />
+                        <Tooltip
+                          contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="donations"
+                          name="Completed Donations"
+                          stroke="#102a4c"
+                          strokeWidth={2.5}
+                          fill="url(#donGradient)"
+                          dot={{ r: 4, fill: "#102a4c" }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-400 py-12">
+                      <i className="fas fa-droplet-slash text-3xl mb-2 text-slate-300" />
+                      <p className="text-xs font-medium text-slate-500">No verified donation records tracked in this period.</p>
+                      <span className="text-[11px] text-slate-400 mt-0.5">Completed donations at published camps will appear here.</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
