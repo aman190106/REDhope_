@@ -193,6 +193,11 @@ const submitMyScreening = async (req, res) => {
 
         await screening.save();
 
+        // Update user eligibility status to pending approval
+        await user.findByIdAndUpdate(userId, {
+            eligibilityStatus: "pending"
+        });
+
         // Audit log
         await logMedicalEvent({
             actor: userId,

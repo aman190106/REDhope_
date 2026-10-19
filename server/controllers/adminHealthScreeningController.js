@@ -148,7 +148,7 @@ const getHealthScreeningDetails = async (req, res) => {
         }
 
         const screening = await HealthScreening.findById(id)
-            .populate("user", "name email phone bloodGroup dateOfBirth gender role lastDonationDate isEligible")
+            .populate("user", "name email phone bloodGroup dateOfBirth gender role lastDonationDate isEligible eligibilityStatus")
             .populate("reviewerDecision.reviewer", "name email");
 
         if (!screening) {
@@ -332,11 +332,15 @@ const reviewHealthScreening = async (req, res) => {
 
         await screening.save();
 
-        // Synchronize donor isEligible flag
+        // Synchronize donor isEligible flag and eligibilityStatus
         if (decision === "approved") {
-            await user.findByIdAndUpdate(screening.user, { isEligible: true });
+            await user.findByIdAndUpdate(screening.user, { isEligible: true, eligibilityStatus: "eligible" });
         } else if (decision === "permanently_deferred" || decision === "temporarily_deferred") {
-            await user.findByIdAndUpdate(screening.user, { isEligible: false });
+            await user.findByIdAndUpdate(screening.user, { isEligible: false, eligibilityStatus: "deferred" });
+        } else if (decision === "needs_information") {
+            await user.findByIdAndUpdate(screening.user, { isEligible: false, eligibilityStatus: "pending" });
+        } else if (decision === "rejected") {
+            await user.findByIdAndUpdate(screening.user, { isEligible: false, eligibilityStatus: "ineligible" });
         }
 
         // Audit log events

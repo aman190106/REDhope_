@@ -12,8 +12,26 @@ const MIN_DONATION_INTERVAL_DAYS = 90;
  * 1. Administrative / System Block Rule
  * If isEligible is explicitly false on the user record, the user is blocked.
  */
-function checkAdminSystemBlock(user) {
+function checkAdminSystemBlock(user, screening) {
     if (user.isEligible === false) {
+        if (user.eligibilityStatus === "pending" || (screening && (screening.status === "submitted" || screening.status === "under_review"))) {
+            return {
+                passed: false,
+                reason: "Eligibility test submitted and pending administrator approval."
+            };
+        }
+        if (user.eligibilityStatus === "deferred" || (screening && (screening.status === "temporarily_deferred" || screening.status === "permanently_deferred"))) {
+            return {
+                passed: false,
+                reason: "Account deferred from blood donation."
+            };
+        }
+        if (user.eligibilityStatus === "ineligible" || (!screening || screening.status === "draft")) {
+            return {
+                passed: false,
+                reason: "Eligibility test required before donation."
+            };
+        }
         return {
             passed: false,
             reason: "Account marked ineligible by system or administrator."
@@ -100,11 +118,33 @@ function checkDonationInterval(user) {
  */
 function checkHealthScreening(user, screening) {
     if (!screening) {
+        if (user && user.isEligible === false) {
+            return {
+                passed: false,
+                reason: user.eligibilityStatus === "pending"
+                    ? "Eligibility test submitted and pending administrator approval."
+                    : "Eligibility test required before donation."
+            };
+        }
         return { passed: true };
     }
 
     if (screening.status === "approved") {
         return { passed: true };
+    }
+
+    if (screening.status === "draft") {
+        return {
+            passed: false,
+            reason: "Eligibility test required before donation."
+        };
+    }
+
+    if (screening.status === "submitted" || screening.status === "under_review") {
+        return {
+            passed: false,
+            reason: "Eligibility test submitted and pending administrator approval."
+        };
     }
 
     if (screening.status === "temporarily_deferred") {

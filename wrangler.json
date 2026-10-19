@@ -1,0 +1,9 @@
+{
+  "name": "redhope-staging",
+  "compatibility_date": "2026-10-18",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true
+}
+

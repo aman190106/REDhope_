@@ -12,6 +12,8 @@
 
 const { test, describe, before, after, beforeEach } = require("node:test");
 const assert = require("node:assert/strict");
+const bcrypt = require("bcrypt");
+const user = require("../models/user");
 const { setupTestServer, teardownTestServer, clearTestDatabase, request } = require("./test_helper");
 
 describe("Frontend Client Workflows & Flow Verification", () => {
@@ -79,6 +81,8 @@ describe("Frontend Client Workflows & Flow Verification", () => {
             assert.equal(regRes.body.data.bloodGroup, "O+");
             assert.equal(regRes.body.data.role, "user");
             assert.equal(regRes.body.data.isDonorAvailable, true);
+            assert.equal(regRes.body.data.isEligible, false, "Newly registered user must be ineligible by default");
+            assert.equal(regRes.body.data.eligibilityStatus, "ineligible", "Newly registered user must have eligibilityStatus 'ineligible'");
             assert.equal(regRes.body.data.password, undefined, "Password hash must never be returned");
 
             // Step 2: Auto-login (as performed by RegisterPage in src/routes/register.tsx)
@@ -449,7 +453,7 @@ describe("Frontend Client Workflows & Flow Verification", () => {
             });
             campId = campRes.body.camp._id;
 
-            // 2. Create donor
+            // 2. Create donor (and mark eligible for camp registration)
             const donorAuth = await registerAndLogin({
                 name: "Priya Sharma",
                 email: "priya@redhope.test",
@@ -457,6 +461,10 @@ describe("Frontend Client Workflows & Flow Verification", () => {
                 phone: "9876543251",
                 bloodGroup: "A+",
                 role: "user"
+            });
+            await user.findByIdAndUpdate(donorAuth.user._id, {
+                isEligible: true,
+                eligibilityStatus: "eligible"
             });
             donorToken = donorAuth.token;
         });
@@ -550,6 +558,10 @@ describe("Frontend Client Workflows & Flow Verification", () => {
                 phone: "9876543261",
                 bloodGroup: "B-",
                 role: "user"
+            });
+            await user.findByIdAndUpdate(donorAuth.user._id, {
+                isEligible: true,
+                eligibilityStatus: "eligible"
             });
             donorToken = donorAuth.token;
         });
@@ -688,6 +700,138 @@ describe("Frontend Client Workflows & Flow Verification", () => {
 
             assert.equal(updateRes.status, 200);
             assert.equal(updateRes.body.camp.status, "cancelled");
+        });
+    });
+
+    // ==========================================
+    // 8. DONOR ELIGIBILITY LIFECYCLE FLOW
+    // ==========================================
+    describe("8. Donor Eligibility Lifecycle Flow (Ineligible -> Pending -> Approved)", () => {
+        let donorToken;
+        let donorId;
+        let adminToken;
+
+        beforeEach(async () => {
+            // Register a fresh donor
+            const auth = await registerAndLogin({
+                name: "Lifecycle Donor",
+                email: "lifecycle.donor@redhope.test",
+                password: "Password123!",
+                phone: "9876543270",
+                bloodGroup: "O+",
+                role: "user"
+            });
+            donorToken = auth.token;
+            donorId = auth.user._id;
+
+            // Seed admin account for review step
+            const adminPassHash = await bcrypt.hash("AdminPass123!", 10);
+            await user.create({
+                name: "Admin Reviewer",
+                email: "admin.reviewer@redhope.test",
+                password: adminPassHash,
+                phone: "9876543271",
+                bloodGroup: "AB+",
+                role: "admin"
+            });
+
+            const adminLoginRes = await request("/auth/login", {
+                method: "POST",
+                body: { email: "admin.reviewer@redhope.test", password: "AdminPass123!" }
+            });
+            adminToken = adminLoginRes.body.token;
+        });
+
+        test("Step 1: Newly registered user is ineligible by default until taking eligibility test", async () => {
+            const meRes = await request("/auth/me", { token: donorToken });
+            assert.equal(meRes.status, 200);
+            assert.equal(meRes.body.user.isEligible, false, "Newly registered user must have isEligible: false");
+            assert.equal(meRes.body.user.eligibilityStatus, "ineligible", "Newly registered user must have eligibilityStatus: 'ineligible'");
+
+            const eligRes = await request("/eligibility/me", { token: donorToken });
+            assert.equal(eligRes.status, 200);
+            assert.equal(eligRes.body.data.isMedicallyEligible, false, "Donor must not be medically eligible before test");
+            assert.equal(eligRes.body.data.eligibilityStatus, "ineligible");
+            assert.ok(eligRes.body.data.reasons.some(r => r.includes("Eligibility test required")));
+        });
+
+        test("Step 2: Submitting eligibility test marks donor as pending admin approval", async () => {
+            // Save questionnaire draft
+            const draftRes = await request("/health-screening/me", {
+                method: "PUT",
+                token: donorToken,
+                body: {
+                    questionnaire: {
+                        feverLastTwoWeeks: "no",
+                        majorSurgeryPastSixMonths: "no",
+                        tattoosPiercingsLastTwelveMonths: "no",
+                        chronicDiseases: "none",
+                        weightKg: 68
+                    },
+                    consentGiven: true
+                }
+            });
+            assert.equal(draftRes.status, 200);
+
+            // Submit questionnaire for clinical review
+            const submitRes = await request("/health-screening/me/submit", {
+                method: "POST",
+                token: donorToken,
+                body: { consentGiven: true }
+            });
+            assert.equal(submitRes.status, 200);
+            assert.equal(submitRes.body.data.screening.status, "submitted");
+
+            // User should now be pending
+            const meRes = await request("/auth/me", { token: donorToken });
+            assert.equal(meRes.body.user.isEligible, false);
+            assert.equal(meRes.body.user.eligibilityStatus, "pending");
+
+            const eligRes = await request("/eligibility/me", { token: donorToken });
+            assert.equal(eligRes.status, 200);
+            assert.equal(eligRes.body.data.isMedicallyEligible, false);
+            assert.equal(eligRes.body.data.eligibilityStatus, "pending");
+            assert.ok(eligRes.body.data.reasons.some(r => r.includes("pending administrator approval")));
+        });
+
+        test("Step 3: Administrator approval marks donor as eligible", async () => {
+            // Save and submit questionnaire
+            await request("/health-screening/me", {
+                method: "PUT",
+                token: donorToken,
+                body: {
+                    questionnaire: { weightKg: 70 },
+                    consentGiven: true
+                }
+            });
+            const submitRes = await request("/health-screening/me/submit", {
+                method: "POST",
+                token: donorToken,
+                body: { consentGiven: true }
+            });
+            const screeningId = submitRes.body.data.screening._id;
+
+            // Admin reviews and approves
+            const reviewRes = await request(`/admin/health-screenings/${screeningId}/review`, {
+                method: "PATCH",
+                token: adminToken,
+                body: {
+                    decision: "approved",
+                    reason: "Verified all medical screening criteria met."
+                }
+            });
+            assert.equal(reviewRes.status, 200);
+            assert.equal(reviewRes.body.data.screening.status, "approved");
+
+            // Donor should now be eligible!
+            const meRes = await request("/auth/me", { token: donorToken });
+            assert.equal(meRes.body.user.isEligible, true, "User must now be eligible");
+            assert.equal(meRes.body.user.eligibilityStatus, "eligible", "User status must be 'eligible'");
+
+            const eligRes = await request("/eligibility/me", { token: donorToken });
+            assert.equal(eligRes.status, 200);
+            assert.equal(eligRes.body.data.isMedicallyEligible, true, "Donor must now be medically eligible to donate");
+            assert.equal(eligRes.body.data.eligibilityStatus, "eligible");
         });
     });
 });

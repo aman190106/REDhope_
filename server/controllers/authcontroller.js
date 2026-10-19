@@ -91,7 +91,9 @@ const registerUser = async (req, res) => {
             email,
             password: hashedPassword,
             phone,
-            bloodGroup: normalizedBloodGroup
+            bloodGroup: normalizedBloodGroup,
+            isEligible: false,
+            eligibilityStatus: "ineligible"
         };
 
         if (role === "organizer") {
@@ -280,7 +282,7 @@ const updateMe = async (req, res) => {
             });
         }
 
-        if (isEligible !== undefined) {
+        if (isEligible !== undefined || req.body.eligibilityStatus !== undefined) {
             return res.status(403).json({
                 success: false,
                 message: "you cannot modify eligibility status directly"
@@ -669,7 +671,7 @@ const updateUser = async (req, res) => {
             });
         }
 
-        if (isEligible !== undefined && !isAdmin(req)) {
+        if ((isEligible !== undefined || req.body.eligibilityStatus !== undefined) && !isAdmin(req)) {
             return res.status(403).json({
                 success: false,
                 message: "you cannot modify eligibility status directly"
@@ -756,7 +758,14 @@ const updateUser = async (req, res) => {
 
         // Admin-only fields
         if (role !== undefined && isAdmin(req)) updateData.role = role;
-        if (isEligible !== undefined && isAdmin(req)) updateData.isEligible = isEligible;
+        if (isEligible !== undefined && isAdmin(req)) {
+            updateData.isEligible = isEligible;
+            updateData.eligibilityStatus = isEligible ? "eligible" : "ineligible";
+        }
+        if (req.body.eligibilityStatus !== undefined && isAdmin(req)) {
+            updateData.eligibilityStatus = req.body.eligibilityStatus;
+            updateData.isEligible = (req.body.eligibilityStatus === "eligible");
+        }
         if (lastDonationDate !== undefined && isAdmin(req)) updateData.lastDonationDate = lastDonationDate;
 
         if (password !== undefined) {

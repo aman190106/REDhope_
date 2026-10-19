@@ -25,6 +25,7 @@ export interface EligibilityEvaluation {
   nextEligibleDate: string | null;
   reasons: string[];
   screeningStatus?: string;
+  eligibilityStatus?: string;
   screening?: EligibilityScreeningInfo | null;
   checkedAt?: string;
 }
@@ -52,20 +53,23 @@ export interface EligibilityDisplayStatus {
  */
 export function getEligibilityDisplay(
   evaluation: EligibilityEvaluation | null | undefined,
-  user?: { isEligible?: boolean; lastDonationDate?: string | null } | null
+  user?: { isEligible?: boolean; eligibilityStatus?: string; lastDonationDate?: string | null } | null
 ): EligibilityDisplayStatus {
   // If no evaluation has loaded yet, fall back safely to user record
   if (!evaluation) {
     if (user?.isEligible === false) {
+      const isPending = user?.eligibilityStatus === "pending";
       return {
-        status: "ineligible",
-        badgeText: "Ineligible",
-        cardTitle: "Account Ineligible",
-        cardSubtitle: "Administrative block in place",
-        color: "var(--primary)",
-        icon: "fas fa-ban",
-        linkTo: "/eligibility",
-        linkText: "View details →"
+        status: isPending ? "screening_pending" : "ineligible",
+        badgeText: isPending ? "Pending Admin Approval" : "Eligibility Test Required",
+        cardTitle: isPending ? "Review in Progress" : "Eligibility Test Required",
+        cardSubtitle: isPending
+          ? "Your eligibility test is under review by administrator"
+          : "Take the eligibility test to become an approved donor",
+        color: isPending ? "#2563eb" : "#d97706",
+        icon: isPending ? "fas fa-clock" : "fas fa-clipboard-list",
+        linkTo: "/health-screening",
+        linkText: isPending ? "View test status →" : "Take test now →"
       };
     }
     return {
@@ -102,27 +106,32 @@ export function getEligibilityDisplay(
   if (screeningStatus === "draft") {
     return {
       status: "screening_draft",
-      badgeText: "Screening Incomplete",
-      cardTitle: "Screening Incomplete",
-      cardSubtitle: "Complete questionnaire for clearance",
+      badgeText: "Test Incomplete",
+      cardTitle: "Eligibility Test Incomplete",
+      cardSubtitle: "Complete and submit questionnaire for clearance",
       color: "#d97706",
       icon: "fas fa-clipboard-list",
       linkTo: "/health-screening",
-      linkText: "Complete Screening →"
+      linkText: "Complete Test →"
     };
   }
 
   // Screening Submitted / Awaiting Clinical Review
-  if (screeningStatus === "submitted" || screeningStatus === "pending_review") {
+  if (
+    screeningStatus === "submitted" ||
+    screeningStatus === "under_review" ||
+    screeningStatus === "pending_review" ||
+    evaluation.eligibilityStatus === "pending"
+  ) {
     return {
       status: "screening_pending",
-      badgeText: "Review in Progress",
+      badgeText: "Pending Admin Approval",
       cardTitle: "Review in Progress",
-      cardSubtitle: "Awaiting medical clearance",
+      cardSubtitle: "Your eligibility test is under review by administrator",
       color: "#2563eb",
-      icon: "fas fa-stethoscope",
+      icon: "fas fa-clock",
       linkTo: "/health-screening",
-      linkText: "View Screening →"
+      linkText: "View Test Status →"
     };
   }
 
@@ -172,6 +181,20 @@ export function getEligibilityDisplay(
       icon: "fas fa-clock",
       linkTo: "/eligibility",
       linkText: "View criteria & rules →"
+    };
+  }
+
+  // If no screening has been taken yet
+  if (!screeningStatus || screeningStatus === "none") {
+    return {
+      status: "ineligible",
+      badgeText: "Eligibility Test Required",
+      cardTitle: "Eligibility Test Required",
+      cardSubtitle: "Take the eligibility test to become an approved donor",
+      color: "#d97706",
+      icon: "fas fa-clipboard-list",
+      linkTo: "/health-screening",
+      linkText: "Take Eligibility Test →"
     };
   }
 

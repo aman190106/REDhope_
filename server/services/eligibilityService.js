@@ -34,7 +34,7 @@ function evaluateEligibility(user, options = {}) {
 
         if (!result.passed) {
             isMedicallyEligible = false;
-            if (result.reason) {
+            if (result.reason && !reasons.includes(result.reason)) {
                 reasons.push(result.reason);
             }
         }
@@ -62,6 +62,7 @@ function evaluateEligibility(user, options = {}) {
         nextEligibleDate,
         reasons,
         screeningStatus: screening ? screening.status : "none",
+        eligibilityStatus: user.eligibilityStatus || (user.isEligible ? "eligible" : "ineligible"),
         checkedAt: new Date().toISOString()
     };
 }

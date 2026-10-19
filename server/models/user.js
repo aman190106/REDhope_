@@ -137,7 +137,13 @@ const userSchema = new mongoose.Schema({
 
     isEligible: {
         type: Boolean,
-        default: true
+        default: false
+    },
+
+    eligibilityStatus: {
+        type: String,
+        enum: ["ineligible", "pending", "eligible", "deferred"],
+        default: "ineligible"
     },
 
     emailNotifications: {
@@ -161,6 +167,7 @@ userSchema.index({ "location.coordinates": "2dsphere" }, { sparse: true });
 
 // Compound index for blood matching queries
 userSchema.index({ bloodGroup: 1, isDonorAvailable: 1, isEligible: 1 });
+userSchema.index({ eligibilityStatus: 1 });
 
 const user = mongoose.model("user", userSchema);
 
