@@ -30,10 +30,11 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
 
   useEffect(() => {
     api
-      .get<{ success: boolean; count: number }>("/notifications/unread-count")
+      .get<{ success: boolean; count?: number; data?: { count: number } }>("/notifications/unread-count")
       .then((res) => {
-        if (res?.success && typeof res.count === "number") {
-          setUnreadCount(res.count);
+        const cnt = typeof res?.count === "number" ? res.count : res?.data?.count;
+        if (typeof cnt === "number") {
+          setUnreadCount(cnt);
         }
       })
       .catch(() => {
@@ -77,6 +78,7 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
     { to: "/organizer", label: "Camps", icon: "far fa-calendar-alt", key: "admin-camps" },
     { to: "/donations", label: "Donations", icon: "fas fa-droplet", key: "admin-donations" },
     { to: "/organizer/analytics", label: "Camp Analytics", icon: "fas fa-chart-line", key: "admin-analytics" },
+    { to: "/notifications", label: "Notifications", icon: "fas fa-bell", key: "notifications", badge: unreadCount },
   ];
 
   const currentNav =

@@ -43,10 +43,11 @@ export function Navbar({ solid = true }: NavbarProps) {
     }
 
     api
-      .get<{ success: boolean; count: number }>("/notifications/unread-count")
+      .get<{ success: boolean; count?: number; data?: { count: number } }>("/notifications/unread-count")
       .then((nCount) => {
-        if (nCount?.success && typeof nCount.count === "number") {
-          setUnreadCount(nCount.count);
+        const cnt = typeof nCount?.count === "number" ? nCount.count : nCount?.data?.count;
+        if (typeof cnt === "number") {
+          setUnreadCount(cnt);
         }
       })
       .catch(() => {
@@ -167,12 +168,11 @@ export function Navbar({ solid = true }: NavbarProps) {
                 </li>
               )}
 
-              {/* Notifications bell — non-admin only */}
-              {!isAdmin && (
-                <li>
-                  <Link
-                    to="/notifications"
-                    className={pathname === "/notifications" ? "active" : ""}
+              {/* Notifications bell */}
+              <li>
+                <Link
+                  to="/notifications"
+                  className={pathname === "/notifications" ? "active" : ""}
                     aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
                     title="Notifications"
                     style={{
@@ -211,7 +211,6 @@ export function Navbar({ solid = true }: NavbarProps) {
                     )}
                   </Link>
                 </li>
-              )}
 
               {/* Role badge — non-admin only */}
               {!isAdmin && (

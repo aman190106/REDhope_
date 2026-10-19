@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { toast } from "../components/AppToaster";
+import { useAuth } from "../lib/auth";
+import { api, getAuthToken, API_BASE_URL } from "../lib/api";
 
 export const Route = createFileRoute("/notifications")({
   head: () => ({
@@ -22,7 +24,6 @@ export const Route = createFileRoute("/notifications")({
   component: NotificationsPage,
 });
 
-import { API_BASE_URL } from "../lib/api";
 const API_BASE = API_BASE_URL;
 
 interface NotificationMetadata {
@@ -53,13 +54,14 @@ interface PaginationMeta {
 }
 
 function NotificationsPage() {
-  const [token, setToken] = useState<string | null>(null);
+  const { user, token: authContextToken, isAuthenticated, isLoading: authLoading, login: authLogin } = useAuth();
+  const [token, setToken] = useState<string | null>(() => getAuthToken());
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   // Auth form state (when logged out)
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
+  const [submittingLogin, setSubmittingLogin] = useState(false);
 
   // Notification list state
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -79,151 +81,169 @@ function NotificationsPage() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [markingAllRead, setMarkingAllRead] = useState(false);
 
-  // Load auth token on mount
+  // Load and synchronize auth token
   useEffect(() => {
-    const savedToken = localStorage.getItem("token") || localStorage.getItem("redhope_token");
-    if (savedToken) {
-      setToken(savedToken);
-      fetchNotifications(savedToken, page);
-      fetchUnreadCount(savedToken);
+    const currentToken = authContextToken || getAuthToken();
+    setToken(currentToken);
+    if (!authLoading) {
+      setLoadingAuth(false);
     }
-    setLoadingAuth(false);
-  }, []);
+    if (currentToken) {
+      fetchNotifications(currentToken, page);
+      fetchUnreadCount(currentToken);
+    }
+  }, [authContextToken, authLoading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthLoading(true);
+    setSubmittingLogin(true);
 
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: authEmail, password: authPassword }),
-      });
-      const data = await res.json();
-
-      if (!res.ok || !data.token) {
-        toast.error("Login Failed", data.message || "Invalid email or password.");
-        setAuthLoading(false);
-        return;
-      }
-
-      const activeToken = data.token;
-      localStorage.setItem("token", activeToken);
-      localStorage.setItem("redhope_token", activeToken);
+      await authLogin(authEmail, authPassword);
+      const activeToken = getAuthToken();
       setToken(activeToken);
       toast.success("Welcome back!", { description: "Signed in successfully." });
 
-      fetchNotifications(activeToken, 1);
-      fetchUnreadCount(activeToken);
-    } catch {
-      toast.error("Network Error", { description: "Unable to sign in. Please verify your backend connection." });
+      if (activeToken) {
+        fetchNotifications(activeToken, 1);
+        fetchUnreadCount(activeToken);
+      }
+    } catch (err: any) {
+      toast.error("Login Failed", { description: err.message || "Invalid email or password." });
     } finally {
-      setAuthLoading(false);
+      setSubmittingLogin(false);
     }
   };
 
-  const fetchUnreadCount = async (authToken: string) => {
+  const fetchUnreadCount = async (authToken?: string | null) => {
+    const activeTok = authToken || token || getAuthToken();
+    if (!activeTok) return;
+
     try {
-      const res = await fetch(`${API_BASE}/notifications/unread-count`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      const data = await res.json();
-      if (res.ok && data.success && typeof data.count === "number") {
-        setUnreadCount(data.count);
-      }
+      const data = await api.get<{
+        success: boolean;
+        count?: number;
+        data?: { count: number };
+      }>("/notifications/unread-count", { token: activeTok });
+
+      const count =
+        typeof data?.count === "number"
+          ? data.count
+          : typeof data?.data?.count === "number"
+          ? data.data.count
+          : 0;
+
+      setUnreadCount(count);
     } catch {
       // silently fail count poll
     }
   };
 
-  const fetchNotifications = async (authToken: string, pageNum: number) => {
+  const fetchNotifications = async (authToken?: string | null, pageNum = 1) => {
+    const activeTok = authToken || token || getAuthToken();
+    if (!activeTok) return;
+
     setLoadingList(true);
     try {
-      const res = await fetch(`${API_BASE}/notifications?page=${pageNum}&limit=${limit}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      const data = await res.json();
+      const data = await api.get<{
+        success: boolean;
+        message?: string;
+        data?: any;
+        notifications?: NotificationItem[];
+        pagination?: PaginationMeta;
+      }>(`/notifications?page=${pageNum}&limit=${limit}`, { token: activeTok });
 
-      if (res.ok && data.success) {
-        setNotifications(data.data || []);
-        if (data.pagination) {
-          setPagination(data.pagination);
-          setPage(data.pagination.page);
+      if (data?.success) {
+        const notifList = Array.isArray(data.data)
+          ? data.data
+          : Array.isArray(data.notifications)
+          ? data.notifications
+          : Array.isArray(data.data?.notifications)
+          ? data.data.notifications
+          : [];
+
+        setNotifications(notifList);
+
+        const pag = data.pagination || data.data?.pagination;
+        if (pag) {
+          setPagination(pag);
+          setPage(pag.page || pageNum);
         }
       } else {
-        toast.error("Fetch Error", { description: data.message || "Failed to load notifications." });
+        toast.error("Fetch Error", { description: data?.message || "Failed to load notifications." });
       }
-    } catch {
-      toast.error("Network Error", { description: "Unable to retrieve notifications." });
+    } catch (err: any) {
+      toast.error("Network Error", { description: err.message || "Unable to retrieve notifications." });
     } finally {
       setLoadingList(false);
     }
   };
 
   const handleMarkAsRead = async (id: string) => {
-    if (!token) return;
+    const activeTok = token || getAuthToken();
+    if (!activeTok) return;
     setActionLoadingId(id);
     try {
-      const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await api.patch<{ success: boolean; message?: string }>(
+        `/notifications/${id}/read`,
+        {},
+        { token: activeTok }
+      );
 
-      if (res.ok && data.success) {
+      if (data?.success) {
         setNotifications((prev) =>
           prev.map((item) => (item._id === id ? { ...item, isRead: true } : item))
         );
         setUnreadCount((c) => Math.max(0, c - 1));
         toast.success("Notification updated", { description: "Marked as read." });
       } else {
-        toast.error("Error", { description: data.message || "Failed to mark notification as read." });
+        toast.error("Error", { description: data?.message || "Failed to mark notification as read." });
       }
-    } catch {
-      toast.error("Network Error", { description: "Unable to update notification." });
+    } catch (err: any) {
+      toast.error("Network Error", { description: err.message || "Unable to update notification." });
     } finally {
       setActionLoadingId(null);
     }
   };
 
   const handleMarkAllAsRead = async () => {
-    if (!token || unreadCount === 0) return;
+    const activeTok = token || getAuthToken();
+    if (!activeTok || unreadCount === 0) return;
     setMarkingAllRead(true);
     try {
-      const res = await fetch(`${API_BASE}/notifications/read-all`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await api.patch<{ success: boolean; message?: string }>(
+        "/notifications/read-all",
+        {},
+        { token: activeTok }
+      );
 
-      if (res.ok && data.success) {
+      if (data?.success) {
         setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })));
         setUnreadCount(0);
         toast.success("Success", { description: "All notifications marked as read." });
       } else {
-        toast.error("Error", { description: data.message || "Failed to mark all as read." });
+        toast.error("Error", { description: data?.message || "Failed to mark all as read." });
       }
-    } catch {
-      toast.error("Network Error", { description: "Unable to update all notifications." });
+    } catch (err: any) {
+      toast.error("Network Error", { description: err.message || "Unable to update all notifications." });
     } finally {
       setMarkingAllRead(false);
     }
   };
 
   const handleDeleteNotification = async (id: string) => {
-    if (!token) return;
+    const activeTok = token || getAuthToken();
+    if (!activeTok) return;
     const target = notifications.find((n) => n._id === id);
     setActionLoadingId(id);
 
     try {
-      const res = await fetch(`${API_BASE}/notifications/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await api.delete<{ success: boolean; message?: string }>(
+        `/notifications/${id}`,
+        { token: activeTok }
+      );
 
-      if (res.ok && data.success) {
+      if (data?.success) {
         setNotifications((prev) => prev.filter((item) => item._id !== id));
         if (target && !target.isRead) {
           setUnreadCount((c) => Math.max(0, c - 1));
@@ -234,18 +254,19 @@ function NotificationsPage() {
         }));
         toast.success("Deleted", { description: "Notification removed." });
       } else {
-        toast.error("Error", { description: data.message || "Failed to delete notification." });
+        toast.error("Error", { description: data?.message || "Failed to delete notification." });
       }
-    } catch {
-      toast.error("Network Error", { description: "Unable to delete notification." });
+    } catch (err: any) {
+      toast.error("Network Error", { description: err.message || "Unable to delete notification." });
     } finally {
       setActionLoadingId(null);
     }
   };
 
   const handlePageChange = (newPage: number) => {
-    if (!token || newPage < 1 || newPage > pagination.totalPages) return;
-    fetchNotifications(token, newPage);
+    const activeTok = token || getAuthToken();
+    if (!activeTok || newPage < 1 || newPage > pagination.totalPages) return;
+    fetchNotifications(activeTok, newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -276,7 +297,8 @@ function NotificationsPage() {
   };
 
   // Filter list
-  const filteredNotifications = notifications.filter((item) => {
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const filteredNotifications = safeNotifications.filter((item) => {
     if (filterType === "all") return true;
     if (filterType === "unread") return !item.isRead;
     if (filterType === "blood_match") return item.type === "blood_match";
@@ -392,12 +414,12 @@ function NotificationsPage() {
         }}
       >
         <div className="container" style={{ maxWidth: 900 }}>
-          {loadingAuth ? (
+          {loadingAuth && authLoading ? (
             <div style={{ textAlign: "center", padding: "60px 0" }}>
               <i className="fas fa-spinner fa-spin fa-3x" style={{ color: "var(--primary)" }} />
               <p style={{ marginTop: 16, color: "var(--gray)", fontSize: 16 }}>Checking session...</p>
             </div>
-          ) : !token ? (
+          ) : !isAuthenticated && !token ? (
             /* Unauthenticated View */
             <div className="form-section" style={{ maxWidth: 460, margin: "0 auto", background: "#fff", padding: 32, borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
               <h3 style={{ fontSize: "1.4rem", marginBottom: 10, color: "var(--secondary)" }}>
@@ -440,9 +462,9 @@ function NotificationsPage() {
                   type="submit"
                   className="btn"
                   style={{ width: "100%", padding: "12px 0" }}
-                  disabled={authLoading}
+                  disabled={submittingLogin}
                 >
-                  {authLoading ? (
+                  {submittingLogin ? (
                     <>
                       <i className="fas fa-spinner fa-spin" style={{ marginRight: 8 }} /> Signing In...
                     </>
