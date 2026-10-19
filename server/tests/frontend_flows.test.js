@@ -14,6 +14,7 @@ const { test, describe, before, after, beforeEach } = require("node:test");
 const assert = require("node:assert/strict");
 const bcrypt = require("bcrypt");
 const user = require("../models/user");
+const Notification = require("../models/notification");
 const { setupTestServer, teardownTestServer, clearTestDatabase, request } = require("./test_helper");
 
 describe("Frontend Client Workflows & Flow Verification", () => {
@@ -832,6 +833,101 @@ describe("Frontend Client Workflows & Flow Verification", () => {
             assert.equal(eligRes.status, 200);
             assert.equal(eligRes.body.data.isMedicallyEligible, true, "Donor must now be medically eligible to donate");
             assert.equal(eligRes.body.data.eligibilityStatus, "eligible");
+        });
+    });
+
+    // ==========================================
+    // 9. NOTIFICATIONS WORKFLOW
+    // ==========================================
+    describe("9. Notifications Workflow", () => {
+        let userToken;
+        let userId;
+
+        beforeEach(async () => {
+            const auth = await registerAndLogin({
+                name: "Notification User",
+                email: "notif.user@redhope.test",
+                password: "Password123!",
+                phone: "9876543288",
+                bloodGroup: "B+",
+                role: "user"
+            });
+            userToken = auth.token;
+            userId = auth.user._id;
+
+            // Seed notifications for this user
+            await Notification.create([
+                {
+                    user: userId,
+                    type: "system",
+                    title: "Welcome to REDhope",
+                    message: "Thank you for joining our donor network.",
+                    isRead: false
+                },
+                {
+                    user: userId,
+                    type: "blood_match",
+                    title: "Urgent Need nearby",
+                    message: "A hospital needs B+ blood.",
+                    isRead: false
+                }
+            ]);
+        });
+
+        test("GET /notifications returns array with both res.data and res.notifications", async () => {
+            const res = await request("/notifications", { token: userToken });
+            assert.equal(res.status, 200);
+            assert.equal(res.body.success, true);
+            assert.ok(Array.isArray(res.body.data), "res.body.data must be an array");
+            assert.ok(Array.isArray(res.body.notifications), "res.body.notifications must be an array");
+            assert.equal(res.body.data.length, 2);
+            assert.ok(res.body.pagination);
+        });
+
+        test("GET /notifications/unread-count returns unread count in both top-level and data", async () => {
+            const res = await request("/notifications/unread-count", { token: userToken });
+            assert.equal(res.status, 200);
+            assert.equal(res.body.success, true);
+            assert.equal(res.body.count, 2);
+            assert.equal(res.body.data?.count, 2);
+        });
+
+        test("PATCH /notifications/:id/read and PATCH /notifications/read-all", async () => {
+            const listRes = await request("/notifications", { token: userToken });
+            const firstId = listRes.body.data[0]._id;
+
+            const readRes = await request(`/notifications/${firstId}/read`, {
+                method: "PATCH",
+                token: userToken
+            });
+            assert.equal(readRes.status, 200);
+            assert.equal(readRes.body.data.isRead, true);
+
+            const countRes1 = await request("/notifications/unread-count", { token: userToken });
+            assert.equal(countRes1.body.count, 1);
+
+            const readAllRes = await request("/notifications/read-all", {
+                method: "PATCH",
+                token: userToken
+            });
+            assert.equal(readAllRes.status, 200);
+
+            const countRes2 = await request("/notifications/unread-count", { token: userToken });
+            assert.equal(countRes2.body.count, 0);
+        });
+
+        test("DELETE /notifications/:id removes notification successfully", async () => {
+            const listRes = await request("/notifications", { token: userToken });
+            const firstId = listRes.body.data[0]._id;
+
+            const delRes = await request(`/notifications/${firstId}`, {
+                method: "DELETE",
+                token: userToken
+            });
+            assert.equal(delRes.status, 200);
+
+            const listAfter = await request("/notifications", { token: userToken });
+            assert.equal(listAfter.body.data.length, 1);
         });
     });
 });

@@ -67,7 +67,7 @@ notificationSchema.index(
     { unique: true, partialFilterExpression: { eventKey: { $type: "string" } } }
 );
 
-const notification = mongoose.model("notification", notificationSchema);
+const notification = mongoose.models.notification || mongoose.model("notification", notificationSchema);
 
 module.exports = notification;
 module.exports.VALID_NOTIFICATION_TYPES = VALID_NOTIFICATION_TYPES;
