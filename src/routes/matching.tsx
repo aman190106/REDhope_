@@ -373,17 +373,17 @@ function BloodMatchingPage() {
                   )}
 
                   {/* Submit Button */}
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
                     <button
                       type="submit"
                       className="btn"
-                      style={{ padding: "10px 28px", fontSize: 14 }}
+                      style={{ padding: "10px 24px", fontSize: 14 }}
                       disabled={loading}
                     >
                       <i className={`fas fa-${loading ? "spinner fa-spin" : "magnifying-glass"}`} style={{ marginRight: 8 }} />
                       {loading ? "Matching Candidates..." : "Find Matching Donors"}
                     </button>
-                    <span style={{ fontSize: 12, color: "var(--gray)" }}>
+                    <span style={{ fontSize: 12, color: "var(--gray)", flex: "1 1 200px" }}>
                       Read-only discovery. Evaluates red blood cell compatibility & medical eligibility.
                     </span>
                   </div>
@@ -446,7 +446,7 @@ function BloodMatchingPage() {
                             }}
                           >
                             {/* Left: Donor Identity & Reasons */}
-                            <div style={{ flex: "1 1 320px" }}>
+                            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                                 <span style={{ fontSize: 13, fontWeight: 800, color: "#888" }}>
                                   #{idx + 1}

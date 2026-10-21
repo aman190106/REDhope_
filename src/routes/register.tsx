@@ -169,13 +169,7 @@ function RegisterPage() {
                 </p>
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                  gap: 12,
-                }}
-              >
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* 1. Blood Donor */}
                 <button
                   type="button"
@@ -468,7 +462,7 @@ function RegisterPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-4">
                 <div className="form-group">
                   <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
                     <i className="fas fa-phone" style={{ marginRight: 6, color: "var(--primary)" }} />
@@ -521,7 +515,7 @@ function RegisterPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
                 <div className="form-group">
                   <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 14 }}>
                     <i className="fas fa-lock" style={{ marginRight: 6, color: "var(--primary)" }} />

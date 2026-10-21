@@ -42,6 +42,27 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
       });
   }, [pathname]);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  // Close mobile sidebar on Escape key and lock background scroll
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    if (sidebarOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      const origOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = origOverflow;
+      };
+    }
+  }, [sidebarOpen]);
+
   const isRecipient = role === "user" && user?.isDonorAvailable === false;
 
   const donorNav: NavItem[] = [
@@ -114,8 +135,9 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
             <span className="text-white">hope</span>
           </Link>
           <button
+            type="button"
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-white p-1"
+            className="lg:hidden text-slate-400 hover:text-white p-2 cursor-pointer"
             aria-label="Close sidebar"
           >
             <i className="fas fa-times text-lg" />
@@ -183,13 +205,15 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        {/* Top Header Bar matching exact screenshot styling */}
-        <header className="h-16 px-6 bg-white border-b border-slate-200/80 flex items-center justify-between sticky top-0 z-30 shadow-2xs shrink-0">
-          <div className="flex items-center gap-3">
+        {/* Top Header Bar */}
+        <header className="h-16 px-3 sm:px-6 bg-white border-b border-slate-200/80 flex items-center justify-between sticky top-0 z-30 shadow-2xs shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
+              type="button"
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
               aria-label="Open sidebar"
+              aria-expanded={sidebarOpen}
             >
               <i className="fas fa-bars text-lg" />
             </button>
@@ -198,7 +222,7 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Notification bell with red badge dot */}
             <Link
               to="/notifications"
@@ -209,15 +233,15 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-600 rounded-full ring-2 ring-white" />
             </Link>
 
-            {/* User Profile Pill with Light Blue Avatar matching screenshots */}
+            {/* User Profile Pill with Avatar */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-full hover:bg-slate-100 transition cursor-pointer"
+                className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-slate-100 transition cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">
-                  A
+                  {user?.name?.charAt(0).toUpperCase() || (isAdmin ? "A" : "U")}
                 </div>
                 <span className="text-xs font-bold text-slate-800 hidden sm:inline">
                   {isAdmin ? "Admin" : user?.name?.split(" ")[0] || "User"}
@@ -225,27 +249,81 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
                 <i className="fas fa-chevron-down text-[10px] text-slate-400" />
               </button>
 
+              {/* Click-outside backdrop */}
+              {adminMenuOpen && (
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setAdminMenuOpen(false)}
+                  aria-hidden="true"
+                />
+              )}
+
               {/* Quick Dropdown Menu */}
               {adminMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                   <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs font-bold text-slate-900 truncate">{user?.name || "Administrator"}</p>
-                    <p className="text-[11px] text-slate-400 truncate">{user?.email || "admin@redhope.com"}</p>
+                    <p className="text-xs font-bold text-slate-900 truncate">{user?.name || "User"}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{user?.email || ""}</p>
                   </div>
-                  <Link
-                    to="/admin"
-                    onClick={() => setAdminMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    <i className="fas fa-gauge w-4 text-slate-400" /> Command Center
-                  </Link>
-                  <Link
-                    to="/admin/health-screenings"
-                    onClick={() => setAdminMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    <i className="fas fa-stethoscope w-4 text-slate-400" /> Review Queue
-                  </Link>
+                  {isAdmin ? (
+                    <>
+                      <Link
+                        to="/admin"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-gauge w-4 text-slate-400" /> Command Center
+                      </Link>
+                      <Link
+                        to="/admin/health-screenings"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-stethoscope w-4 text-slate-400" /> Review Queue
+                      </Link>
+                    </>
+                  ) : role === "organizer" ? (
+                    <>
+                      <Link
+                        to="/organizer"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-th-large w-4 text-slate-400" /> Camp Console
+                      </Link>
+                      <Link
+                        to="/organizer/analytics"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-chart-line w-4 text-slate-400" /> Analytics
+                      </Link>
+                      <Link
+                        to="/profile"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-user w-4 text-slate-400" /> Profile
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-th-large w-4 text-slate-400" /> Dashboard
+                      </Link>
+                      <Link
+                        to="/profile"
+                        onClick={() => setAdminMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <i className="fas fa-user w-4 text-slate-400" /> Profile
+                      </Link>
+                    </>
+                  )}
                   <div className="border-t border-slate-100 my-1" />
                   <button
                     type="button"
@@ -264,7 +342,7 @@ export function AppLayout({ children, activeNav, pageTitle }: AppLayoutProps) {
         </header>
 
         {/* Main Viewport Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden min-w-0">{children}</main>
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-x-hidden min-w-0">{children}</main>
       </div>
     </div>
   );

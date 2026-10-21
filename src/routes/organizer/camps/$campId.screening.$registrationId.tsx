@@ -503,7 +503,7 @@ function CampScreeningPage() {
                       </div>
                     )}
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, fontSize: 13 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 14, fontSize: 13 }}>
                       <div style={{ backgroundColor: "#f8f9fa", padding: "12px 16px", borderRadius: 8 }}>
                         <div style={{ fontWeight: 700, color: "var(--secondary)", marginBottom: 4 }}>General Health</div>
                         <div>Feeling well today: {donorHealthScreening.questionnaire?.generalHealth?.feelWell ? "Yes" : "No"}</div>
@@ -710,7 +710,7 @@ function CampScreeningPage() {
                   <h4 style={{ margin: "0 0 12px", color: "var(--secondary)", fontSize: "1rem" }}>
                     Physical Measurements (Optional / On-Site)
                   </h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", gap: 12 }}>
                     <div>
                       <label style={{ fontSize: 12, fontWeight: 700, color: "var(--gray)", display: "block", marginBottom: 4 }}>
                         Hemoglobin (g/dL)

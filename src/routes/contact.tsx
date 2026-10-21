@@ -59,9 +59,9 @@ function ContactPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-              gap: 24,
-              marginBottom: 60,
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+              gap: 20,
+              marginBottom: 40,
             }}
           >
             {infos.map((info) => (

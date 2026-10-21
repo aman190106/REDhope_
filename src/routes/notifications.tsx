@@ -584,6 +584,8 @@ function NotificationsPage() {
                       cursor: "pointer",
                       fontSize: 13,
                       fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
                       transition: "all 0.22s ease",
                       backgroundColor: filterType === tab.id ? "var(--secondary)" : "#ffffff",
                       color: filterType === tab.id ? "#ffffff" : "var(--gray)",

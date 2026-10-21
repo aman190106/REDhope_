@@ -676,8 +676,8 @@ function OrganizerAnalyticsPage() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
-                      gap: 24,
+                      gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+                      gap: 20,
                       marginBottom: 32,
                     }}
                   >
@@ -823,8 +823,8 @@ function OrganizerAnalyticsPage() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
-                      gap: 24,
+                      gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+                      gap: 20,
                       marginBottom: 32,
                     }}
                   >
@@ -1010,8 +1010,8 @@ function OrganizerAnalyticsPage() {
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
-                          gap: 24,
+                          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+                          gap: 20,
                           marginBottom: 32,
                         }}
                       >

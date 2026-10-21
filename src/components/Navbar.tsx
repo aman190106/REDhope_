@@ -60,9 +60,26 @@ export function Navbar({ solid = true }: NavbarProps) {
     setOpen(false);
   }, [pathname]);
 
+  // Close mobile menu on Escape key and lock background scroll
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    if (open) {
+      window.addEventListener("keydown", handleKeyDown);
+      const origOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = origOverflow;
+      };
+    }
+  }, [open]);
+
   const classes = ["site-nav"];
   if (solid) classes.push("solid");
   else if (scrolled) classes.push("scrolled");
+  if (open) classes.push("nav-open");
 
   const isOrganizer = user?.role === "organizer";
   const isAdmin = user?.role === "admin";
@@ -129,13 +146,27 @@ export function Navbar({ solid = true }: NavbarProps) {
 
   return (
     <nav className={classes.join(" ")}>
+      {/* Mobile Backdrop rendered inside site-nav to preserve correct z-index hierarchy */}
+      {open && (
+        <div
+          className="nav-backdrop"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
       <div className="nav-container">
-        <Link to="/" className="logo-text" aria-label="REDhope home">
+        <Link
+          to="/"
+          className="logo-text"
+          aria-label="REDhope home"
+          onClick={() => setOpen(false)}
+        >
           RED<span>hope</span>
         </Link>
         <button
+          type="button"
           className="mobile-toggle"
-          aria-label="Toggle navigation menu"
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
         >
@@ -147,12 +178,12 @@ export function Navbar({ solid = true }: NavbarProps) {
               <Link
                 to={l.to}
                 className={pathname === l.to ? "active" : ""}
+                onClick={() => setOpen(false)}
               >
                 {l.label}
               </Link>
             </li>
           ))}
-
 
           {isAuthenticated ? (
             <>
@@ -162,6 +193,7 @@ export function Navbar({ solid = true }: NavbarProps) {
                   <Link
                     to="/profile"
                     className={pathname === "/profile" ? "active" : ""}
+                    onClick={() => setOpen(false)}
                   >
                     Profile
                   </Link>
@@ -173,44 +205,45 @@ export function Navbar({ solid = true }: NavbarProps) {
                 <Link
                   to="/notifications"
                   className={pathname === "/notifications" ? "active" : ""}
-                    aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
-                    title="Notifications"
-                    style={{
-                      position: "relative",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      padding: "4px 8px",
-                    }}
-                  >
-                    <i className="fas fa-bell" style={{ fontSize: "1.15rem" }} />
-                    {open && <span style={{ marginLeft: 8 }}>Notifications</span>}
-                    {unreadCount > 0 && (
-                      <span
-                        style={{
-                          position: open ? "static" : "absolute",
-                          marginLeft: open ? 8 : 0,
-                          top: open ? "auto" : "-4px",
-                          right: open ? "auto" : "-4px",
-                          backgroundColor: "#e63946",
-                          color: "#ffffff",
-                          fontSize: "10px",
-                          fontWeight: 700,
-                          lineHeight: "14px",
-                          minWidth: "16px",
-                          height: "16px",
-                          borderRadius: "8px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          padding: "0 4px",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                        }}
-                      >
-                        {unreadCount > 99 ? "99+" : unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
+                  onClick={() => setOpen(false)}
+                  aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+                  title="Notifications"
+                  style={{
+                    position: "relative",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "4px 8px",
+                  }}
+                >
+                  <i className="fas fa-bell" style={{ fontSize: "1.15rem" }} />
+                  {open && <span style={{ marginLeft: 8 }}>Notifications</span>}
+                  {unreadCount > 0 && (
+                    <span
+                      style={{
+                        position: open ? "static" : "absolute",
+                        marginLeft: open ? 8 : 0,
+                        top: open ? "auto" : "-4px",
+                        right: open ? "auto" : "-4px",
+                        backgroundColor: "#e63946",
+                        color: "#ffffff",
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        lineHeight: "14px",
+                        minWidth: "16px",
+                        height: "16px",
+                        borderRadius: "8px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "0 4px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                      }}
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
+              </li>
 
               {/* Role badge — non-admin only */}
               {!isAdmin && (
@@ -238,6 +271,7 @@ export function Navbar({ solid = true }: NavbarProps) {
                   <Link
                     to={isOrganizer ? "/organizer" : "/dashboard"}
                     className="nav-btn nav-btn-primary"
+                    onClick={() => setOpen(false)}
                   >
                     <i className="fas fa-th-large" style={{ marginRight: 6 }} />
                     Dashboard
@@ -248,7 +282,10 @@ export function Navbar({ solid = true }: NavbarProps) {
               <li>
                 <button
                   type="button"
-                  onClick={logout}
+                  onClick={() => {
+                    setOpen(false);
+                    logout();
+                  }}
                   className="nav-btn nav-btn-logout"
                 >
                   <i className="fas fa-sign-out-alt" style={{ marginRight: 6 }} />
@@ -262,13 +299,19 @@ export function Navbar({ solid = true }: NavbarProps) {
                 <Link
                   to="/login"
                   className={pathname === "/login" ? "active" : ""}
+                  onClick={() => setOpen(false)}
                   style={{ fontWeight: 600 }}
                 >
                   Sign In
                 </Link>
               </li>
               <li>
-                <Link to="/register" className="btn" style={{ padding: "8px 18px", fontSize: 14 }}>
+                <Link
+                  to="/register"
+                  className="btn"
+                  onClick={() => setOpen(false)}
+                  style={{ padding: "8px 18px", fontSize: 14 }}
+                >
                   Register
                 </Link>
               </li>

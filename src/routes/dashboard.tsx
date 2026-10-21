@@ -390,8 +390,8 @@ function DashboardPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: 20,
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+              gap: 16,
               marginBottom: 28,
             }}
           >
@@ -566,8 +566,8 @@ function DashboardPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: 24,
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+              gap: 20,
             }}
           >
             {/* Left Column: Personal Info & Coverage Settings */}
@@ -578,7 +578,7 @@ function DashboardPage() {
                   {isRecipient ? "Recipient Profile" : "Donor Profile"}
                 </h3>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                   <div style={{ background: "#f8fafc", padding: 12, borderRadius: 6 }}>
                     <div style={{ fontSize: 11, color: "var(--gray)", textTransform: "uppercase" }}>Phone</div>
                     <div style={{ fontWeight: 600, color: "var(--secondary)" }}>{user.phone || "Not set"}</div>
@@ -642,8 +642,8 @@ function DashboardPage() {
                     : "Define the maximum coverage area (in kilometers) around your location to receive email and in-app alerts whenever a blood donation camp is scheduled near you."}
                 </p>
 
-                <form onSubmit={handleSaveRadius} style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
-                  <div style={{ position: "relative", flex: 1 }}>
+                <form onSubmit={handleSaveRadius} style={{ display: "flex", gap: 10, alignItems: "stretch", flexWrap: "wrap" }}>
+                  <div style={{ position: "relative", flex: "1 1 180px" }}>
                     <input
                       type="number"
                       min={1}

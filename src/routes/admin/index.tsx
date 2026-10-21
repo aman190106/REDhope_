@@ -905,7 +905,7 @@ function AdminDashboardPage() {
               </form>
 
               {/* Filters Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 pt-3 border-t border-slate-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-3 border-t border-slate-100">
                 {/* Role Filter */}
                 <div>
                   <label className="text-[11px] font-bold text-slate-700 block mb-1">Role</label>

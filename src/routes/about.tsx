@@ -98,8 +98,8 @@ function AboutPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))",
-              gap: 40,
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+              gap: "clamp(20px, 4vw, 40px)",
               alignItems: "center",
             }}
           >
@@ -156,8 +156,8 @@ function AboutPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-              gap: 24,
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+              gap: 20,
             }}
           >
             {stats.map((s) => (

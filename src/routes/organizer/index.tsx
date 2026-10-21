@@ -749,7 +749,7 @@ function OrganizerDashboardPage() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="form-group">
                   <label className="required-field">Address</label>
                   <input
@@ -773,7 +773,7 @@ function OrganizerDashboardPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="form-group">
                   <label className="required-field">State</label>
                   <input
@@ -813,7 +813,7 @@ function OrganizerDashboardPage() {
                 }}
               />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="form-group">
                   <label className="required-field">Start Date</label>
                   <input
@@ -835,7 +835,7 @@ function OrganizerDashboardPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div className="form-group">
                   <label className="required-field">Start Time</label>
                   <input

@@ -269,52 +269,52 @@ export function AdminScreeningDetailPage() {
             </div>
 
             {/* Quick KPI stats in header matching Screenshot 3 */}
-            <div className="flex items-center gap-3 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 flex-wrap sm:flex-nowrap">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full lg:w-auto shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
               {/* Card 1: Blood Group */}
-              <div className="px-3.5 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-3 min-w-[120px]">
+              <div className="px-3 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-xs shrink-0">
                   <i className="fas fa-droplet" />
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 font-medium leading-none">Blood Group</div>
-                  <div className="text-sm font-bold text-slate-900 mt-1">{donorBloodGroup}</div>
+                <div className="min-w-0">
+                  <div className="text-[10px] text-slate-400 font-medium leading-none truncate">Blood Group</div>
+                  <div className="text-sm font-bold text-slate-900 mt-1 truncate">{donorBloodGroup}</div>
                 </div>
               </div>
 
               {/* Card 2: Weight */}
-              <div className="px-3.5 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-3 min-w-[120px]">
+              <div className="px-3 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center text-xs shrink-0">
                   <i className="fas fa-weight-scale" />
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 font-medium leading-none">Weight</div>
-                  <div className="text-sm font-bold text-slate-900 mt-1">
+                <div className="min-w-0">
+                  <div className="text-[10px] text-slate-400 font-medium leading-none truncate">Weight</div>
+                  <div className="text-sm font-bold text-slate-900 mt-1 truncate">
                     {q.measurements?.weightKg ? `${q.measurements.weightKg} kg` : "—"}
                   </div>
                 </div>
               </div>
 
               {/* Card 3: Hemoglobin */}
-              <div className="px-3.5 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-3 min-w-[120px]">
+              <div className="px-3 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-xs shrink-0">
                   <i className="fas fa-droplet" />
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 font-medium leading-none">Hemoglobin</div>
-                  <div className="text-sm font-bold text-slate-900 mt-1">
+                <div className="min-w-0">
+                  <div className="text-[10px] text-slate-400 font-medium leading-none truncate">Hemoglobin</div>
+                  <div className="text-sm font-bold text-slate-900 mt-1 truncate">
                     {q.measurements?.recentHemoglobin ? `${q.measurements.recentHemoglobin} g/dL` : "—"}
                   </div>
                 </div>
               </div>
 
               {/* Card 4: Documents */}
-              <div className="px-3.5 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-3 min-w-[120px]">
+              <div className="px-3 py-2 bg-white rounded-lg border border-slate-200/90 flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center text-xs shrink-0">
                   <i className="fas fa-file-lines" />
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 font-medium leading-none">Documents</div>
-                  <div className="text-sm font-bold text-slate-900 mt-1">{documents.length || 0} Files</div>
+                <div className="min-w-0">
+                  <div className="text-[10px] text-slate-400 font-medium leading-none truncate">Documents</div>
+                  <div className="text-sm font-bold text-slate-900 mt-1 truncate">{documents.length || 0} Files</div>
                 </div>
               </div>
             </div>

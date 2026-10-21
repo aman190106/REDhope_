@@ -568,7 +568,7 @@ function HealthScreeningPage() {
                 <h3 style={{ fontSize: 16, color: "var(--primary)", marginTop: 0 }}>
                   <i className="fas fa-weight-scale" style={{ marginRight: 8 }} /> 4. Physical Measurements & Vitals
                 </h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12 }}>
                   <div>
                     <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 4 }}>Weight in kg *</label>
                     <input
@@ -647,7 +647,7 @@ function HealthScreeningPage() {
               </p>
 
               <form onSubmit={handleFileUpload} style={{ background: "#f8fafc", padding: 20, borderRadius: 8, marginBottom: 24 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Document Type</label>
                     <select
@@ -783,7 +783,7 @@ function HealthScreeningPage() {
 
               <div style={{ background: "#f8fafc", padding: 18, borderRadius: 8, marginBottom: 24 }}>
                 <h4 style={{ margin: "0 0 10px" }}>Summary Overview:</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 14 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   <div><strong>Donor Name:</strong> {user.name}</div>
                   <div><strong>Blood Group:</strong> {user.bloodGroup}</div>
                   <div><strong>Weight:</strong> {formData.measurements.weightKg ? `${formData.measurements.weightKg} kg` : "Not entered"}</div>

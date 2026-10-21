@@ -282,59 +282,64 @@ function CampsListPage() {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
               gap: 12,
               marginBottom: 30,
               borderBottom: "2px solid var(--light-gray)",
               paddingBottom: 12,
             }}
           >
-            <button
-              type="button"
-              onClick={() => setActiveTab("all")}
-              className="tab-btn"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "8px 18px",
-                fontSize: 16,
-                fontWeight: 700,
-                color: activeTab === "all" ? "var(--primary)" : "var(--gray)",
-                borderBottom: activeTab === "all" ? "3px solid var(--primary)" : "3px solid transparent",
-                marginBottom: -14,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                transition: "all 0.25s ease",
-              }}
-            >
-              <i className="fas fa-list" /> All Camps
-            </button>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={() => setActiveTab("all")}
+                className="tab-btn"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px 14px",
+                  fontSize: "clamp(14px, 2.5vw, 16px)",
+                  fontWeight: 700,
+                  color: activeTab === "all" ? "var(--primary)" : "var(--gray)",
+                  borderBottom: activeTab === "all" ? "3px solid var(--primary)" : "3px solid transparent",
+                  marginBottom: -14,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  transition: "all 0.25s ease",
+                }}
+              >
+                <i className="fas fa-list" /> All Camps
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab("nearby")}
-              className="tab-btn"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "8px 18px",
-                fontSize: 16,
-                fontWeight: 700,
-                color: activeTab === "nearby" ? "var(--primary)" : "var(--gray)",
-                borderBottom: activeTab === "nearby" ? "3px solid var(--primary)" : "3px solid transparent",
-                marginBottom: -14,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                transition: "all 0.25s ease",
-              }}
-            >
-              <i className="fas fa-location-crosshairs" /> Nearby Camps (Radius Search)
-            </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("nearby")}
+                className="tab-btn"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px 14px",
+                  fontSize: "clamp(14px, 2.5vw, 16px)",
+                  fontWeight: 700,
+                  color: activeTab === "nearby" ? "var(--primary)" : "var(--gray)",
+                  borderBottom: activeTab === "nearby" ? "3px solid var(--primary)" : "3px solid transparent",
+                  marginBottom: -14,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  transition: "all 0.25s ease",
+                }}
+              >
+                <i className="fas fa-location-crosshairs" /> Nearby Camps
+              </button>
+            </div>
 
-            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <Link
                 to="/organize"
                 className="btn btn-outline"
@@ -570,8 +575,8 @@ function CampsListPage() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                      gap: 25,
+                      gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))",
+                      gap: 20,
                     }}
                   >
                     {camps.map((camp) => {
@@ -925,8 +930,8 @@ function CampsListPage() {
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                          gap: 25,
+                          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))",
+                          gap: 20,
                         }}
                       >
                         {nearbyCamps.map((camp) => {

@@ -323,6 +323,8 @@ export function LocationPickerMap({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          gap: 8,
           fontSize: 12,
         }}
       >
