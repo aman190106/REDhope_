@@ -24,7 +24,12 @@ const userSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: [true, "password is required"]
+        required: [
+            function() {
+                return !this.googleId && this.authProvider !== "google";
+            },
+            "password is required"
+        ]
     },
 
     phone: {
@@ -156,6 +161,29 @@ const userSchema = new mongoose.Schema({
         default: 25,
         min: [1, "radius must be at least 1 km"],
         max: [200, "radius cannot exceed 200 km"]
+    },
+
+    // --- Authentication & Identity Upgrades ---
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+
+    emailVerifiedAt: {
+        type: Date,
+        default: null
+    },
+
+    googleId: {
+        type: String,
+        sparse: true,
+        unique: true
+    },
+
+    authProvider: {
+        type: String,
+        enum: ["local", "google"],
+        default: "local"
     }
 
 }, {
@@ -168,6 +196,7 @@ userSchema.index({ "location.coordinates": "2dsphere" }, { sparse: true });
 // Compound index for blood matching queries
 userSchema.index({ bloodGroup: 1, isDonorAvailable: 1, isEligible: 1 });
 userSchema.index({ eligibilityStatus: 1 });
+userSchema.index({ isEmailVerified: 1 });
 
 const user = mongoose.model("user", userSchema);
 

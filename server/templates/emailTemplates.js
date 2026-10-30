@@ -551,6 +551,71 @@ function getNearbyCampAlertTemplate({ donorName, campName, startDate, endDate, s
     };
 }
 
+/**
+ * Generates email content for single-use OTP verification (Registration / Account Linking).
+ * 
+ * @param {Object} params
+ * @param {string} [params.name] - User name
+ * @param {string} params.otp - 6-digit verification code
+ * @param {number} [params.expiryMinutes=10] - Validity in minutes
+ * @param {string} [params.purpose="registration"] - "registration" | "account_linking" | "email_verification"
+ */
+function getOtpVerificationTemplate({ name, otp, expiryMinutes = 10, purpose = "registration" }) {
+    const isLinking = purpose === "account_linking";
+    const subject = isLinking
+        ? "REDhope Account Linking — Your Verification Code"
+        : "Verify Your REDhope Account — Verification Code";
+
+    const heading = isLinking ? "Link Your Google Account" : "Verify Your Email Address";
+
+    const contentHtml = `
+      <p>Hello ${name ? `<strong>${name}</strong>` : "there"},</p>
+      <p>
+        ${isLinking
+          ? "You requested to link your Google sign-in identity with your REDhope account. Please use the verification code below to authorize this connection:"
+          : "Thank you for joining REDhope. To complete your registration and activate your blood donor account, please use the 6-digit verification code below:"}
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background-color: #f8fafc; border: 2px dashed #e63946; border-radius: 12px; padding: 18px 36px; letter-spacing: 10px; font-size: 34px; font-weight: 800; color: #1d3557; font-family: monospace;">
+          ${otp}
+        </div>
+      </div>
+      <table class="info-table">
+        <tr>
+          <td class="info-label">Code Validity:</td>
+          <td class="info-value"><strong>${expiryMinutes} minutes</strong></td>
+        </tr>
+        <tr>
+          <td class="info-label">Security Notice:</td>
+          <td class="info-value">Single-use code. Do not share this code with anyone, including REDhope staff.</td>
+        </tr>
+      </table>
+      <p style="font-size: 13px; color: #64748b; margin-top: 20px;">
+        If you did not initiate this request, you can safely ignore this email. No account will be activated or linked without entering this code.
+      </p>
+    `;
+
+    const text = `REDhope Security Verification\n\n` +
+        `Hello ${name || "there"},\n\n` +
+        (isLinking
+            ? `Your verification code to link your Google identity to REDhope is: ${otp}\n\n`
+            : `Your REDhope account activation verification code is: ${otp}\n\n`) +
+        `This code is valid for ${expiryMinutes} minutes and can only be used once.\n` +
+        `Security Notice: Never share this code with anyone.\n\n` +
+        `If you did not request this, please ignore this email.\n\n` +
+        `REDhope Blood Donation Platform`;
+
+    return {
+        subject,
+        html: baseLayout({
+            title: subject,
+            heading,
+            contentHtml
+        }),
+        text
+    };
+}
+
 module.exports = {
     getCampRegistrationTemplate,
     getCampRegistrationCancelledTemplate,
@@ -560,6 +625,7 @@ module.exports = {
     getBloodMatchTemplate,
     getDonationReminderTemplate,
     getDonationRecordedTemplate,
-    getNearbyCampAlertTemplate
+    getNearbyCampAlertTemplate,
+    getOtpVerificationTemplate
 };
 
